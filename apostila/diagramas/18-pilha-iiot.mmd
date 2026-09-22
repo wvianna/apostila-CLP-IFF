@@ -1,0 +1,16 @@
+flowchart TB
+  subgraph N1["Nível de controle"]
+    direction LR
+    CLP["CLP com servidor OPC UA"]
+  end
+  subgraph N2["Borda"]
+    direction LR
+    GW["Gateway de borda:<br/>cliente OPC UA e cliente MQTT"] --- BUF["Buffer local para<br/>store and forward"]
+  end
+  subgraph N3["Servidores e nuvem"]
+    direction LR
+    BRK["Broker MQTT"] --> APP["Aplicações: histórico,<br/>analytics e dashboards"]
+    BRK -.->|"assinatura"| SCADA["Supervisão e MES"]
+  end
+  CLP -->|"OPC UA: sessão segura<br/>e modelo de informação"| GW
+  GW -->|"MQTT publish"| BRK

@@ -1,0 +1,13 @@
+flowchart TB
+  subgraph PRIM["Sistema primário"]
+    CPU1["CPU principal<br/>executa o programa e<br/>lê e escreve as E/S"]
+  end
+  subgraph SEC["Sistema reserva"]
+    CPU2["CPU em standby<br/>programa carregado,<br/>sem atuar nas saídas"]
+  end
+  RED["Cartão ou função de redundância<br/>sincroniza mapas de memória<br/>e decide a comutação"]
+  IO["Cartões de entrada e saída"]
+  CPU1 <-->|"cópia contínua<br/>do estado do processo"| RED
+  CPU2 <-->|"estado sempre atualizado"| RED
+  CPU1 <--> IO
+  CPU2 -.->|"assume em caso de falha"| IO

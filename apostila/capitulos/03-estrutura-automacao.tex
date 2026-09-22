@@ -1,0 +1,134 @@
+\chapter{A estrutura da automação}
+\label{cap:estrutura}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item descrever os níveis hierárquicos de um sistema de automação industrial;
+  \item dizer o que trafega em cada nível e em que direção;
+  \item relacionar cada nível às tecnologias e protocolos usualmente empregados;
+  \item localizar o CLP nessa hierarquia e explicar por que ele não está sozinho.
+\end{itemize}
+\end{objetivos}
+
+\section{Do chão de fábrica à gestão}
+
+Um sistema de automação não é apenas um controlador ligado a sensores. É uma hierarquia em que cada
+nível consome informação do nível inferior e devolve decisão ao nível de baixo. Essa organização,
+chamada de \emph{pirâmide da automação}, existe porque os requisitos mudam a cada degrau: no campo
+importa o tempo de resposta; na gestão, importa o histórico e o indicador do mês.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.72\linewidth]{03-piramide-automacao.pdf}
+  \caption{Níveis da automação industrial e fluxo de informação entre eles.}
+  \label{fig:piramide}
+\end{figure}
+
+O fluxo tem duas direções (Figura~\ref{fig:piramide}): os dados sobem --- medida, estado, evento ---
+e os comandos descem --- meta, \emph{setpoint}, ordem de produção.
+
+\index{pirâmide da automação}\index{automação industrial!níveis}
+
+\section{Os cinco níveis}
+
+\begin{table}[H]
+  \centering
+  \caption{Níveis da automação: função, equipamentos e tecnologias típicas.}
+  \label{tab:niveis}
+  \begin{tabular}{p{2.6cm} p{4.3cm} p{3.4cm} p{4.3cm}}
+    \toprule
+    Nível & Função & Equipamentos & Tecnologias usuais \\
+    \midrule
+    5. Corporativo
+      & Gestão financeira, administrativa e de recursos; indicadores de resultado
+      & ERP, sistemas de \emph{business intelligence}
+      & Redes corporativas, bancos de dados; acesso raramente direto aos níveis fabris \\
+    4. Gerencial
+      & Planejamento detalhado da produção, logística, indicadores e apoio à manutenção preditiva
+      & MES, PIMS
+      & Ethernet de alto desempenho, banco de dados histórico \\
+    3. Supervisão
+      & Operação assistida, alarmes, telas, histórico e relatórios do processo
+      & SCADA, IHM, \emph{historian}, servidores de dados
+      & Ethernet TCP/IP; OPC como camada de interoperabilidade entre sistemas \\
+    2. Controle
+      & Executar o controle automático: lógica, intertravamento, malhas
+      & CLP, SDCD, remotas de I/O
+      & Profibus DP, DeviceNet, ControlNet, Modbus TCP, EtherNet/IP \\
+    1. Campo
+      & Transformar grandeza física em sinal e executar a ação sobre o processo
+      & Sensores, transmissores, atuadores, posicionadores
+      & Redes de campo com baixa largura de banda: CAN, AS-i, Modbus, Profibus PA, Fieldbus Foundation H1 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Nível 1 --- Campo.} É onde o processo encontra a instrumentação. Os dispositivos podem ser
+ponto a ponto, ligados diretamente ao cartão de entrada e saída, ou microprocessados e inteligentes,
+gerando volume grande de dados. As redes aqui são heterogêneas e, em geral, de baixa largura de
+banda.
+
+\paragraph{Nível 2 --- Controle.} É onde vive o CLP. Exige inteligência local suficiente para
+executar lógica, intertravamento e malhas de controle, e comunicação mais sofisticada que a do
+campo: protocolos com velocidade maior e capacidade de resposta em tempo real.
+
+\paragraph{Nível 3 --- Supervisão.} Concentra a operação. Aqui ficam as telas, o banco de dados do
+processo, o registro de eventos e alarmes. Neste nível é comum encontrar conversores de protocolo
+usando OPC, exatamente para garantir interoperabilidade entre sistemas de fabricantes diferentes
+(Capítulo~\ref{cap:interoperabilidade}).
+
+\paragraph{Nível 4 --- Gerencial.} Transforma dados em informação de planejamento. Ferramentas como
+MES e PIMS produzem relatórios mais elaborados que os da supervisão, porque trabalham com massa de
+dados maior e com histórico.
+
+\paragraph{Nível 5 --- Corporativo.} Trata da gestão de recursos da empresa. Trabalha com resultado
+financeiro e, tradicionalmente, tem pouco acesso direto aos dados técnicos dos níveis inferiores ---
+é justamente essa fronteira que as arquiteturas de IIoT vieram discutir
+(Capítulo~\ref{cap:iiot}).
+
+\section{O que mudou na pirâmide}
+
+A pirâmide clássica pressupõe um fluxo lento de baixo para cima e uma separação clara entre rede
+fabril e rede administrativa. Dois movimentos alteraram esse desenho:
+
+\begin{enumerate}
+  \item \textbf{Redes de campo substituíram a fiação ponto a ponto}, reduzindo drasticamente o
+        cabeamento entre o processo e o sistema de controle. Em vez de levar todo sinal até o rack
+        do CLP, os sinais vão para remotas de I/O instaladas no campo
+        (Capítulo~\ref{cap:redes-scada}).
+  \item \textbf{A camada de informação se sobrepõe aos níveis}, e não os substitui: dados de um
+        sensor de campo passam a interessar diretamente à manutenção e à gestão, sem atravessar
+        necessariamente todos os degraus. A governança desse acesso é um problema de arquitetura e
+        de segurança, não apenas de rede.
+\end{enumerate}
+
+\begin{atencao}
+Nível hierárquico não é o mesmo que prioridade de tempo. O nível de campo e o de controle respondem
+em milissegundos; o gerencial trabalha em horas ou dias. Confundir essas escalas é a origem de
+vários projetos mal dimensionados --- e de acidentes, quando se tenta fazer controle rápido por
+caminho lento.
+\end{atencao}
+
+\begin{pratica}
+Visite uma planta ou examine a arquitetura de um sistema que você conheça e preencha a
+Tabela~\ref{tab:niveis} com os equipamentos \emph{reais} de cada nível. Depois responda:
+(a) algum nível está ausente ou foi fundido com outro?
+(b) qual é o caminho que um dado de sensor percorre até virar indicador de gestão?
+(c) existe alguma ligação direta entre os níveis 1--2 e o nível 4 ou 5? Quem autorizou?
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Explique por que a largura de banda exigida no nível de campo é menor que a exigida no
+        nível de supervisão.
+  \item Um instrumento inteligente gera 40 parâmetros de diagnóstico, mas o projeto só usa a variável
+        de processo. Cite duas consequências práticas e diga para qual nível esses parâmetros
+        interessam.
+  \item Descreva o caminho de um alarme desde a sua detecção no CLP até o registro no nível
+        gerencial, nomeando cada equipamento envolvido.
+  \item Por que o uso de OPC aparece tipicamente no nível de supervisão e não no nível de campo?
+  \item A direção ``gerência $\rightarrow$ chão de fábrica'' leva que tipo de informação? Dê dois
+        exemplos.
+\end{enumerate}
+\end{exercicios}

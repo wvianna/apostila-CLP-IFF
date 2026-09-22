@@ -1,0 +1,258 @@
+\chapter{Referências normativas e bibliografia}
+\label{apD}
+
+\begin{objetivos}
+Ao final deste apêndice você deve ser capaz de:
+\begin{itemize}
+  \item citar uma norma com edição e ano, e reconhecer uma citação incompleta;
+  \item distinguir obra-fonte, bibliografia de apoio e documentação de fabricante;
+  \item identificar qual referência sustenta cada afirmação técnica do texto;
+  \item montar a lista de referências do seu próprio projeto.
+\end{itemize}
+\end{objetivos}
+
+\section{Como as referências são citadas nesta obra}
+
+Três regras valem para todo o texto:
+
+\begin{enumerate}
+  \item \textbf{toda afirmação normativa cita a edição e o ano}. ``A norma define'' não é referência:
+        ``a IEC 61131-3, 4ª edição, de maio de 2025'' é;
+  \item \textbf{nada é reproduzido das normas}. Elas foram consultadas para conferência factual, e o
+        texto desta apostila não transcreve trechos, não copia figuras e não inventa numeração de
+        seção. Quem precisa do texto normativo o obtém junto ao organismo que o publica;
+  \item \textbf{figura ou tabela de terceiro entra com crédito}. Esquema de catálogo, manual de
+        fabricante ou figura de outra obra traz a indicação de fonte --- e, sempre que possível, é
+        redesenhado em vez de copiado.
+\end{enumerate}
+
+\index{referências normativas}\index{bibliografia}
+
+\section{Obras de origem desta apostila}
+
+Esta apostila foi produzida a partir de duas obras do mesmo grupo de autores, incorporadas e
+atualizadas:
+
+\begin{itemize}[leftmargin=1.2cm, label={}]
+  \item TAVARES, M.Sc. Leonardo de Oliveira; MONTEIRO, M.Sc. Natália Nogueira. \emph{Controladores
+        Lógicos Programáveis --- apostila final (teórica e prática)}. 1ª edição, Rev. 0, 2017
+        (revisão de 2021, Rev. 05D). Instituto Federal Fluminense, Campus Campos dos Goytacazes.
+        \textbf{Obra-fonte principal:} fundamentos, hardware, memória, cartões de E/S, princípio de
+        funcionamento, linguagens, família IEC 61131 e a bateria de práticas.
+  \item VIANNA, D.Sc. William da Silva. \emph{Controlador Lógico Programável}. Instituto Federal Fluminense,
+        Campus Campos dos Goytacazes, 2023. \textbf{Obra-fonte complementar:} características,
+        estrutura básica, mapa de memória, critérios de especificação e compra, e noções de sistema
+        SCADA com uso de CLP.
+\end{itemize}
+
+\section{Normas e documentos normativos citados}
+
+A Tabela~\ref{tab:normas} reúne as normas mencionadas no texto. A coluna de edição e ano registra o
+que foi \textbf{efetivamente conferido em fonte pública}; onde a edição não pôde ser confirmada, a
+célula indica que ela deve ser conferida no catálogo do organismo, e o texto desta apostila não faz
+afirmação técnica que dependa dela.
+
+\begin{longtable}{p{3.6cm} p{5.0cm} p{6.4cm}}
+  \caption{Normas citadas, assunto e edição conferida.}
+  \label{tab:normas} \\
+  \toprule
+  Norma & Assunto & Edição e ano \\
+  \midrule
+  \endfirsthead
+
+  \multicolumn{3}{l}{\small\itshape Continuação da Tabela~\ref{tab:normas}.} \\
+  \toprule
+  Norma & Assunto & Edição e ano \\
+  \midrule
+  \endhead
+
+  \midrule
+  \multicolumn{3}{r}{\small\itshape Continua na página seguinte.} \\
+  \endfoot
+
+  \bottomrule
+  \endlastfoot
+
+  IEC 61131-1 & Informações gerais sobre controladores programáveis &
+    \emph{Conferir no catálogo}; assunto citado no Capítulo~\ref{cap:familia-iec} \\
+  IEC 61131-2 & Requisitos de equipamento e ensaios &
+    \emph{Conferir no catálogo}; assunto citado nos Capítulos~\ref{cap:es} e~\ref{cap:familia-iec} \\
+  IEC 61131-3 & Linguagens de programação &
+    1ª ed.\ 1993; 2ª ed.\ 2003; 3ª ed.\ 2013 (POUs orientadas a objeto; deprecia a Lista de
+    Instruções); \textbf{4ª ed.\ maio de 2025 (vigente; removeu a Lista de Instruções)} \\
+  IEC 61131-4 & Orientações ao usuário &
+    \emph{Conferir no catálogo}; assunto citado no Capítulo~\ref{cap:familia-iec} \\
+  IEC 61131-5 & Comunicações &
+    \emph{Conferir no catálogo}; assunto citado no Capítulo~\ref{cap:familia-iec} \\
+  IEC 61131-6 & Segurança funcional &
+    \emph{Conferir no catálogo}; assunto citado no Capítulo~\ref{cap:familia-iec} \\
+  IEC 61131-7 & Programação de controle \emph{fuzzy} &
+    \emph{Conferir no catálogo}; assunto citado no Capítulo~\ref{cap:familia-iec} \\
+  IEC 61131-8 & Implementação e aplicação das linguagens &
+    \emph{Conferir no catálogo}; assunto citado no Capítulo~\ref{cap:familia-iec} \\
+  IEC 61131-9 & Interface digital de comunicação ponto a ponto (SDCI, comercializada como IO-Link) &
+    2013; assunto citado nos Capítulos~\ref{cap:familia-iec} e~\ref{cap:redes-scada} \\
+  IEC 61131-10 & Formato de intercâmbio XML de projetos IEC 61131-3, derivado dos esquemas da PLCopen &
+    \emph{Conferir no catálogo}; assunto citado nos Capítulos~\ref{cap:familia-iec}
+    e~\ref{cap:interoperabilidade} \\
+  IEC 61499 (partes 1, 2 e 4) & Blocos de função para medição e controle de processo distribuído &
+    Publicada em 2005; parte 1, 2ª ed.\ 2012; parte 2, 2ª ed.\ 2012; parte 4, 2ª ed.\ 2013. A parte 3
+    foi retirada em 2008 \\
+  IEC 61508 & Segurança funcional de sistemas elétricos, eletrônicos e eletrônicos programáveis
+    (E/E/PE) &
+    1ª ed.\ 1998--2000; \textbf{2ª ed.\ 2010} \\
+  IEC 61511 & Segurança funcional para a indústria de processo & \emph{Conferir no catálogo};
+    aplicação setorial da IEC 61508, citada no Capítulo~\ref{cap:seguranca} \\
+  IEC 62443-1-1 & Terminologia, conceitos e modelos da série de segurança para automação &
+    2009 (publicação da série conjunta ISA/IEC) \\
+  IEC 62443-2-1 & Programa de segurança do sistema de automação e controle & 2024 \\
+  IEC 62443-2-4 & Requisitos para prestadores de serviço de integração e manutenção & 2023 \\
+  IEC 62443-3-2 & Avaliação de risco de segurança para projeto de sistema & 2020 \\
+  IEC 62443-3-3 & Requisitos de segurança de sistema e níveis de segurança & 2013 \\
+  IEC 62443-4-1 & Requisitos do ciclo de vida de desenvolvimento seguro & 2018 \\
+  IEC 62443-4-2 & Requisitos técnicos de segurança para componentes & 2019 \\
+  ISO/IEC 27001 & Sistemas de gestão da segurança da informação & 3ª ed.\ outubro de 2022; emenda
+    1 de 2024 \\
+  ISO/IEC/IEEE 60559 & Aritmética de ponto flutuante & 2020, conteúdo idêntico ao IEEE 754-2019 \\
+  IEEE 754 & Aritmética de ponto flutuante binária e decimal & \textbf{2019}, substituindo a edição de
+    2008 \\
+  NIST Cybersecurity Framework & Referência de programa de segurança cibernética & Versão 2.0, 2024 \\
+  ISO/IEC 17065 e ISO/IEC 17025 & Avaliação da conformidade e competência de laboratórios de ensaio &
+    \emph{Conferir no catálogo}; citadas no contexto de certificação de produto
+    (Capítulo~\ref{cap:seguranca}) \\
+\end{longtable}
+
+\paragraph{Sobre as edições.} As séries IEC são revisadas continuamente: uma parte pode ser confirmada,
+atualizada ou retirada. Toda edição indicada acima corresponde à publicação consultada e registrada em
+2026, e \textbf{não} é garantia de que a versão vigente seja a mesma no futuro. Antes de citar uma
+norma em laudo, contrato ou trabalho acadêmico, confirme a edição atual no catálogo do organismo
+emissor.
+
+\paragraph{Adoções nacionais.} A ABNT publica adoções de normas IEC com a designação \emph{NBR IEC}.
+Isso significa que alguns dos documentos acima podem existir em versão brasileira, com a mesma
+numeração de parte. Confirme no catálogo da ABNT qual parte está disponível e em que edição --- e
+nunca utilize cópia não autorizada de norma.
+
+\section{Bibliografia consolidada}
+
+As obras abaixo reúnem as bibliografias das duas apostilas de origem, com duplicatas consolidadas e
+grafias evidentemente incorretas corrigidas. A marcação indica se a obra permanece uma referência
+útil ao estudante atual.
+
+\subsection{Livros e apostilas}
+
+\begin{itemize}[leftmargin=1.2cm, label={}]
+  \item FRANCHI, C. M.; CAMARGO, V. L. \emph{Controladores Lógicos Programáveis --- Sistemas
+        Discretos}. 2ª ed. São Paulo: Érica, 2010. \textbf{Atual.} Referência de base, ainda alinhada
+        à segunda edição da norma; confira a terminologia nas edições posteriores.
+  \item PRUDENTE, F. \emph{Automação Industrial --- PLC: Teoria e Aplicações}. 2ª ed. Rio de Janeiro:
+        LTC, 2011. \textbf{Atual.} Tratamento didático de Ladder e de comandos, útil para quem parte
+        do comando elétrico.
+  \item NATALE, F. \emph{Automação Industrial}. São Paulo: Érica, 1992. \textbf{Histórica.} Cobre o
+        período anterior à difusão das redes industriais; mantida por registro e para consulta a
+        sistemas antigos.
+  \item OLIVEIRA, J. C. P. \emph{Controlador Programável}. São Paulo: Makron Books, 1993.
+        \textbf{Histórica.}
+  \item MORAES, C. M.; CASTRUCCI, P. L. \emph{Engenharia de Automação Industrial}. 2ª ed. Rio de
+        Janeiro: LTC, 2007. \textbf{Atual} para instrumentação, arquitetura de automação e sistemas
+        industriais.
+  \item OIKO, R. K.; SARROUF, L. P. Controladores Programáveis --- como comprar. \emph{Instec}, São
+        Paulo, n.~52, p.~32--45, março de 1992. \textbf{Histórica.} Mantida por ser registro do
+        problema de especificação, tema retomado no Capítulo~\ref{cap:porte}.
+  \item SOUZA, F. M. \emph{Instrumentação --- Automação Básica}. Espírito Santo, 1999.
+        \textbf{Histórica.}
+  \item VIANNA, W. S. \emph{Apostila de Controlador Lógico Programável}. Centro Federal de Educação
+        Tecnológica de Campos, 1995. \textbf{Histórica.} Primeira versão da linha que deu origem à
+        obra-fonte complementar.
+  \item VIANNA, W. d. S. \emph{Controlador Lógico Programável}. Campos dos Goytacazes, 2008.
+        \textbf{Histórica.}
+\end{itemize}
+
+\subsection{Artigos, relatórios e documentos técnicos}
+
+\begin{itemize}[leftmargin=1.2cm, label={}]
+  \item CHOULIARAS, V. A.; NUNEZ-YANEZ, J. L. An IEEE 754 floating point engine designed with an
+        electronic system level methodology. \emph{IEEE}, 2007. \textbf{Pontual.} Sustenta a
+        representação em ponto flutuante tratada no Capítulo~\ref{cap:memoria}.
+  \item HWANG, Y.-M.; KIM, M. G.; RHO, J.-J. Understanding Internet of Things (IoT) diffusion:
+        focusing on value configuration of RFID and sensors in business cases (2008--2012).
+        \emph{Information Development}, v.~32, n.~4, 2016. \textbf{Pontual.}
+  \item LÜCKENHAUS, M. Machine Vision in IIoT. \emph{Quality Magazine}, 2016. \textbf{Pontual.}
+        Pano de fundo para a visão computacional tratada no Capítulo~\ref{cap:ti-to}.
+  \item RAY, T.; SURESH, A.; DASH, P. S.; BANERJEE, P. K. Instrumentation and automation system at
+        coal leaching pilot plant. \emph{International Journal of Automation and Control}, v.~9,
+        p.~158--171, 2015. \textbf{Pontual.}
+  \item SASAJIMA, H.; ISHIKUMA, T.; HAYASHI, H. Future IIoT in process automation --- latest trends
+        of standardization in industrial automation, IEC/TC65, 2015. \textbf{Pontual.} Origem da
+        discussão de IIoT e padronização retomada nos Capítulos~\ref{cap:iiot}
+        e~\ref{cap:ti-to}.
+  \item ROCKWELL AUTOMATION. \emph{Controladores Logix5000 --- Manual de Referência Geral do Conjunto
+        de Instruções}. 2001. \textbf{Fonte do dialeto.} É a origem dos mnemônicos \texttt{XIC},
+        \texttt{XIO}, \texttt{OTL} e \texttt{OTU} documentados no Capítulo~\ref{cap:iec-versus-legado}
+        e no Apêndice~\ref{apB}. \textbf{Não é norma} e não deve ser usada como referência de
+        linguagem padronizada.
+  \item EESC/USP. \emph{Memórias}. Grupo de Sistemas Digitais, s.d. \textbf{Histórica.}
+  \item FEEC/UNICAMP. \emph{Representação Numérica}. s.d. \textbf{Histórica.}
+  \item \emph{The father of invention}: Dick Morley looks back on the 40th anniversary of the PLC.
+        \emph{Manufacturing Automation}, s.d. \textbf{Pontual.} Fonte do relato sobre a origem do
+        controlador, usado no Capítulo~\ref{cap:evolucao}.
+\end{itemize}
+
+\subsection{Documentação técnica e fontes de organismos}
+
+\begin{itemize}[leftmargin=1.2cm, label={}]
+  \item OPC FOUNDATION. \emph{OPC Unified Architecture}. Documentação técnica oficial, disponível
+        publicamente. Consultada para os Capítulos~\ref{cap:familia-iec} e~\ref{cap:iiot}.
+  \item OASIS. \emph{MQTT Version 5.0} (e versão 3.1.1). Especificação padrão, disponível
+        publicamente. Consultada para o Capítulo~\ref{cap:iiot}.
+  \item ECLIPSE FOUNDATION. \emph{Eclipse Sparkplug Specification}, versão 3.0. Consultada para o
+        Capítulo~\ref{cap:iiot}.
+  \item MODBUS ORGANIZATION. \emph{Modbus Application Protocol Specification}. Consultada para o
+        Capítulo~\ref{cap:redes-scada}.
+  \item PLCopen. \emph{Biblioteca padronizada de blocos de função} e esquemas XML de intercâmbio.
+        Consultada para os Capítulos~\ref{cap:familia-iec} e~\ref{cap:interoperabilidade}.
+  \item NIST. \emph{National Vulnerability Database} e \emph{Cybersecurity Framework 2.0}.
+        Consultados para o Capítulo~\ref{cap:seguranca}.
+  \item CISA. \emph{Known Exploited Vulnerabilities Catalog} e avisos ICS-CERT. Consultados para o
+        Capítulo~\ref{cap:seguranca}.
+  \item Documentação técnica dos fabricantes de controladores: manuais de instruções, de comunicação e
+        de diagnóstico. São a fonte primária para endereçamento, blocos de sistema e comportamento
+        específico de cada ambiente --- e \textbf{não} devem ser citados como norma.
+\end{itemize}
+
+\begin{atencao}
+Uma referência antiga não é uma referência errada: é uma referência \emph{datada}. O erro está em citar
+como atual o que descreve outra geração de equipamento --- por exemplo, apresentar a segunda edição da
+IEC 61131-3 como vigente, ou explicar endereçamento por área de memória como se fosse elemento da
+norma. Ao usar qualquer obra desta lista, confira em que edição da norma ela se apoia.
+\end{atencao}
+
+\begin{pratica}
+Monte a lista de referências do projeto que você desenvolveu nas práticas do Apêndice~\ref{apA}:
+
+(a) separe o que é norma, o que é bibliografia de apoio e o que é documentação de fabricante;
+(b) para cada norma citada, registre a edição e o ano que você efetivamente consultou;
+(c) identifique uma afirmação técnica do seu projeto que \emph{não} tem referência e providencie uma;
+(d) substitua qualquer citação de manual de fabricante usada como se fosse norma;
+(e) escreva duas linhas explicando por que a data de consulta de uma norma faz diferença em um
+projeto que terá de ser mantido por dez anos.
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Explique por que a obra diz que ``a norma define'' não é uma referência aceitável.
+  \item Qual é a diferença entre a obra-fonte principal e a obra-fonte complementar desta apostila?
+  \item Por que o manual de instruções de um fabricante não pode ser usado como referência de linguagem
+        padronizada?
+  \item Escolha três normas da Tabela~\ref{tab:normas} e diga em que capítulo cada uma é usada e para
+        afirmar o quê.
+  \item Explique por que a apostila marca algumas normas como ``conferir no catálogo'' em vez de
+        informar uma edição.
+  \item Por que a edição vigente da IEC 61131-3 importa para quem vai escrever um programa hoje?
+  \item O que significa dizer que a ABNT publica uma norma como ``NBR IEC''?
+  \item Por que uma obra marcada como \emph{histórica} nesta bibliografia continua listada?
+  \item Cite duas obras desta bibliografia que permanecem úteis ao estudante atual, e justifique.
+  \item Por que a apostila afirma que nada foi reproduzido das normas, e por que isso é uma questão de
+        direito autoral além de rigor técnico?
+\end{enumerate}
+\end{exercicios}

@@ -1,0 +1,201 @@
+\chapter{Simulação, teste e comissionamento}
+\label{cap:simulacao}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item explicar por que testar antes de energizar é obrigatório;
+  \item percorrer os seis níveis de validação, do teste de lógica ao \emph{dry-run};
+  \item montar um roteiro de teste com casos, estímulos, resultados esperados e evidências;
+  \item reconhecer os limites da simulação --- o que ela não detecta.
+\end{itemize}
+\end{objetivos}
+
+\section{Por que testar antes}
+
+Um controlador mal programado pode causar perda de produção e criar condições perigosas para
+equipamentos e pessoas. Simular permite encontrar e corrigir defeitos cedo no projeto, quando a
+correção custa minutos em vez de horas de parada. Além disso, melhora a segurança associada ao
+equipamento e reduz o tempo de instalação e comissionamento, porque muitos cenários já foram
+testados antes de o sistema ser energizado.
+
+\index{simulação de programa}\index{teste de programa}
+
+\section{A escada de validação}
+
+A validação é uma escada: cada degrau é mais caro e mais realista que o anterior, e cada degrau
+elimina uma classe de defeito. Subir todos os degraus antes de energizar a máquina é o que evita
+surpresa no comissionamento.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{16-escada-validacao.pdf}
+  \caption{Níveis de validação, do teste de lógica ao comissionamento.}
+  \label{fig:escada-validacao}
+\end{figure}
+
+\begin{table}[H]
+  \centering
+  \caption{O que cada nível detecta e o que ele não detecta.}
+  \label{tab:niveis-validacao}
+  \begin{tabular}{p{3.6cm} p{5.4cm} p{5.4cm}}
+    \toprule
+    Nível & Detecta & Não detecta \\
+    \midrule
+    1. Revisão de lógica
+      & Erro de lógica, endereço trocado, condição faltante, laço mal construído
+      & Nada de comportamento em tempo real \\
+    2. Simulação de E/S
+      & Sequência, temporização relativa, intertravamento, tabela-verdade
+      & Comportamento de sinal elétrico e de campo \\
+    3. Controlador virtual
+      & Portabilidade do código, desempenho relativo, integração com o ambiente
+      & Diferenças de implementação do hardware real \\
+    4. Bancada com E/S
+      & Fiação de campo, tensões, sensores e atuadores reais, ruído
+      & Comportamento da máquina sob carga \\
+    5. HIL
+      & Interação controlador--planta simulada, casos difíceis e de falha
+      & Desgaste e efeitos mecânicos reais \\
+    6. \emph{Dry-run} em campo
+      & Tudo o que envolve a instalação completa, com o processo energeticamente seguro
+      & Desempenho em produção plena \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Simulação de E/S.} É o nível que todo aluno tem disponível: o ambiente de programação
+permite forçar o estado das entradas e observar as saídas sem nenhum hardware conectado. Com ela se
+percorre a árvore de decisões do programa --- inclusive as combinações que a máquina real demora
+horas para alcançar.
+
+\paragraph{Controlador virtual (\emph{soft PLC}).} A função de controlador é executada em hardware de
+propósito geral, em máquina virtual ou contêiner. Permite ensaiar o programa em outra plataforma e é
+útil em ensino e em testes de integração.
+
+\paragraph{HIL (\emph{hardware-in-the-loop}).} O controlador real roda conectado a um modelo
+computacional da planta. É o nível que permite ensaiar falha de sensor, sobrecurso de válvula e
+situação de emergência sem risco e sem parar a produção.
+
+\paragraph{\emph{Dry-run} em campo.} Máquina energizada, sem produção: verifica-se fim de curso,
+polaridade, tempo de resposta e cada intertravamento, ponto por ponto, com a equipe de campo
+presente.
+
+\section{Roteiro de teste}
+
+Teste sem roteiro é passeio. O roteiro abaixo é um modelo para adaptação; a coluna de evidência é a
+que costuma ser esquecida e é a que sustenta a entrega técnica.
+
+\begin{table}[H]
+  \centering
+  \caption{Modelo de roteiro de teste.}
+  \label{tab:roteiro-teste}
+  \begin{tabular}{p{1.0cm} p{3.4cm} p{3.6cm} p{3.4cm} p{2.6cm}}
+    \toprule
+    \# & Caso & Estímulo & Resultado esperado & Evidência \\
+    \midrule
+    T01 & Partida em condições normais
+      & Todas as condições de partida satisfeitas; comando de partida
+      & Máquina parte na sequência prevista
+      & Registro no relatório de comissionamento \\
+    T02 & Bloqueio de partida por condição
+      & Uma condição de partida não satisfeita; comando de partida
+      & Máquina não parte e alarme indicado
+      & Lista de alarmes ativos \\
+    T03 & Intertravamento em operação
+      & Simular perda da condição de intertravamento durante a operação
+      & Parada segura na sequência prevista
+      & Registro de eventos com horário \\
+    T04 & Parada de emergência
+      & Atuar o dispositivo de emergência
+      & Parada conforme projeto; retomada só após desbloqueio e reset
+      & Teste presencial com assinatura \\
+    T05 & Retomada após falta de energia
+      & Desenergizar e reenergizar o painel
+      & Estado seguro; variáveis retentivas preservadas
+      & Leitura das variáveis retentivas \\
+    T06 & Falha de sensor
+      & Desconectar sensor em bancada
+      & Programa assume o comportamento definido no descritivo (e seguro)
+      & Registro de falha e ação tomada \\
+    T07 & Falha de comunicação
+      & Interromper o enlace com a rede ou com a remota de E/S
+      & Comportamento seguro declarado; alarme de comunicação
+      & Registro de eventos \\
+    T08 & Tempo de ciclo
+      & Operação em carga máxima
+      & Tempo de varredura medido dentro do requisito
+      & Medição registrada no relatório \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Os casos T04 a T07 são os que a simulação isolada \textbf{não} cobre adequadamente, porque dependem
+de comportamento de hardware, de energia ou de rede. Eles precisam ser testados com equipamento real
+--- e sempre pelo procedimento de bloqueio da instalação.
+
+\section{Limites da simulação}
+
+\begin{table}[H]
+  \centering
+  \caption{O que a simulação não substitui.}
+  \label{tab:limites-simulacao}
+  \begin{tabular}{p{5.6cm} p{9.0cm}}
+    \toprule
+    Limite & Por quê \\
+    \midrule
+    Sinal elétrico real & Tensão, corrente, ruído, tempo de comutação e falha de isolamento só
+      aparecem com módulo e carga reais \\
+    Dinâmica mecânica & Inércia, folga, atrito e sobrecurso não existem no modelo \\
+    Atraso de rede & Latência e perda de pacote dependem da instalação \\
+    Falha do próprio controlador & Nenhuma simulação executa o programa com o controlador travado \\
+    Erro de campo & Sensor instalado no lugar errado, inversão de polaridade e fiação trocada só
+      aparecem na bancada e no \emph{dry-run} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{atencao}
+Nunca energize máquina com o programa recém-carregado sem ter percorrido o roteiro de teste. E nunca
+faça \emph{dry-run} com pessoa em zona de risco: a máquina está energizada, com lógica nova e sem
+histórico --- a condição de maior risco de todo o projeto.
+\end{atencao}
+
+\section{Registro de evidências}
+
+O resultado do teste precisa sair do ambiente e virar documento:
+
+\begin{itemize}
+  \item roteiro preenchido, com data, responsável e assinatura nos casos de segurança;
+  \item registro de eventos com data e hora dos alarmes e paradas testadas;
+  \item lista de pendências encontradas e o que foi feito com cada uma;
+  \item versão do programa testada (número de revisão) --- teste sem versão identificada não vale
+        como evidência.
+\end{itemize}
+
+Esse conjunto é o que liga este capítulo ao anterior: a documentação da
+Capítulo~\ref{cap:documentacao} é o que permite provar, meses depois, que o sistema foi testado.
+
+\begin{pratica}
+Monte o roteiro de teste para um dos exercícios de laboratório desta apostila, preenchendo as colunas
+da Tabela~\ref{tab:roteiro-teste}. Depois:
+(a) execute os casos possíveis no simulador de E/S e registre o resultado obtido;
+(b) identifique quais casos só podem ser executados com hardware real;
+(c) escreva, em cinco linhas, o risco de liberar o programa sem executar esses casos.
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Cite três benefícios de testar em simulação antes da instalação.
+  \item Ordene os seis níveis de validação do menos para o mais realista e explique o que cada um
+        acrescenta.
+  \item Por que a simulação de E/S não substitui o teste com módulo de entrada real?
+  \item O que é HIL e que tipo de falha ele permite ensaiar sem risco?
+  \item Escreva dois casos de teste adicionais para uma máquina de envase, no formato da
+        Tabela~\ref{tab:roteiro-teste}.
+  \item Por que a versão do programa é parte obrigatória da evidência de teste?
+  \item Um fornecedor entrega o sistema afirmando que ``já testou tudo no simulador''. Que
+        questionamento você faz, com base neste capítulo?
+  \item Explique por que o \emph{dry-run} é a etapa de maior risco do projeto.
+\end{enumerate}
+\end{exercicios}

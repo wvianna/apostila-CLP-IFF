@@ -1,0 +1,8 @@
+flowchart TB
+  A["No controlador, em tempo determinístico<br/>lógica de controle, intertravamento e malhas<br/>plugin do IDE: extensão do ambiente de engenharia"]
+  B["Na borda, fora do laço de controle<br/>visão computacional, Node-RED,<br/>inferência de modelo pequeno e Linux embarcado"]
+  C["Na sala de controle ou na nuvem<br/>análise pesada, treinamento de modelo,<br/>histórico, dashboards e relatórios"]
+  A -->|"dados de processo"| B
+  B -->|"dados tratados"| C
+  C -.->|"metas e referências"| B
+  B -.->|"apenas o resultado consolidado, nunca o modelo"| A

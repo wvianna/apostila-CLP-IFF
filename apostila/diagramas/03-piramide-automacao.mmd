@@ -1,0 +1,16 @@
+flowchart TB
+  N5["Nível corporativo<br/>ERP, BI e gestão financeira"]
+  N4["Nível gerencial<br/>MES e PIMS: planejamento e indicadores"]
+  N3["Nível de supervisão<br/>SCADA, histórico e IHM"]
+  N2["Nível de controle<br/>CLP, SDCD e remotas de I/O"]
+  N1["Nível de campo<br/>sensores, atuadores e transmissores"]
+  P["Processo industrial<br/>máquinas, fluidos, energia"]
+  P --> N1
+  N1 --> N2
+  N2 --> N3
+  N3 --> N4
+  N4 --> N5
+  N5 -.->|"planejamento e metas"| N4
+  N4 -.->|"ordens de produção"| N3
+  N3 -.->|"setpoint e comandos"| N2
+  N2 -.->|"ação de controle"| N1

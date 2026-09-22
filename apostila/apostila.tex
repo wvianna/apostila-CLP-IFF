@@ -1,0 +1,292 @@
+% ============================================================================
+%  Controladores Lógicos Programáveis — apostila do IFF
+%  Template-raiz. Copie para apostila/apostila.tex e ajuste edicao/revisao.
+%  Compilar com scripts/build.sh (pdflatex + makeindex; latexmk nao existe aqui).
+% ============================================================================
+\documentclass[11pt,a4paper,oneside]{book}
+
+% --- Codificação e idioma (pdflatex) ---
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[brazilian]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% --- Cores da identidade (antes do hyperref, que as usa) ---
+\usepackage{xcolor}
+\definecolor{iffazul}{RGB}{0,84,140}
+\definecolor{iffverde}{RGB}{0,122,86}
+\definecolor{iffalerta}{RGB}{178,34,34}
+
+% --- Layout ---
+\usepackage[a4paper,top=3cm,bottom=2.5cm,left=3cm,right=2.5cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{enumitem}
+\usepackage{csquotes}
+
+% --- Matemática, tabelas e figuras ---
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+% As tabelas usam colunas p{} com largura declarada em cm. Cada coluna acrescenta
+% 2\tabcolsep alem da largura declarada: com o padrao de 6pt, uma tabela de 3
+% colunas "p{3.0} p{5.6} p{6.0}" fica 12pt mais larga do que a soma dos cm e
+% transborda a mancha (Overfull \hbox). Com 3pt a folga entra na conta.
+\setlength{\tabcolsep}{3pt}
+\usepackage{graphicx}
+\graphicspath{{figuras/}}
+\usepackage{adjustbox}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usepackage{pdfpages}
+
+% --- Código e caixas didáticas ---
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{breakable,skins}
+
+% --- Índices e links (hiperreferências) ---
+\usepackage{imakeidx}
+\usepackage[
+  bookmarks=true,
+  bookmarksnumbered=true,
+  bookmarksopen=true,
+  colorlinks=true,
+  linkcolor=iffazul,
+  citecolor=iffazul,
+  urlcolor=iffazul,
+  pdftitle={Controladores Logicos Programaveis},
+  pdfauthor={M.Sc. Leonardo de Oliveira Tavares; D.Sc. William da Silva Vianna; M.Sc. Natalia Nogueira Monteiro},
+  pdfsubject={Apostila de CLP - Instituto Federal Fluminense}
+]{hyperref}
+
+% ============================================================================
+%  Identidade e metadados da obra
+% ============================================================================
+\newcommand{\obraTitulo}{Controladores Lógicos Programáveis}
+\newcommand{\obraSubtitulo}{Material didático de automação industrial}
+\newcommand{\obraInstituicao}{Instituto Federal Fluminense}
+\newcommand{\obraCampus}{Campus Campos dos Goytacazes}
+\newcommand{\obraCurso}{Curso Técnico em Automação Industrial}
+\newcommand{\obraCursoEng}{Engenharia de Controle e Automação}
+\newcommand{\obraLicenca}{Creative Commons Atribuição–CompartilhaIgual 4.0 Internacional (CC BY-SA 4.0)}
+% Sem \and: esta lista e usada fora de \author/\maketitle.
+\newcommand{\obraAutores}{M.Sc. Leonardo de Oliveira Tavares\\%
+  D.Sc. William da Silva Vianna\\%
+  M.Sc. Natália Nogueira Monteiro}
+\newcommand{\obraEdicao}{3ª edição}
+\newcommand{\obraRevisao}{Rev. 06}
+\newcommand{\obraData}{Setembro de 2026}
+\newcommand{\obraCidade}{Campos dos Goytacazes -- RJ}
+
+\hypersetup{pdftitle={\obraTitulo\ -- \obraRevisao}}
+
+% --- Cabeçalho e rodapé ---
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\itshape\nouppercase{\leftmark}}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\small\thepage}\renewcommand{\headrulewidth}{0pt}}
+
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\color{iffazul}}{\chaptername\ \thechapter}{12pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{-20pt}{28pt}
+
+% ============================================================================
+%  Estilo de listagem de código de CLP
+% ============================================================================
+\lstdefinestyle{clp}{
+  basicstyle=\ttfamily\footnotesize,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  stepnumber=1,
+  frame=single,
+  rulecolor=\color{gray!50},
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2,
+  captionpos=b,
+  extendedchars=true,
+  inputencoding=utf8,
+  literate=%
+    {á}{{\'a}}1 {à}{{\`a}}1 {â}{{\^a}}1 {ã}{{\~a}}1 {ä}{{\"a}}1
+    {é}{{\'e}}1 {ê}{{\^e}}1 {è}{{\`e}}1
+    {í}{{\'i}}1 {î}{{\^i}}1
+    {ó}{{\'o}}1 {ô}{{\^o}}1 {õ}{{\~o}}1 {ò}{{\`o}}1
+    {ú}{{\'u}}1 {ü}{{\"u}}1
+    {ç}{{\c c}}1 {Ç}{{\c C}}1
+    {Á}{{\'A}}1 {À}{{\`A}}1 {Â}{{\^A}}1 {Ã}{{\~A}}1
+    {É}{{\'E}}1 {Ê}{{\^E}}1
+    {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ô}{{\^O}}1 {Õ}{{\~O}}1 {Ú}{{\'U}}1
+    {º}{{\textordmasculine}}1 {ª}{{\textordfeminine}}1
+}
+\lstset{style=clp}
+
+% ============================================================================
+%  Caixas didáticas (usar em todos os capítulos)
+% ============================================================================
+\newtcolorbox{objetivos}[1][]{
+  breakable, colback=iffazul!5, colframe=iffazul, title=Objetivos do capítulo,
+  fonttitle=\bfseries, #1}
+\newtcolorbox{pratica}[1][]{
+  breakable, colback=iffverde!5, colframe=iffverde, title=Na prática,
+  fonttitle=\bfseries, #1}
+\newtcolorbox{atencao}[1][]{
+  breakable, colback=iffalerta!5, colframe=iffalerta, title=Atenção,
+  fonttitle=\bfseries, #1}
+\newtcolorbox{exercicios}[1][]{
+  breakable, colback=gray!5, colframe=gray!60, title=Exercícios,
+  fonttitle=\bfseries, #1}
+
+% ============================================================================
+%  Capítulos: arquivo ausente gera aviso, não erro
+%  (grepar "SKILL-apostila" no log mostra o que ainda falta escrever)
+% ============================================================================
+\newcounter{capfalta}
+\newcommand{\chapterfile}[1]{%
+  \IfFileExists{capitulos/#1.tex}%
+    {\input{capitulos/#1}}%
+    {\stepcounter{capfalta}\typeout{SKILL-apostila: capitulo ausente -> capitulos/#1.tex}}%
+}
+\AtEndDocument{%
+  \ifnum\value{capfalta}>0
+    \typeout{SKILL-apostila: \arabic{capfalta} capitulo(s) ainda nao escritos}%
+  \fi}
+
+\makeindex[title=Índice remissivo, intoc]
+
+% ============================================================================
+\begin{document}
+
+% --- Capa ---
+\begin{titlepage}
+  \centering
+  \vspace*{1cm}
+  {\large\bfseries \obraInstituicao\par}
+  {\small \obraCampus\par}
+  \vspace{1.2cm}
+  \rule{\linewidth}{0.5pt}\par
+  \vspace{0.8cm}
+  {\Huge\bfseries\color{iffazul} \obraTitulo\par}
+  \vspace{0.4cm}
+  {\large \obraSubtitulo\par}
+  \vspace{0.8cm}
+  \rule{\linewidth}{0.5pt}\par
+  \vfill
+  {\large \obraAutores\par}
+  \vspace{1.5cm}
+  {\obraCursoEng\par}
+  {\obraCurso\par}
+  \vspace{0.3cm}
+  {\obraEdicao\ -- \obraRevisao\par}
+  {\obraData\par}
+  \vfill
+  {\obraCidade\par}
+\end{titlepage}
+
+% --- Folha de rosto ---
+\thispagestyle{empty}
+\begin{center}
+  {\large\bfseries \obraInstituicao}\\[0.2cm]
+  {\small \obraCampus}\\[2cm]
+  {\Large\bfseries \obraTitulo}\\[0.5cm]
+  {\small Material didático elaborado para o curso de \obraCursoEng\ e para o
+   \obraCurso.}\\[2cm]
+\end{center}
+\begin{flushright}
+  \begin{minipage}{0.55\textwidth}
+    \small Autores:\\ \obraAutores\\[0.8cm]
+    \obraEdicao\ --- \obraRevisao\\
+    \obraData
+  \end{minipage}
+\end{flushright}
+\vfill
+{\footnotesize
+  \noindent\textbf{Licença de uso.} Esta obra é distribuída sob a licença
+  \emph{\obraLicenca}. É permitido copiar, redistribuir, adaptar e usar comercialmente o
+  material, desde que seja atribuído o crédito aos autores e as obras derivadas sejam
+  distribuídas sob a mesma licença. Texto completo da licença:\
+  \url{https://creativecommons.org/licenses/by-sa/4.0/legalcode.pt}.\par
+}
+\vspace{1cm}
+\clearpage
+
+% --- Sumário e listas (índice interativo: links clicáveis + bookmarks) ---
+\pdfbookmark[0]{Sumário}{sumario}
+\tableofcontents
+\clearpage
+\pdfbookmark[0]{Lista de figuras}{lof}
+\listoffigures
+\pdfbookmark[0]{Lista de tabelas}{lot}
+\listoftables
+\clearpage
+
+% ============================================================================
+%  PARTE I — FUNDAMENTOS E PROJETO
+% ============================================================================
+\part{Fundamentos e projeto}
+\chapterfile{01-introducao}
+\chapterfile{02-evolucao-clps}
+\chapterfile{03-estrutura-automacao}
+\chapterfile{04-projeto-automacao}
+
+% ============================================================================
+%  PARTE II — HARDWARE E FUNCIONAMENTO
+% ============================================================================
+\part{Hardware e funcionamento}
+\chapterfile{05-definicoes-caracteristicas}
+\chapterfile{06-componentes-memoria}
+\chapterfile{07-cartoes-es}
+\chapterfile{08-porte-especificacao}
+\chapterfile{09-principio-funcionamento}
+
+% ============================================================================
+%  PARTE III — PROGRAMAÇÃO E NORMAS
+% ============================================================================
+\part{Programação e normas}
+\chapterfile{10-linguagens-programacao}
+\chapterfile{11-iec61131-3-modelo}
+\chapterfile{12-familia-iec61131}
+\chapterfile{13-iec-versus-legado}
+\chapterfile{14-boas-praticas}
+\chapterfile{15-documentacao}
+\chapterfile{16-simulacao-teste}
+
+% ============================================================================
+%  PARTE IV — INTEGRAÇÃO E SISTEMAS
+% ============================================================================
+\part{Integração e sistemas}
+\chapterfile{17-redes-scada}
+\chapterfile{18-iiot-opcua-mqtt}
+\chapterfile{19-dados-tempo-real}
+\chapterfile{20-interoperabilidade}
+\chapterfile{21-convergencia-ti-to}
+\chapterfile{22-seguranca-cibernetica}
+\chapterfile{23-eficiencia-energetica}
+
+% ============================================================================
+%  PARTE V — OPERAÇÃO E CARREIRA
+% ============================================================================
+\part{Operação e carreira}
+\chapterfile{24-manutencao}
+\chapterfile{25-formacao-continua}
+
+% ============================================================================
+%  APÊNDICES
+% ============================================================================
+\appendix
+\part{Apêndices}
+\chapterfile{apA-praticas-laboratorio}
+\chapterfile{apB-legado-para-iec}
+\chapterfile{apC-glossario}
+\chapterfile{apD-referencias}
+
+\printindex
+
+\end{document}

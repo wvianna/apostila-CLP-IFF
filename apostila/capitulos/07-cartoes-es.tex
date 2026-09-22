@@ -1,0 +1,358 @@
+\chapter{Cartões de entrada e saída, resolução e instalação}
+\label{cap:es}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item explicar o que um cartão de entrada e saída faz com o sinal;
+  \item reconhecer os tipos de entrada e de saída digital e escolher o adequado ao campo;
+  \item ligar entradas analógicas em corrente e em tensão, dimensionando o \emph{shunt};
+  \item calcular a resolução de um canal e definir os bits necessários do cartão;
+  \item diferenciar troca a frio de troca a quente.
+\end{itemize}
+\end{objetivos}
+
+\section{O que o cartão faz com o sinal}
+
+Os cartões de entrada e saída são os circuitos que tratam eletricamente os sinais para que possam ser
+processados pela CPU. Na entrada, convertem um sinal elétrico de campo em dado binário; na saída,
+convertem o dado binário da CPU em sinal elétrico capaz de acionar um atuador.
+
+Há uma razão elétrica para que esse tratamento exista: em ambiente industrial, os sinais de E/S
+carregam ruído elétrico, e ruído que alcança os circuitos da CPU provoca operação falsa. A estrutura
+de E/S isola e filtra o sinal para entregar à CPU uma informação confiável.
+
+\index{cartão de E/S}\index{entrada digital}\index{saída digital}
+
+\section{Caminho do sinal em um cartão de entrada}
+
+Os elementos de um cartão de entrada digital, na ordem em que o sinal os atravessa:
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{07-cartao-entrada.pdf}
+  \caption{Elementos de tratamento do sinal em um cartão de entrada digital.}
+  \label{fig:cartao-entrada}
+\end{figure}
+
+\begin{description}
+  \item[B.C. --- bornes de conexão:] interligam o sensor ao cartão, em geral com sistema
+        \emph{plug-in}.
+  \item[C.C. --- conversor e condicionador:] converte em contínua o sinal alternado e rebaixa a
+        tensão a valores compatíveis com o restante do circuito.
+  \item[I.E. --- indicador de estado:] dá indicação visual do estado de cada ponto.
+  \item[I.El. --- isolação elétrica:] separa eletricamente o campo do processador.
+  \item[I.M. --- interface e multiplexação:] informa ao processador o estado de cada variável.
+\end{description}
+
+O cartão de saída percorre o caminho inverso:
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{07-cartao-saida.pdf}
+  \caption{Elementos de um cartão de saída digital, da CPU ao atuador.}
+  \label{fig:cartao-saida}
+\end{figure}
+
+O \textbf{M.S. (memorizador de sinal)} guarda o estado multiplexado, a \textbf{I.El.} isola
+eletricamente o processador do campo e o \textbf{E.S. (estágio de saída)} transforma sinais lógicos de
+baixa potência em sinais capazes de operar o atuador.
+
+\section{Entrada digital}
+
+As entradas digitais aparecem nas formas abaixo, conforme a especificação:
+
+\begin{itemize}
+  \item contato seco;
+  \item 24\,V CC;
+  \item TTL;
+  \item 110\,V CA e 220\,V CA.
+\end{itemize}
+
+A entrada digital com \textbf{fonte externa} é a mais utilizada: as chaves que acionam a entrada ficam
+no campo e a fonte de alimentação é externa ao CLP. O circuito interno é isolado por
+\emph{optoacoplador} --- um LED do lado de campo e um fototransistor do lado interno, sem ligação
+elétrica entre os dois.
+
+\begin{figure}[H]
+  \centering
+  \begin{circuitikz}[scale=0.95, transform shape]
+    % Lado de campo: 24 V CC, botoeira e resistor em serie com o LED do optoacoplador.
+    \draw (1.5,0) to[V, l=$24\,$V] (1.5,2.5)
+          -- (2.4,2.5) to[push button, l=$S_1$] (4.0,2.5)
+          to[R, l=$R$] (5.4,2.5) -- (6.5,2.5)
+          to[leD, l=$D$] (6.5,0) -- (1.5,0);
+    % Barreira de isolacao galvanica.
+    \draw[dashed] (5.8,-0.55) rectangle (11.7,3.3);
+    \node[below] at (8.75,-0.6) {\scriptsize isolação galvânica (optoacoplador)};
+    % Lado interno: fototransistor representado como chave, pull-up e entrada da CPU.
+    \draw (11,3.0) node[above]{\scriptsize $+5\,$V interno} -- (11,2.8)
+          to[R, l=$R_p$] (11,1.9);
+    \filldraw (11,1.9) circle (1.5pt);
+    \draw (11,1.9) -- (13.4,1.9) node[right]{\scriptsize entrada da CPU};
+    \draw (11,1.9) to[closing switch] (11,0.5) -- (11,0) node[below]{\scriptsize $0\,$V};
+  \end{circuitikz}
+  \caption{Entrada digital com fonte externa e isolação por optoacoplador.}
+  \label{fig:entrada-opto}
+\end{figure}
+
+Com a botoeira aberta, não circula corrente pelo LED e o fototransistor permanece aberto: o
+resistor de \emph{pull-up} leva nível alto à entrada da CPU. Com a botoeira fechada, o LED acende, o
+fototransistor satura e leva a entrada a nível baixo. É essa inversão --- contato fechado, nível
+baixo --- que o programa precisa levar em conta.
+
+\paragraph{Sensores a três fios: NPN e PNP.} Sensores capacitivos, indutivos ou ópticos com saída a
+transistor e alimentação de 8 a 30\,V CC ligam-se diretamente à entrada digital, desde que o cartão
+seja de 24\,V CC e o comum seja escolhido conforme o tipo de sensor:
+
+\begin{table}[H]
+  \centering
+  \caption{Saída de sensor a três fios e o comum exigido na entrada.}
+  \label{tab:npn-pnp}
+  \begin{tabular}{p{2.4cm} p{5.6cm} p{6.4cm}}
+    \toprule
+    Tipo & Como aciona a saída & Implicação na ligação \\
+    \midrule
+    NPN (\emph{sinking})
+      & Chaveia o negativo: a saída puxa o sinal para o comum
+      & Entrada com \textbf{comum positivo} \\
+    PNP (\emph{sourcing})
+      & Chaveia o positivo: a saída entrega tensão ao sinal
+      & Entrada com \textbf{comum negativo} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Sensor a dois fios em CA.} As entradas de CLP têm alta impedância e por isso não são
+acionadas diretamente por um triac, como ocorre com sensores a dois fios em corrente alternada. Se o
+sensor é desse tipo, é necessário acrescentar uma derivação resistivo-capacitiva em paralelo com a
+entrada, para manter a corrente de manutenção do tiristor. Os valores constam no manual do
+controlador --- e não devem ser estimados em campo.
+
+\begin{atencao}
+A entrada digital do tipo contato seco fica limitada a dispositivos que abrem ou fecham um contato.
+Antes de ligar um sensor à entrada do CLP, confirme no manual: tensão, tipo de comum e corrente
+máxima. Ligar um sensor PNP em entrada de comum positivo não queima o CLP por acaso --- e o defeito
+aparece como ``entrada que nunca atua''.
+\end{atencao}
+
+\index{PNP}\index{NPN}\index{optoacoplador}
+
+\section{Entrada analógica}
+
+As entradas analógicas trabalham em corrente ou em tensão:
+
+\begin{itemize}
+  \item \textbf{corrente}: 4 a 20\,mA, 0 a 10\,mA, 0 a 50\,mA;
+  \item \textbf{tensão}: 1 a 5\,V CC, 0 a 10\,V CC, $-10$ a 10\,V CC.
+\end{itemize}
+
+A entrada em corrente é implementada diretamente no transmissor, o que é uma vantagem: a corrente
+não se altera ao longo do cabo, enquanto a tensão cai com a distância. Na entrada em tensão é preciso
+um resistor de \emph{shunt} para converter corrente em tensão. O valor depende da faixa do
+transmissor e da entrada; na indústria é comum 250\,$\Omega$ para sinais de 4 a 20\,mA, o que
+produz 1 a 5\,V (pela lei de Ohm, $V = R \cdot I$).
+
+\begin{figure}[H]
+  \centering
+  \begin{circuitikz}[scale=1]
+    % Transmissor a dois fios, ligado em serie com o shunt.
+    \draw (0,1.0) rectangle (2.2,2.6);
+    \node[align=center] at (1.1,1.8) {\scriptsize transmissor\\\scriptsize 4--20\,mA};
+    % Fio superior: do transmissor ate a entrada do CLP.
+    \draw (2.2,2.6) -- (8.0,2.6);
+    % Fio inferior: a fonte de 24 V CC fecha o laco, em serie com o transmissor.
+    \draw (2.2,1.0) to[battery1, l_=$24\,$V CC] (4.0,1.0) -- (8.0,1.0);
+    % Shunt: converte a corrente em tensao.
+    \draw (4.2,2.6) to[R] (4.2,1.0);
+    \node[left] at (4.05,1.8) {\scriptsize $R_{sh}$};
+    % Voltimetro em paralelo com o shunt.
+    \draw (6.2,2.6) to[voltmeter] (6.2,1.0);
+    \node[below] at (6.2,0.82) {\scriptsize 1 a 5\,V};
+    \node[right, align=left] at (8.1,1.8)
+      {\scriptsize para a entrada\\\scriptsize de tensão do CLP};
+  \end{circuitikz}
+  \caption{Conversão de corrente em tensão com resistor de \emph{shunt} de 250\,$\Omega$, em laço
+  alimentado por 24\,V CC.}
+  \label{fig:shunt}
+\end{figure}
+
+No circuito da Figura~\ref{fig:shunt}, a fonte de 24\,V CC fecha o laço: no transmissor a dois fios,
+\textbf{o mesmo par de condutores leva a alimentação e devolve o sinal}. A tensão da fonte precisa
+cobrir a queda no próprio transmissor, a queda no \emph{shunt} --- 5\,V quando a corrente é de
+20\,mA --- e a queda no cabo; o pior caso é justamente o de corrente máxima, porque é nele que a
+queda no \emph{shunt} é maior.
+
+Para medir temperatura, a entrada analógica precisa aceitar RTD (PT-100) ou termopar em milivolts ---
+são cartões específicos, com compensação de junta fria no caso do termopar. Um cartão de 4 a 20\,mA
+não mede termopar.
+
+\section{Saída digital}
+
+Quanto ao elemento de comutação, a saída digital pode ser de quatro tipos:
+
+\begin{table}[H]
+  \centering
+  \caption{Tipos de saída digital e critério de escolha.}
+  \label{tab:tipos-saida}
+  \begin{tabular}{p{2.8cm} p{4.6cm} p{3.6cm} p{3.6cm}}
+    \toprule
+    Tipo & Natureza da carga & Comutação e vida útil & Limite prático \\
+    \midrule
+    Transistor
+      & Somente tensão contínua & Muito rápida; vida longa & Tensão e corrente inferiores às do contato seco \\
+    Triac
+      & Somente tensão alternada & Rápida; vida útil maior que o contato seco & Não serve para contínua \\
+    Contato seco (relé)
+      & Tensão contínua ou alternada & Lenta; vida útil inferior aos componentes de estado sólido & Desgaste mecânico do contato \\
+    TTL
+      & Cargas de sinal, em placa & Rápida & Baixa corrente; uso restrito \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \begin{circuitikz}[scale=0.95, transform shape]
+    % O contato seco e INTERNO ao CLP: faz parte do modulo de saida.
+    \draw[dashed] (2.4,2.3) rectangle (5.6,3.7);
+    \node[above] at (4.0,3.75) {\scriptsize módulo de saída do CLP (contato seco)};
+    % Circuito de campo: a fonte externa e a carga ficam em serie com o contato.
+    \draw (0,3.0) -- (2.9,3.0);
+    \draw (2.9,3.0) to[closing switch, l_=$K_1$] (5.1,3.0);
+    \draw (5.1,3.0) -- (8.0,3.0) -- (8.0,0);
+    \draw (8.0,0) to[lamp, l_=$H_1$] (6.0,0)
+          to[V, l_=$V_{ext}$] (3.6,0) -- (0,0) -- (0,3.0);
+    \node[below] at (4.8,-0.85) {\scriptsize fonte externa: CA ou CC};
+  \end{circuitikz}
+  \caption{Saída digital a contato seco: o contato pertence ao módulo de saída do CLP e entra em
+  série com a fonte externa e com a carga.}
+  \label{fig:saida-rele}
+\end{figure}
+
+Note o que é interno e o que é externo. O contato \textbf{e} a bobina que o aciona fazem parte do
+módulo de saída: a bobina é energizada pela lógica do próprio controlador, e o que se leva a campo
+são os dois terminais do contato. O circuito de campo, por isso, é um laço simples --- fonte
+externa, contato e carga em série --- e a fonte pode ser contínua ou alternada, que é a vantagem do
+contato seco sobre a saída a transistor e a saída a triac (Tabela~\ref{tab:tipos-saida}). O contato
+ainda isola eletricamente o circuito de campo da eletrônica do módulo.
+
+\paragraph{Independentes ou com ponto comum.} As saídas digitais podem ser \emph{independentes},
+quando cada ponto aciona carga de fonte distinta sem risco de interligá-las, ao custo de mais cabos;
+ou \emph{com ponto comum}, que simplifica o painel, mas exige fonte comum. Para acionar cargas
+incompatíveis entre si em um cartão com ponto comum, usa-se relé intermediário \emph{externo}: a
+bobina desse relé é acionada pela saída do CLP e o contato dele comanda a carga.
+
+\index{saída a relé}\index{saída a transistor}\index{saída a triac}
+
+\section{Cálculo de resolução}
+
+A resolução é o menor degrau que o cartão consegue distinguir, e depende do número de bits do
+conversor A/D (ou D/A) e da faixa configurada.
+
+Um cartão de 12 bits tem $2^{12} = 4.096$ possibilidades de nível lógico, o que corresponde a
+$0$ a $4.095$ na contagem. Com sinal de 4 a 20\,mA, faixa de engenharia de 0 a 4.000\,PSI e
+indicação em porcentagem:
+
+$$
+\frac{20 - 4}{4.095 - 0} = \frac{16}{4.095} = 0{,}00391\ \text{mA por nível}
+$$
+
+$$
+\frac{4.000 - 0}{4.095 - 0} = 0{,}977\ \text{unidade de engenharia por nível}
+$$
+
+$$
+\frac{100 - 0}{4.095 - 0} = 0{,}0244\ \%\text{ por nível}
+$$
+
+Ou seja: cada incremento de 1 no nível lógico corresponde a $0{,}00391$\,mA de sinal, o que na faixa
+do instrumento vale $0{,}977$\,PSI.
+
+\subsection{Definindo os bits do cartão antes de comprar}
+
+A resolução necessária decorre da aplicação, e não do catálogo. Em um processo com medição de vazão
+de 0 a 500\,m$^3$/h, sinal de 4 a 20\,mA, cartão também de 4 a 20\,mA, deseja-se leitura melhor que
+$0{,}02$\,m$^3$/h. Então:
+
+$$
+2^{\,n} - 1 = \frac{500 - 0}{0{,}02} = 25.000
+\quad\Longrightarrow\quad 2^{\,n} = 25.001
+$$
+
+$$
+n = \frac{\log 25.001}{\log 2} \cong 14{,}61 \quad\Longrightarrow\quad n = 15 \text{ bits}
+$$
+
+A conclusão é objetiva: um cartão de 15 bits atende; um de 12 bits não. Como o preço do cartão cresce
+com a resolução, esse cálculo precisa ser feito \emph{antes} da compra --- e é uma das informações que
+alimentam a especificação do Capítulo~\ref{cap:porte}.
+
+\begin{table}[H]
+  \centering
+  \caption{Efeito da resolução do cartão na resolução obtida (faixa de 4 a 20\,mA).}
+  \label{tab:resolucao}
+  \begin{tabular}{l r r r}
+    \toprule
+    Bits de resolução & Níveis (0 a $2^n-1$) & mA por nível & \% por nível \\
+    \midrule
+    12 bits & 4.095 & 0,0039 & 0,024 \\
+    12 bits (0 a 20\,mA) & 4.095 & 0,0049 & 0,031 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{atencao}
+Note a segunda linha da Tabela~\ref{tab:resolucao}: a \emph{mesma} resolução de 12 bits apresenta
+resolução pior em mA quando a faixa é 0 a 20\,mA, porque o mesmo número de níveis cobre uma faixa
+maior. Resolução em bits não se compara entre cartões de faixas diferentes.
+\end{atencao}
+
+\section{Instalação e troca de cartões}
+
+Um cartão pode precisar de manutenção ou troca por queima ou mau funcionamento. Há dois
+procedimentos:
+
+\begin{itemize}
+  \item \textbf{troca a frio} --- o barramento onde está o cartão é desenergizado, evitando dano à
+        eletrônica do cartão e do barramento;
+  \item \textbf{troca a quente} (\emph{hot swap}) --- a troca é feita com o sistema energizado, sem
+        interromper o funcionamento dos cartões vizinhos.
+\end{itemize}
+
+A troca a quente não é um recurso universal: precisa estar prevista na especificação dos componentes.
+Se o cartão não tem essa característica, trocá-lo energizado danifica o cartão e o rack.
+
+\begin{atencao}
+Troca a quente é um recurso de projeto, não uma habilidade do mantenedor. Antes de retirar qualquer
+cartão com o sistema energizado, confirme no manual do equipamento: (a) que o módulo suporta
+\emph{hot swap}; (b) qual o procedimento de remoção; (c) o efeito da retirada sobre os pontos
+vizinhos. Na dúvida, desenergize.
+\end{atencao}
+
+\begin{pratica}
+Baixe o manual de um cartão de entrada digital de 24\,V CC e de um cartão de saída a relé do mesmo
+fabricante e monte uma tabela comparativa com:
+(a) tensão de operação e faixa de corrente por ponto;
+(b) tipo de isolação e tensão de isolação;
+(c) tempo de resposta (\emph{on} e \emph{off});
+(d) tipo de comum e quantidade de pontos.
+Depois responda: por que o tempo de resposta do cartão de relé é maior que o do cartão de entrada?
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Explique a função do optoacoplador e o que ocorreria se ele fosse removido do cartão.
+  \item Um sensor indutivo PNP deve ser ligado a um cartão de entrada. Que comum deve ser usado, e
+        por quê?
+  \item Calcule a resolução em mA por nível de um cartão de 16 bits na faixa de 4 a 20\,mA.
+  \item Uma balança envia 4 a 20\,mA para uma faixa de 0 a 6.000\,kg. O processo exige leitura de
+        0,5\,kg. Quantos bits o cartão precisa ter? Mostre o cálculo.
+  \item Por que a entrada analógica em corrente é preferida em relação à entrada em tensão, quando o
+        instrumento fica longe do painel?
+  \item Uma saída digital precisa acionar uma bobina de válvula em 220\,V CA e outra em 12\,V CC.
+        Que tipo de saída usar para cada uma, e por quê?
+  \item Explique a diferença entre troca a frio e troca a quente, e o requisito de projeto que a
+        segunda impõe.
+\end{enumerate}
+\end{exercicios}

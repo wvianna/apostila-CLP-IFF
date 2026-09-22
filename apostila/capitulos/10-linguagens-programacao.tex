@@ -1,0 +1,290 @@
+\chapter{Linguagens de programação}
+\label{cap:linguagens}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item diferenciar linguagem de baixo nível de linguagem de alto nível no contexto do CLP;
+  \item reconhecer as linguagens definidas pela norma e a vocação de cada uma;
+  \item ler e escrever lógica de contatos: associação em série, em paralelo e mista;
+  \item usar corretamente o contato normalmente aberto e o normalmente fechado;
+  \item explicar por que a Lista de Instruções não deve ser a primeira linguagem ensinada hoje.
+\end{itemize}
+\end{objetivos}
+
+\section{Por que a linguagem importa}
+
+A linguagem é a ferramenta com que se gera o programa que coordena e sequencia as operações do
+microprocessador. Ela determina três coisas ao mesmo tempo: quanto tempo se leva para escrever,
+quem consegue ler o código depois e o quanto esse código sobrevive a uma troca de equipamento.
+
+\index{linguagem de programação}
+
+\section{Baixo nível e alto nível}
+
+\begin{itemize}
+  \item \textbf{baixo nível} --- linguagem de máquina (código binário ou hexadecimal) e
+        \emph{assembly}, com mnemônicos como \texttt{MVI}, \texttt{OUT}, \texttt{MOV}. Cada
+        processador tem seu conjunto próprio de registradores e instruções, o que torna o programa
+        intransportável;
+  \item \textbf{alto nível} --- linguagem próxima da comunicação humana. Exige compilador ou
+        interpretador para chegar à linguagem de máquina, mas reduz muito o tempo de elaboração e
+        dispensa conhecer a arquitetura do processador. O preço é o tempo de processamento maior.
+\end{itemize}
+
+A norma IEC 61131-3 padroniza linguagens de \emph{alto nível} para automação. Controladores que não
+atendem à norma costumam oferecer apenas Ladder, no dialeto do próprio fabricante.
+
+\section{As linguagens definidas pela norma}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\linewidth]{10-classificacao-linguagens.pdf}
+  \caption{Linguagens de programação de CLP: gráficas e textuais.}
+  \label{fig:linguagens}
+\end{figure}
+
+\begin{table}[H]
+  \centering
+  \caption{Linguagens da IEC 61131-3, natureza e vocação.}
+  \label{tab:linguagens}
+  \begin{tabular}{p{1.4cm} p{2.6cm} p{1.6cm} p{8.0cm}}
+    \toprule
+    Sigla & Nome & Natureza & Para que serve melhor \\
+    \midrule
+    LD & \emph{Ladder diagram}, diagrama de contatos
+      & Gráfica
+      & Lógica discreta e intertravamento; a mais próxima do comando elétrico e a mais usada
+        internacionalmente \\
+    FBD & \emph{Function block diagram}, diagrama de blocos
+      & Gráfica
+      & Lógica combinatória e composição de blocos; permite construir blocos complexos a partir de
+        blocos simples \\
+    SFC & \emph{Sequential function chart}, passos e transições
+      & Gráfica
+      & Processos sequenciais: decompõe o problema em estados e condições de transição, mantendo a
+        visão global da solução \\
+    ST & \emph{Structured text}, texto estruturado
+      & Textual
+      & Lógica complexa: laços, condicionais, cálculo e manipulação de dados \\
+    IL & \emph{Instruction list}, lista de instruções
+      & Textual
+      & Linguagem depreciada: ver a Seção~\ref{sec:il-depreciada} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Texto estruturado (ST).} Tem base na informática: usa \texttt{IF-THEN}, \texttt{ELSE},
+\texttt{FOR}, \texttt{WHILE} e por isso é recomendado para lógicas complexas. É a linguagem mais
+próxima do que o aluno encontra em outras linguagens de programação.
+
+\paragraph{Diagrama de blocos (FBD).} Representa a lógica por símbolos de porta e blocos, como na
+lógica digital. É a linguagem natural quando o problema é combinar funções: comparar, calcular,
+temporizar e encadear resultados.
+
+\paragraph{Passos (SFC).} Também chamada antigamente de GRAFCET, parte do pressuposto de que o
+processo tem sequencialidade. Consiste em \emph{passos} ligados a blocos de ação e
+\emph{transições}: cada passo representa um estado particular do sistema, e a transição é a condição
+que, quando verdadeira, desativa o passo anterior e ativa o seguinte.
+
+\paragraph{Ladder (LD).} A linguagem de relé: contatos e bobinas, com a bobina na extremidade
+direita, alimentados por duas barras verticais. Cada linha horizontal é uma sentença lógica em que
+os contatos são as entradas e a bobina é a saída. É a mais simples de assimilar para quem já conhece
+circuito de comando elétrico --- e é essa familiaridade que explica seu sucesso.
+
+\section{Lendo e escrevendo Ladder}
+
+Cada operando --- contato ou bobina --- é identificado por um endereço de memória. O endereço aparece
+como nome simbólico escolhido pelo fabricante, o que é uma das razões da baixa portabilidade entre
+marcas (Capítulo~\ref{cap:iec-versus-legado}).
+
+\begin{itemize}
+  \item \textbf{contato} --- conduz conforme o estado do endereço que o identifica. Os contatos
+        endereçados como entrada se fecham se forem NA e se abrem se forem NF, conforme o par de
+        terminais do módulo de entrada esteja acionado;
+  \item \textbf{bobina} --- aciona o seu endereço: enquanto uma bobina de saída estiver atuada, o par
+        de terminais correspondente no módulo de saída permanece em condução;
+  \item \textbf{bit auxiliar} --- bits da memória de dados manipuláveis pelo programa, equivalentes
+        aos relés auxiliares do comando elétrico. Não fazem parte da memória imagem de E/S.
+\end{itemize}
+
+\begin{figure}[H]
+  \centering
+  \begin{circuitikz}[scale=1]
+    % Barra esquerda
+    \draw (0,-0.6) -- (0,2.0);
+    % Barra direita
+    \draw (7.0,-0.6) -- (7.0,2.0);
+    % Rung 1: contato NA em serie com contato NF, acionando a bobina
+    \draw (0,1.5) to[closing switch, l=$DI1$] (2.2,1.5)
+          to[opening switch, l=$\overline{DI2}$] (4.4,1.5)
+          to[L, l=$DO1$] (7.0,1.5);
+    % Rung 2: associacao em paralelo (logica OU) com contato em serie
+    \draw (0,0.2) to[closing switch, l=$DI3$] (1.8,0.2);
+    \draw (1.8,0.2) to[closing switch] (3.6,0.2);
+    \draw (1.8,0.2) -- (1.8,-0.7) to[closing switch] (3.6,-0.7) -- (3.6,0.2);
+    \draw (3.6,0.2) to[L, l=$DO2$] (7.0,0.2);
+  \end{circuitikz}
+  \caption{Lógica em Ladder: na primeira linha, associação em série (E); na segunda, associação em
+  paralelo (OU).}
+  \label{fig:ladder-logica}
+\end{figure}
+
+\begin{table}[H]
+  \centering
+  \caption{Qual contato usar na lógica, em função da chave de campo.}
+  \label{tab:contato-campo}
+  \begin{tabular}{l l l}
+    \toprule
+    Objetivo com a chave externa & Se a chave externa for & O contato no Ladder deve ser \\
+    \midrule
+    Ligar   & NA & NA \\
+    Ligar   & NF & NF \\
+    Desligar & NA & NF \\
+    Desligar & NF & NA \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Pode-se usar chave externa de qualquer tipo, desde que o contato no programa seja o conveniente.
+Mesmo assim, \textbf{não se deve usar chave NF para ligar nem NA para desligar}: a prática correta é
+buscar a condição de \emph{falha segura}, ou seja, que a perda de sinal leve o processo ao estado
+mais seguro.
+
+O contato NF é a negação: campo fechado resulta em ausência de condução; campo aberto resulta em
+condução. Essa inversão é a origem da maior parte dos erros de leitura de programa por quem está
+começando.
+
+\subsection{Associação em série, em paralelo e mista}
+
+\begin{itemize}
+  \item \textbf{série (E lógico)} --- a saída é acionada quando \emph{todos} os contatos conduzem;
+  \item \textbf{paralelo (OU lógico)} --- a saída é acionada se \emph{pelo menos um} ramo conduz;
+  \item \textbf{mista} --- combinações das duas, criando condições compostas.
+\end{itemize}
+
+Os três casos, escritos em Ladder e em texto estruturado:
+
+\begin{lstlisting}[language=, caption={Lógica E: série de DI1, $\overline{DI2}$ e DI3.}, label={lst:logica-e}]
+IF DI1 AND NOT DI2 AND DI3 THEN
+    DO1 := TRUE;
+ELSE
+    DO1 := FALSE;
+END_IF;
+\end{lstlisting}
+
+\begin{lstlisting}[language=, caption={Lógica OU: ramos paralelos de DI1, $\overline{DI2}$ e DI3.}, label={lst:logica-ou}]
+IF DI1 OR NOT DI2 OR DI3 THEN
+    DO1 := TRUE;
+ELSE
+    DO1 := FALSE;
+END_IF;
+\end{lstlisting}
+
+\begin{lstlisting}[language=, caption={Lógica mista: DI3 em série com o paralelo de DI1 e
+$\overline{DI2}$.}, label={lst:logica-mista}]
+IF (DI1 OR NOT DI2) AND DI3 THEN
+    DO1 := TRUE;
+ELSE
+    DO1 := FALSE;
+END_IF;
+\end{lstlisting}
+
+A familiaridade dos exemplos não é coincidência: Ladder e texto estruturado descrevem a mesma
+álgebra booleana. A diferença é de forma --- e é por isso que a norma admite as duas no mesmo
+projeto.
+
+\begin{pratica}
+Usando o simulador do ambiente de programação disponível:
+(a) reproduza a Figura~\ref{fig:ladder-logica} e monte a tabela-verdade das três entradas;
+(b) escreva a mesma lógica em ST e compare com as listagens~\ref{lst:logica-e}
+a~\ref{lst:logica-mista};
+(c) inverta um dos contatos e explique, por escrito, em que condição de campo a saída passa a
+comportar-se de forma insegura.
+\end{pratica}
+
+\section{Lista de Instruções: por que ela saiu de cena}
+\label{sec:il-depreciada}
+
+A Lista de Instruções (IL) é textual e sequencial, semelhante ao \emph{assembly}: uma lista de
+mnemônicos executados em ordem. O material didático antigo costumava apresentá-la como linguagem
+principal, com o argumento de que é ``diretamente entendida pelo controlador''. Esse argumento não
+se sustenta hoje, por três razões:
+
+\begin{enumerate}
+  \item o programa em IL tem leitura difícil --- não se enxerga a lógica, apenas a sequência de
+        operações;
+  \item a norma \textbf{depreciou a Lista de Instruções na sua terceira edição (2013)} e a
+        \textbf{removeu na quarta edição (2025)}, cuja publicação é de maio de 2025. Ensinar IL como
+        linguagem de partida é ensinar a escrever código que o próprio normativo abandonou;
+  \item o que ela oferecia --- acesso ao nível da máquina --- hoje é resolvido pela compilação a
+        partir de ST, sem que o programador precise descer a esse nível.
+\end{enumerate}
+
+\textbf{Consequência prática para esta apostila:} IL aparece aqui como registro histórico e para
+leitura de código legado, nunca como linguagem recomendada para programa novo. Quando o objetivo for
+portabilidade, escreva em ST ou LD.
+
+\begin{atencao}
+A citação de edições é obrigatória quando se fala de conformidade. ``Conforme IEC 61131-3'' sem dizer
+a edição é afirmação vazia: um controlador que implementa a segunda edição (2003) pode ser conforme
+e, ao mesmo tempo, oferecer uma linguagem que a quarta edição já removeu.
+\end{atencao}
+
+\index{IEC 61131-3!edições}\index{Lista de Instruções}
+
+\section{Como escolher a linguagem}
+
+\begin{table}[H]
+  \centering
+  \caption{Critérios de análise das linguagens, para escolha em projeto.}
+  \label{tab:criterios-linguagem}
+  \begin{tabular}{p{3.2cm} p{11.4cm}}
+    \toprule
+    Critério & O que observar \\
+    \midrule
+    Forma de programação
+      & \emph{Linear}: programa em um único bloco. \emph{Estruturada}: permite organizar, criar
+        bibliotecas de rotinas utilitárias e dividir o programa por critério funcional, operacional
+        ou geográfico \\
+    Forma de representação
+      & Diagrama de contatos, diagrama de blocos ou lista de instruções; a representação escolhida
+        define quem consegue revisar o código \\
+    Documentação
+      & A documentação é recurso do ambiente de programação mais do que da linguagem, mas quanto
+        mais rico em comentários e mais estruturado o código, melhor. Com muitos profissionais
+        envolvidos entre concepção e manutenção, isso deixa de ser detalhe \\
+    Conjunto de instruções
+      & Conjunto de funções disponível: temporização, contagem, aritmética, PID, manipulação de
+        dados e blocos de comunicação \\
+    Portabilidade
+      & Se a linguagem e os blocos usados são da norma ou do fabricante (Capítulo~\ref{cap:iec-versus-legado}) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Programação estruturada é o que permite divisão por área, biblioteca de rotinas e manutenção por
+outra pessoa que não o autor. Em curso técnico, esse é o critério que mais pesa no médio prazo: o
+programa será mantido por quem não o escreveu.
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Explique a diferença entre linguagem de baixo e de alto nível e dê um exemplo de cada no
+        contexto do CLP.
+  \item Associe cada situação à linguagem mais adequada e justifique: (a) intertravamento de uma
+        prensa; (b) cálculo de conversão de unidade com laço; (c) sequência de partida de uma
+        máquina de envase; (d) encadeamento de blocos de cálculo.
+  \item Escreva a equação booleana e o trecho em ST para uma saída acionada por \texttt{DI1} em
+        série com o paralelo de \texttt{DI2} e \texttt{DI3}.
+  \item Preencha a Tabela~\ref{tab:contato-campo} para uma botoeira de emergência que deve desligar o
+        processo, e explique a escolha pelo critério de falha segura.
+  \item Um programa usa uma chave NF de campo para \emph{ligar} um motor. Explique o risco e como
+        corrigir.
+  \item Explique, com suas palavras, por que o contato NF é chamado de negação e por que isso induz
+        erro de leitura.
+  \item Cite as duas edições da norma citadas neste capítulo e o que cada uma fez com a Lista de
+        Instruções.
+  \item Se um fabricante afirma que seu controlador ``é conforme à IEC 61131-3'', que pergunta você
+        faz antes de aceitar a afirmação?
+\end{enumerate}
+\end{exercicios}

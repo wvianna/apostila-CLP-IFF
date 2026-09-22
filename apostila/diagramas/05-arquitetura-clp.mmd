@@ -1,0 +1,24 @@
+flowchart LR
+  TP["Terminal de programação<br/>(PC ou handheld)"]
+  FONTE["Fonte de alimentação"]
+  subgraph CPU["Unidade central de processamento"]
+    direction TB
+    MP["Microprocessador"]
+    MEM["Memórias:<br/>executiva, sistema,<br/>imagem, dados, usuário"]
+    MP <--> MEM
+  end
+  IE["Cartões de entrada"]
+  SE["Cartões de saída"]
+  CAMPO_IN["Sensores, botoeiras,<br/>pressostatos, termopares"]
+  CAMPO_OUT["Válvulas, contatores,<br/>lâmpadas, inversores"]
+  BAR["Barramento interno: endereços, dados e controle"]
+
+  TP -.->|"programa e diagnóstico"| CPU
+  FONTE --> CPU
+  CAMPO_IN --> IE
+  IE -->|"imagem das entradas"| MP
+  MP -->|"imagem das saídas"| SE
+  SE --> CAMPO_OUT
+  IE --- BAR
+  MP --- BAR
+  SE --- BAR

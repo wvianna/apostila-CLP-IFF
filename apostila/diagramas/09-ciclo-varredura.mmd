@@ -1,0 +1,8 @@
+flowchart TB
+  LEIT["1. Leitura das entradas<br/>e atualização da imagem das entradas"]
+  PROC["2. Processamento do programa do usuário<br/>usando a imagem das entradas"]
+  ESC["3. Escrita na imagem das saídas<br/>e transferência para os cartões de saída"]
+  LEIT --> PROC --> ESC
+  ESC -->|"novo ciclo (tempo de varredura)"| LEIT
+  WD["Watchdog: se o ciclo ultrapassar o tempo máximo,<br/>a CPU para e sinaliza falha"]
+  ESC -.->|"supervisão do tempo"| WD

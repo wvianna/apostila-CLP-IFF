@@ -1,0 +1,12 @@
+flowchart LR
+  subgraph M1["Memórias do sistema"]
+    direction TB
+    A["Memória executiva<br/>ROM: sistema operacional (firmware)"] ~~~ B["Memória do sistema<br/>RAM: rascunho do sistema,<br/>não acessível ao usuário"]
+    B ~~~ C["Memória imagem de E/S<br/>RAM: status das entradas<br/>e das saídas"]
+  end
+  subgraph M2["Memórias do usuário"]
+    direction TB
+    D["Memória de dados<br/>RAM: temporização, contagem,<br/>aritmética e PID"] ~~~ E["Memória do usuário<br/>RAM ou RAM/EEPROM/Flash:<br/>o programa"]
+    E ~~~ F["Memória retentiva<br/>preserva o valor<br/>após desligar"]
+  end
+  M1 ~~~ M2

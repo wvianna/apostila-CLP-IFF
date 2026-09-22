@@ -1,0 +1,241 @@
+\chapter{IIoT, OPC UA e MQTT}
+\label{cap:iiot}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item explicar o que a arquitetura cliente-servidor clássica não resolve;
+  \item descrever o que OPC UA acrescenta a um protocolo de transporte;
+  \item explicar o modelo \emph{publish/subscribe} do MQTT e o papel dos níveis de serviço;
+  \item dizer o que o Sparkplug padroniza e por que isso importa;
+  \item apontar os limites do IIoT: latência, determinismo, custo de rede e borda versus nuvem.
+\end{itemize}
+\end{objetivos}
+
+\section{O que a automação clássica deixou em aberto}
+
+O Capítulo~\ref{cap:estrutura} mostrou a hierarquia em que cada nível fala com o de cima por um
+caminho próprio. Esse arranjo funcionou por décadas e tem duas limitações que ficaram caras com o
+tempo:
+
+\begin{enumerate}
+  \item \textbf{o problema $N \times M$}: cada combinação de aplicação e equipamento exige um
+        \emph{driver} próprio. Três sistemas de supervisão e cinco famílias de controladores
+        significam até quinze integrações para manter, atualizar e testar a cada versão de
+        \emph{firmware};
+  \item \textbf{dado sem significado}: um protocolo de transporte diz \emph{onde} está o valor, não
+        \emph{o que} ele é. Sem essa camada, cada consumidor precisa de uma tabela mantida à mão
+        dizendo que o registro 40001 é a temperatura e que a unidade é grau Celsius.
+\end{enumerate}
+
+O conjunto de tecnologias que ataca esses dois problemas ficou conhecido como \textbf{IIoT}
+(\emph{Industrial Internet of Things}): usar padrões de comunicação abertos para levar dado
+industrial a qualquer consumidor autorizado, dentro ou fora da fábrica, sem que cada consumidor
+precise conhecer o equipamento que o originou.
+
+\index{IIoT}\index{Internet das Coisas!industrial}
+
+\section{OPC UA: camada de informação, não apenas de transporte}
+
+OPC UA (\emph{Unified Architecture}) foi lançado em 2008 pela OPC Foundation como uma arquitetura
+orientada a serviços, independente de plataforma, que reuniu as especificações anteriores do OPC
+``clássico'' em um único conjunto. Quatro características o distinguem dos protocolos de transporte
+apresentados no capítulo anterior (OPC Foundation, \emph{Unified Architecture}, especificação
+disponível publicamente):
+
+\begin{itemize}
+  \item \textbf{modelagem de informação}: o dado é exposto como um espaço de endereços hierárquico,
+        com objetos, variáveis e tipos definidos. Um cliente pode \emph{descobrir} a estrutura, em
+        vez de depender de uma tabela externa;
+  \item \textbf{assinatura de dados}: o cliente se inscreve em um item e recebe notificação quando o
+        valor muda (relatório por exceção), em vez de perguntar em laço;
+  \item \textbf{eventos e métodos}: além de valores, o servidor notifica eventos e pode executar
+        métodos, ou seja, há canal para invocar ações e não só para ler e escrever;
+  \item \textbf{sessão segura}: autenticação por certificado, cifragem das mensagens, assinatura e
+        sequenciamento, com registro de auditoria.
+\end{itemize}
+
+O detalhe que interessa a quem compra equipamento é o primeiro item da lista acima. Sobre a base do
+OPC UA existe um programa de perfis setoriais (\emph{companion specifications}), mantido por
+organizações de cada segmento industrial. Um perfil publicado define, para um tipo de equipamento,
+\emph{quais} variáveis devem existir e com que nome --- que é exatamente o que faltava no Modbus, como
+observado no Capítulo~\ref{cap:familia-iec}.
+
+O mesmo padrão também prevê uma variante de publicação e assinatura (PubSub), pensada para
+comunicação de muitos para muitos, em que o produtor publica sem saber quem consome. Guarde essa
+distinção: é a mesma ideia que o MQTT explora, por outro caminho.
+
+\index{OPC UA}
+
+\section{MQTT: publicação e assinatura para telemetria}
+
+MQTT é um padrão aberto de mensagens mantido pela OASIS (versões 3.1.1 e 5.0), projetado para
+dispositivos com pouca memória e rede de banda limitada ou instável. O desenho é
+\emph{publish/subscribe}:
+
+\begin{itemize}
+  \item um \textbf{broker} central recebe as mensagens publicadas;
+  \item quem publica envia para um \textbf{tópico}, sem saber quem recebe;
+  \item quem consome assina o tópico que lhe interessa, sem saber quem publica.
+\end{itemize}
+
+Esse desacoplamento é a razão do sucesso do MQTT em telemetria. Acrescentar um consumidor novo ---
+um painel de indicadores, uma ferramenta de análise, um sistema de manutenção --- não exige tocar no
+publicador. Em uma arquitetura ponto a ponto, cada consumidor novo é uma integração nova.
+
+Dois recursos merecem atenção:
+
+\begin{itemize}
+  \item \textbf{níveis de serviço} (\emph{QoS} 0, 1 e 2, na documentação da OASIS): entregar no máximo
+        uma vez, ao menos uma vez e exatamente uma vez. Escolher o nível é uma decisão de engenharia:
+        contagem de peças tolera repetição; consumo acumulado de energia, não;
+  \item \textbf{sessão persistente}: o cliente pode reconectar e receber o que foi publicado durante
+        a ausência. É o que viabiliza o padrão \emph{store and forward} em enlaces que caem, comuns em
+        rede celular e em campo remoto.
+\end{itemize}
+
+\section{Sparkplug: padronizar o conteúdo, não só o transporte}
+
+MQTT padroniza \emph{como} a mensagem viaja, não \emph{o que} ela diz. Sem essa camada, cada
+integração inventa seu formato de tópico e seu formato de carga útil, e volta-se ao problema
+$N \times M$ --- agora em cima de um protocolo aberto.
+
+O \textbf{Eclipse Sparkplug} (versão 3.0, mantida pela Eclipse Foundation) resolve isso definindo,
+para o mundo industrial, a estrutura dos tópicos e o formato da carga útil, além de dois mecanismos
+que valem a pena conhecer:
+
+\begin{itemize}
+  \item \textbf{certificados de nascimento e de morte}: ao conectar-se, o dispositivo publica seu
+        estado e a lista do que vai informar; ao cair, é possível detectar a ausência. O consumidor
+        sabe \emph{se} o dado é válido, não apenas se ele chegou;
+  \item \textbf{consciência de estado} (\emph{state awareness}): a informação de qualidade acompanha o
+        dado, o que permite distinguir ``valor parado'' de ``equipamento desligado''.
+\end{itemize}
+
+\section{A pilha completa}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.98\linewidth]{18-pilha-iiot.pdf}
+  \caption{Pilha típica de IIoT: controlador, borda, broker e aplicações.}
+  \label{fig:pilha-iiot}
+\end{figure}
+
+A Figura~\ref{fig:pilha-iiot} mostra a montagem mais comum:
+
+\begin{enumerate}
+  \item o \textbf{controlador} expõe dados por OPC UA. Em instalações antigas, o caminho é um
+        \emph{driver} do protocolo proprietário dentro do gateway;
+  \item o \textbf{gateway de borda} é o tradutor: fala OPC UA (ou Modbus) de um lado e MQTT do outro,
+        mantém um \emph{buffer} local e aplica alguma regra de filtro --- mudança de valor, limite de
+        taxa, agregação;
+  \item o \textbf{broker} distribui;
+  \item as \textbf{aplicações} consomem: histórico, painéis, análise, manutenção e, quando fizer
+        sentido, o próprio MES.
+\end{enumerate}
+
+Note o que \emph{não} está na figura: nenhum caminho de comando descendo pelo broker até o laço de
+controle. Essa ausência é deliberada e é o conteúdo da próxima seção.
+
+\index{gateway de borda}\index{broker MQTT}
+
+\section{Vantagens do IIoT na automação}
+
+\begin{table}[H]
+  \centering
+  \caption{O que o IIoT entrega, em termos práticos.}
+  \label{tab:iiot-vantagens}
+  \begin{tabular}{p{4.4cm} p{9.9cm}}
+    \toprule
+    Vantagem & Efeito prático \\
+    \midrule
+    Acesso a mais variáveis & Parâmetros de diagnóstico que já existiam no equipamento e não eram
+      lidos passam a ser visíveis --- sem alterar a lógica de controle \\
+    Integração desacoplada & Um consumidor novo entra por assinatura, sem alterar o publicador nem
+      o programa do controlador \\
+    Dado com contexto & Modelo de informação e carga útil padronizada reduzem a dependência de
+      tabelas de registradores mantidas à mão \\
+    Efeito de escala & Muitas máquinas podem ser acompanhadas por um número pequeno de
+      especialistas, em vez de exigir presença física em cada ponto \\
+    Histórico para a melhoria & Tendência, consumo e contagem de ciclos alimentam manutenção e
+      eficiência energética, temas dos Capítulos~\ref{cap:dados} e~\ref{cap:eficiencia} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Desafios e limites}
+
+Se o IIoT fosse apenas vantagem, toda planta já o teria adotado por completo. Não é o caso. Os
+obstáculos reais são de quatro naturezas:
+
+\begin{enumerate}
+  \item \textbf{latência e determinismo}. A cadeia inclui gateway, broker, fila, rede compartilhada e
+        aplicação. Cada elo acrescenta atraso e variabilidade. Um caminho que passa por broker e por
+        rede corporativa não é determinístico --- e, por isso, não serve para controle. O critério
+        prático: se a função precisa de prazo garantido, ela fica no controlador;
+  \item \textbf{banda e custo de rede}. Enviar toda variável a cada segundo, de cada máquina, custa
+        tráfego, licença e nuvem. O gateway existe também para isso: filtrar, agregar e transmitir por
+        exceção. Sem essa disciplina, o projeto de IIoT entrega uma conta mensal e não um indicador;
+  \item \textbf{segurança}. Cada caminho novo de leitura é superfície nova de ataque. Um broker
+        acessível a partir da rede corporativa, com credencial padrão e sem TLS, transforma a melhoria
+        em porta de entrada (Capítulo~\ref{cap:seguranca});
+  \item \textbf{governança do dado}. Quem é o dono da variável? Quem aprova mudar o seu significado?
+        Duas áreas publicando a mesma grandeza com nomes e unidades diferentes produzem dois
+        indicadores e nenhuma decisão.
+\end{enumerate}
+
+\begin{atencao}
+O IIoT amplia a \emph{visão} sobre o processo; não amplia a \emph{autoridade} sobre a máquina. Nada
+que dependa de prazo garantido --- intertravamento, parada de emergência, proteção de máquina ---
+pode depender de broker, de gateway ou de nuvem. A fronteira correta é simples de enunciar: dado
+sobe, comando de segurança não desce por esse caminho. O Capítulo~\ref{cap:ti-to} retoma essa
+fronteira ao tratar de tecnologias de TI no chão de fábrica.
+\end{atencao}
+
+\section{Por onde começar}
+
+A ordem que costuma dar certo em planta em operação:
+
+\begin{enumerate}
+  \item \textbf{inventariar} o que já existe: quais controladores, quais protocolos, quais dados já
+        são coletados e quem usa cada um;
+  \item começar por um \textbf{indicador que a planta quer} --- consumo por linha, disponibilidade de
+        um equipamento crítico --- e trabalhar de trás para frente, para saber quais variáveis
+        faltam;
+  \item \textbf{piloto em um equipamento}, com o gateway isolado da rede de controle;
+  \item só então padronizar, documentando tópicos, nomes e unidades.
+\end{enumerate}
+
+Começar pela tecnologia --- ``vamos instalar a plataforma'' --- produz projeto bonito e nenhum
+indicador. Começar pelo indicador produz uma lista de variáveis, que é o que a engenharia precisa.
+
+\begin{pratica}
+Escolha um equipamento da sua planta ou da sua bancada e responda, por escrito:
+(a) quais variáveis de processo ele já disponibiliza em rede hoje?
+(b) quais delas interessariam a um indicador de disponibilidade?
+(c) qual seria o caminho do dado, no formato da Figura~\ref{fig:pilha-iiot}, até esse indicador?
+(d) qual dessas variáveis \emph{não} pode ser levada para fora da rede de controle, e por quê?
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Explique o problema $N \times M$ com um exemplo numérico de três sistemas e quatro famílias
+        de equipamentos.
+  \item Qual das quatro características do OPC UA resolve diretamente o problema do significado do
+        dado? Justifique.
+  \item Compare OPC UA e MQTT quanto a: modelo de comunicação, papel do intermediário e adequação a
+        controle de tempo real.
+  \item Descreva o caminho de um dado de temperatura desde o CLP até um painel de indicadores na
+        nuvem, nomeando cada elemento da Figura~\ref{fig:pilha-iiot}.
+  \item Por que a escolha do nível de serviço (QoS) muda conforme a variável? Dê um exemplo de
+        variável que tolera repetição e um que não tolera.
+  \item O que os certificados de nascimento e de morte informam ao consumidor que um simples valor
+        recebido não informa?
+  \item Cite dois riscos concretos de ligar o broker MQTT diretamente na rede corporativa.
+  \item Um fornecedor propõe fazer o intertravamento de uma prensa ``pelo servidor OPC UA, para
+        centralizar a lógica''. Escreva a recusa técnica em cinco linhas.
+  \item Escolha uma das vantagens da Tabela~\ref{tab:iiot-vantagens} e diga qual desafio da seção
+        seguinte pode anulá-la se o projeto for mal feito.
+  \item Descreva, em quatro passos, como você conduziria um piloto de IIoT em uma máquina isolada.
+\end{enumerate}
+\end{exercicios}

@@ -1,0 +1,75 @@
+# ============================================================================
+#  .gitignore — Controladores Lógicos Programáveis (IFF / Campos dos Goytacazes)
+#
+#  VERSIONADO (fonte, não se regenera):
+#    apostila/*.tex, capitulos/*.tex   prosa da obra
+#    apostila/diagramas/*.mmd          fontes dos diagramas Mermaid
+#    apostila/scripts/*.sh             automação de build
+#    apostila/figuras/*.pdf            figuras renderizadas (ver NOTA abaixo)
+#    apostila/fontes/*.md              texto extraído das apostilas de origem
+#    apostila/INVENTARIO.md, PLANO.md  auditoria e plano editorial
+#    docs/                             PDFs de origem e enunciado dos requisitos
+#    .agents/skills/                   skills que executam o processo
+#    apostila/apostila.pdf             produto final
+#    README.md, LICENSE.md, status.md, handoff.md
+#
+#  IGNORADO: tudo o que a compilação produz. A regra do projeto (ver
+#  status.md) é: o .tex e o .mmd são fonte; o resto é artefato.
+# ============================================================================
+
+# --- Artefatos de compilação -------------------------------------------------
+# O scripts/build.sh grava aux, log, toc, lof, lot, idx, ind e synctex aqui.
+apostila/build/
+
+# --- Intermediários do LaTeX --------------------------------------------------
+# Caso a compilação seja feita à mão, fora de apostila/build/.
+*.aux
+*.ilg
+*.idx
+*.ind
+*.lof
+*.lot
+*.toc
+*.out
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bbl
+*.blg
+
+# --- Logs --------------------------------------------------------------------
+# Cobre os .log que o mmdc grava em apostila/figuras/ durante a renderização.
+*.log
+
+# --- Exportação DOCX ---------------------------------------------------------
+# Fora de escopo por decisão do autor: o produto é o PDF.
+# (O build.sh só gera este arquivo se receber --docx.)
+apostila/apostila.docx
+
+# --- PNG dos diagramas -------------------------------------------------------
+# Só são úteis para a exportação DOCX, que não é gerada.
+apostila/figuras/*.png
+
+# NOTA: apostila/figuras/*.pdf NÃO é ignorado de propósito. O produto final
+# precisa dessas figuras e regenerá-las exige mmdc + navegador (dependência
+# frágil, documentada no README). Como são vetoriais e pequenas, vale versioná-las.
+# Para versionar apenas os .mmd, descomente a linha abaixo — e lembre de rodar
+# ./scripts/render-mermaid.sh antes de compilar, senão o PDF sai com as áreas das
+# figuras em branco.
+# apostila/figuras/*.pdf
+
+# --- Área de saída local -----------------------------------------------------
+output/
+
+# --- Sistema operacional e editores ------------------------------------------
+.DS_Store
+._*
+Thumbs.db
+desktop.ini
+*~
+*.swp
+*.swo
+
+# --- Ferramentas auxiliares --------------------------------------------------
+# Cache das ferramentas de conversão de página usadas em extrair-fontes.sh.
+.firecrawl/

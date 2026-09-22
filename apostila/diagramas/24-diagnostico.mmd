@@ -1,0 +1,12 @@
+flowchart TB
+  F["Sintoma observado"] --> Q1{"O controlador está em RUN?"}
+  Q1 -->|"não"| D1["Verificar fonte, módulo e programa; ler o diagnóstico do controlador"]
+  Q1 -->|"sim"| Q2{"A entrada é lida?"}
+  Q2 -->|"não"| D2["Verificar sinal de campo, tensão de alimentação, filtro e endereço do ponto"]
+  Q2 -->|"sim"| Q3{"A saída é comandada?"}
+  Q3 -->|"não"| D3["Verificar lógica satisfeita, força aplicada e modo do programa"]
+  Q3 -->|"sim"| D4["Verificar cartão de saída, relé, fusível e circuito de campo"]
+  D1 --> RG["Registrar causa e correção no histórico do equipamento"]
+  D2 --> RG
+  D3 --> RG
+  D4 --> RG

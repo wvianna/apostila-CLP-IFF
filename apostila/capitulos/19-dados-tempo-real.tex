@@ -1,0 +1,223 @@
+\chapter{Dados, telemetria e monitoramento em tempo real}
+\label{cap:dados}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item distinguir dado, informação e indicador, e construir o terceiro a partir dos dois primeiros;
+  \item calcular e interpretar os indicadores usuais de produção e de consumo;
+  \item decidir onde processar cada tarefa: no CLP, na borda ou na nuvem;
+  \item reconhecer os sinais simples de degradação usados em manutenção preditiva;
+  \item dizer, com clareza, o que o controlador pode e o que ele não pode fazer.
+\end{itemize}
+\end{objetivos}
+
+\section{Do dado bruto ao indicador}
+
+Os três termos são usados como sinônimos no dia a dia e não são:
+
+\begin{itemize}
+  \item \textbf{dado}: o valor lido, com carimbo de tempo. ``Contador de peças = 4.812, às 14h32'';
+  \item \textbf{informação}: o dado com contexto. ``4.812 peças produzidas no turno A, contra 5.100 no
+        mesmo turno de ontem'';
+  \item \textbf{indicador}: a informação transformada em medida de desempenho, comparável entre
+        períodos e máquinas. ``Eficiência global do equipamento: 71\,\%''.
+\end{itemize}
+
+Toda a cadeia de monitoramento existe para chegar ao terceiro. Uma planta pode ter milhares de tags
+e nenhum indicador --- e, nesse caso, tem telemetria sem gestão.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.74\linewidth]{19-fluxo-dados.pdf}
+  \caption{Caminho do dado até a decisão, e o retorno da decisão ao processo.}
+  \label{fig:fluxo-dados}
+\end{figure}
+
+\begin{atencao}
+A etapa mais esquecida da Figura~\ref{fig:fluxo-dados} é a última. Indicador que não volta como
+decisão --- mudar um \emph{setpoint}, antecipar uma manutenção, reprogramar um lote --- é relatório
+de gaveta. Antes de instrumentar qualquer coisa, escreva qual decisão depende daquele número.
+\end{atencao}
+
+\index{indicador de desempenho}\index{telemetria}
+
+\section{Os indicadores usuais}
+
+\begin{table}[H]
+  \centering
+  \caption{Indicadores usuais de produção e consumo, o que exigem do controle e onde costumam falhar.}
+  \label{tab:indicadores}
+  \begin{tabular}{p{3.0cm} p{4.1cm} p{3.4cm} p{3.8cm}}
+    \toprule
+    Indicador & Definição conceitual & O que o CLP fornece & Onde costuma falhar \\
+    \midrule
+    OEE (eficiência global do equipamento)
+      & Disponibilidade $\times$ desempenho $\times$ qualidade
+      & Estado da máquina (parada, operando, falha), contagem de peças boas e refugadas, tempo
+        disponível
+      & Classificação de parada mal definida: toda parada vira ``outros'', e o indicador deixa de
+        apontar causa \\
+    \addlinespace
+    Disponibilidade
+      & Tempo em operação dividido pelo tempo programado
+      & Sinal de máquina em ciclo, tempo em falha
+      & Não distinguir parada planejada de não planejada \\
+    \addlinespace
+    Tempo de ciclo
+      & Tempo entre duas peças conforme, ou por etapa do ciclo
+      & Marcações de início e fim, com resolução adequada
+      & Medir no supervisório um fenômeno que acontece em milissegundos: a média esconde a variação \\
+    \addlinespace
+    Contagem de produção
+      & Peças ou lotes produzidos por turno, produto e linha
+      & Contador de ciclo, com tratamento de primeira varredura e de retomada
+      & Retenção de contador perdida na queda de energia, ou contagem dupla na partida \\
+    \addlinespace
+    Consumo energético
+      & Energia por tonelada, por peça ou por turno
+      & Leitura de medidor por rede ou por pulso; estado de motores e de iluminação
+      & Comparar períodos com produtos diferentes e concluir que a eficiência mudou
+        (Capítulo~\ref{cap:eficiencia}) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Uma observação sobre o OEE: ele é útil exatamente porque separa disponibilidade, desempenho e
+qualidade. Quando combinado em um único número sem detalhamento, perde a capacidade de apontar
+\emph{onde} intervir. O indicador agregado é para a reunião de gestão; o detalhamento é para a
+engenharia.
+
+\section{Onde processar: CLP, borda ou nuvem}
+
+Esta é a decisão de arquitetura que define o custo e a utilidade do sistema.
+
+\begin{table}[H]
+  \centering
+  \caption{Critérios para decidir onde processar cada tarefa.}
+  \label{tab:onde-processar}
+  \begin{tabular}{p{2.4cm} p{3.3cm} p{3.3cm} p{5.3cm}}
+    \toprule
+    Critério & No CLP & Na borda & Na nuvem ou na sala de controle \\
+    \midrule
+    Prazo
+      & Prazo garantido, em milissegundos
+      & Responde em centenas de milissegundos a segundos
+      & Prazo não garantido; depende de banda e de fila \\
+    \addlinespace
+    Volume
+      & Baixo: o que cabe na memória de trabalho
+      & Intermediário: filtra e agrega antes de enviar
+      & Alto: meses ou anos de histórico de muitas máquinas \\
+    \addlinespace
+    Criticidade
+      & Só o que não pode parar a máquina
+      & O que melhora a operação sem risco imediato
+      & O que orienta decisão de dias ou meses \\
+    \addlinespace
+    Manutenção
+      & Exige parada e equipe de automação
+      & Atualizável em janela curta
+      & Atualizável continuamente, por equipe de TI \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Lendo a Tabela~\ref{tab:onde-processar} de cima para baixo chega-se à regra prática:
+\textbf{leitura rápida e intertravamento no controlador; transformação e contexto na borda; acúmulo e
+análise pesada fora do chão de fábrica}.
+
+Essa divisão também é uma proteção. Cada função que sai do controlador deixa de depender do
+determinismo dele --- e, em troca, ganha capacidade de processamento. Mover a decisão certa para o
+lugar errado é a origem tanto de máquinas inseguras quanto de indicadores inúteis.
+
+\index{processamento na borda}\index{nuvem!limite de uso}
+
+\section{Detecção de desvio e manutenção preditiva simples}
+
+Nem toda manutenção preditiva exige aprendizado de máquina. Quatro recursos simples, implementáveis
+em lógica de controlador ou em ferramenta de histórico, cobrem boa parte dos casos:
+
+\begin{enumerate}
+  \item \textbf{limite absoluto}: o valor passou de um patamar. É o alarme clássico;
+  \item \textbf{taxa de mudança}: a variável está subindo mais rápido que o normal. Um aumento lento
+        e persistente de corrente em um motor indica desgaste ou obstrução, mesmo dentro da faixa
+        ``normal'';
+  \item \textbf{contagem de ciclos}: o atuador número $n$ vai superar a vida declarada. Simples,
+        verificável e diretamente acionável;
+  \item \textbf{desvio do padrão}: o tempo de uma etapa do ciclo cresceu 8\% em relação à referência
+        do mesmo produto, sem que nenhum limite tenha sido atingido.
+\end{enumerate}
+
+Os dois últimos são os mais valiosos, porque antecipam a falha sem depender de um limite fixo --- que
+existe justamente para não ser atingido em operação normal.
+
+\begin{atencao}
+Detecção de desvio sem contexto gera alarme falso, e alarme falso ensina o operador a ignorar
+alarmes. Antes de publicar um indicador de degradação, defina três coisas: a referência, a banda de
+tolerância e o que fazer quando o desvio aparecer. Um indicador que ninguém sabe como usar é ruído
+com carimbo de tempo.
+\end{atencao}
+
+\section{O limite do controlador}
+
+Vale ser explícito, porque é o erro mais comum em projetos de monitoramento:
+
+\begin{itemize}
+  \item o CLP faz \textbf{aquisição rápida}, lógica de \textbf{intertravamento}, contagem e
+        temporização com precisão conhecida --- e faz isso sem depender de rede;
+  \item o CLP \textbf{não} é o lugar de treinar modelo, cruzar meses de histórico, gerar relatório
+        gráfico ou calcular indicador que depende de dados de várias máquinas. Havia memória
+        contada para isso no Capítulo~\ref{cap:memoria}, e a memória de trabalho do controlador
+        precisa sobrar para o programa de controle;
+  \item o critério de fronteira é o \textbf{prazo}: o que precisa de resposta garantida fica no
+        controlador; o resto sai.
+\end{itemize}
+
+\section{Qualidade do dado}
+
+Indicador calculado sobre dado ruim é pior que nenhum indicador, porque produz confiança injustificada.
+Quatro cuidados resolvem a maior parte dos problemas:
+
+\begin{enumerate}
+  \item \textbf{carimbo de tempo no ponto de origem}, não na chegada. Em rede não determinística, o
+        instante da chegada não é o instante do evento;
+  \item \textbf{qualidade acompanhando o valor}: distinguir ``zero'' de ``sem leitura''. São estados
+        diferentes e exigem decisões diferentes;
+  \item \textbf{resolução e período de amostragem coerentes} com o fenômeno
+        (Capítulo~\ref{cap:es}). Amostrar devagar um evento rápido produz média enganosa;
+  \item \textbf{unidade e escala documentadas} na lista de tags (Capítulo~\ref{cap:documentacao}).
+        Duas áreas usando escalas diferentes para a mesma grandeza geram dois indicadores
+        contraditórios --- e a discussão que ninguém quer ter.
+\end{enumerate}
+
+\begin{pratica}
+Escolha uma máquina da sua planta ou bancada e construa um indicador de disponibilidade:
+(a) liste as variáveis necessárias e diga se cada uma já existe ou precisa ser criada;
+(b) defina as categorias de parada e quem vai classificá-las;
+(c) monte o cálculo na Tabela~\ref{tab:indicadores};
+(d) decida, pela Tabela~\ref{tab:onde-processar}, onde cada cálculo roda;
+(e) escreva qual decisão será tomada com o resultado.
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Dê um exemplo de dado, um de informação e um de indicador para uma linha de envase.
+  \item Por que o OEE detalhado é mais útil para a engenharia que o OEE agregado?
+  \item Uma máquina produziu 4.500 peças em 480 minutos programados, dos quais 40 foram de parada por
+        falha e 20 de troca de produto planejada. Calcule a disponibilidade e diga que decisão a
+        diferença entre as duas paradas permite tomar.
+  \item Explique por que medir tempo de ciclo no supervisório pode esconder o problema que se quer
+        investigar.
+  \item Aplique a Tabela~\ref{tab:onde-processar} e decida onde rodar: (i) intertravamento de porta;
+        (ii) média de consumo por turno; (iii) comparação de consumo entre meses; (iv) contagem de
+        peças para o indicador de produção.
+  \item Escreva a regra de fronteira entre CLP e borda em uma frase, e aplique-a a um caso seu.
+  \item Descreva dois indicadores de degradação que se pode extrair apenas de contagem de ciclos e de
+        tempo de etapa, sem sensor novo.
+  \item Por que o carimbo de tempo deve ser gerado na origem? Dê um exemplo em que a diferença importa.
+  \item Qual é a diferença prática entre ``valor zero'' e ``sem leitura'' em um indicador de consumo?
+  \item Um colega propõe calcular o OEE de dez máquinas dentro de um dos CLPs. Aponte dois problemas
+        técnicos com base no Capítulo~\ref{cap:memoria}.
+\end{enumerate}
+\end{exercicios}

@@ -1,0 +1,6 @@
+flowchart TB
+  M["Medição: medidor de energia<br/>e tags de kWh"] --> I["Indicadores: kWh por tonelada,<br/>por linha e por turno"]
+  I --> A["Ações na lógica: desligamento automático,<br/>setpoint ótimo e fim da operação a vazio"]
+  A --> V["Verificação: o indicador melhorou?"]
+  V -.->|"ajuste"| A
+  V --> RG["Registro e meta de consumo"]

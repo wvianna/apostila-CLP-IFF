@@ -1,0 +1,14 @@
+flowchart LR
+  subgraph NORMA["O que a norma padroniza"]
+    direction TB
+    N1["Modelo de software:<br/>configuração, recurso, tarefa, POU"] ~~~ N2["Tipos de dados elementares<br/>e derivados"]
+    N2 ~~~ N3["Forma das linguagens<br/>LD, FBD, ST e SFC"]
+    N3 ~~~ N4["Semântica de funções e<br/>blocos de função padronizados"]
+  end
+  subgraph FAB["O que fica com o fabricante"]
+    direction TB
+    F1["Endereçamento físico das E/S"] ~~~ F2["Dialeto e mnemônicos<br/>do ambiente de programação"]
+    F2 ~~~ F3["Blocos de sistema e de<br/>comunicação proprietários"]
+    F3 ~~~ F4["Protocolos de rede e<br/>arquitetura da IDE"]
+  end
+  NORMA -.->|"a portabilidade real<br/>está nesta fronteira"| FAB

@@ -1,0 +1,199 @@
+\chapter{Documentação de programas de CLP}
+\label{cap:documentacao}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item listar os artefatos mínimos que compõem a documentação de um projeto;
+  \item montar uma tabela de alocação de E/S;
+  \item documentar um bloco de programa com cabeçalho padronizado;
+  \item definir uma rotina de versionamento e backup compatível com a realidade da planta;
+  \item reconhecer a documentação como requisito contratual de entrega.
+\end{itemize}
+\end{objetivos}
+
+\section{Por que documentar}
+
+Um programa sem documentação só funciona enquanto seu autor está disponível. Na prática industrial,
+isso significa: parada mais longa na manutenção corretiva, dificuldade de formar novo operador,
+incapacidade de provar o que foi alterado e risco em auditoria de segurança.
+
+A própria apostila de origem já registrava, no capítulo de programação em Ladder, que ``uma prática
+indispensável é a elaboração das tabelas de alocação ou mapa de memória dos dispositivos de
+entrada/saída''. Esta apostila retoma e amplia essa prática, porque ela é o item que costuma faltar
+justamente nas instalações mais antigas --- as que mais precisam de manutenção.
+
+\index{documentação de programa}\index{tabela de alocação}
+
+\section{Artefatos mínimos}
+
+\begin{table}[H]
+  \centering
+  \caption{Documentação mínima de um projeto de CLP.}
+  \label{tab:artefatos-documentacao}
+  \begin{tabular}{p{4.2cm} p{5.6cm} p{4.6cm}}
+    \toprule
+    Artefato & Conteúdo & Quem usa \\
+    \midrule
+    Arquitetura de automação
+      & Diagrama dos controladores, redes, remotas e estações
+      & Manutenção, elétrica, novos projetos \\
+    Tabela de alocação de E/S
+      & TAG, descrição, localização e endereço de cada ponto
+      & Manutenção, operação, programação \\
+    Lista de tags e variáveis
+      & Nome, tipo, escopo, retenção e descrição de cada variável
+      & Programação e manutenção \\
+    Descritivo operacional
+      & Como o processo funciona e o que acontece em cada condição
+      & Operação e programação \\
+    Diagrama de sequência ou de fluxo
+      & Passos do processo e condições de transição
+      & Operação, manutenção e testes \\
+    Listagem comentada
+      & Programa com comentários de bloco e de linha
+      & Manutenção \\
+    Manual de operação e de alarmes
+      & Modos, comandos, alarmes e o que fazer em cada um
+      & Operação \\
+    Rotina de backup e versionamento
+      & Frequência, local, nomenclatura e responsável
+      & Manutenção e gestão \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Tabela de alocação de E/S}
+
+É o documento mais consultado na manutenção, porque liga três mundos: o instrumento em campo, o ponto
+físico no cartão e o nome que aparece no programa.
+
+\begin{table}[H]
+  \centering
+  \caption{Modelo de tabela de alocação de E/S (exemplo).}
+  \label{tab:tabela-alocacao}
+  \begin{tabular}{l l l l}
+    \toprule
+    TAG & Descrição & Localização & Endereço \\
+    \midrule
+    PSL-100 & Chave de pressão baixa & Topo do tanque pressurizado & \texttt{DI1} \\
+    TT-400  & Transmissor de temperatura & Saída do misturador & \texttt{AI1} \\
+    FS-200  & Chave de fluxo & Saída de óleo do aquecedor & \texttt{DI2} \\
+    TV-400  & Válvula de temperatura & Ao lado do tanque & \texttt{DO1} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Note a estrutura: \textbf{TAG} (identificação de instrumentação), \textbf{descrição} (o que é),
+\textbf{localização} (onde está fisicamente) e \textbf{endereço} (onde o programa o encontra). Sem a
+localização, o endereço não serve para quem está em campo com o painel aberto; sem o endereço, o TAG
+não serve para quem está programando.
+
+\begin{atencao}
+Mantenha a tabela de alocação atualizada \emph{junto} com o programa. Em instalação em que a tabela é
+feita uma vez, no comissionamento, e nunca revisada, o técnico do plantão descobre o endereço
+testando ponto por ponto com a máquina em operação --- exatamente o cenário que as boas práticas do
+Capítulo~\ref{cap:boas-praticas} querem evitar.
+\end{atencao}
+
+\section{Documentação dentro do programa}
+
+Documentar não é só produzir documento externo: é deixar o próprio programa legível. Um cabeçalho
+padronizado por POU resolve a maior parte do problema.
+
+\begin{lstlisting}[language=, caption={Modelo de cabeçalho de POU.}, label={lst:cabecalho-pou}]
+(* ------------------------------------------------------------------
+   POU:        FB_Controle_Bomba
+   Tipo:       Bloco de função
+   Objetivo:   Comandar bomba com protecao de nivel e registro de horas
+   Entradas:   Liga (BOOL), Desliga (BOOL), Nivel (REAL, m), NivelMin (REAL, m)
+   Saidas:     Bomba (BOOL), Horas (DINT, h), Falha (BOOL)
+   Regras:     Liga somente se Nivel >= NivelMin. Nivel < NivelMin
+               desliga a bomba. Falha bloqueia liga ate reset.
+   Retencao:   Horas (RETAIN)
+   Conforme:   IEC 61131-3, 4a ed. (2025) - blocos padronizados
+   Autor/Data: <nome> / <data>      Revisao: 02 (2026-09-22)
+   ------------------------------------------------------------------ *)
+\end{lstlisting}
+
+Três regras práticas para comentário:
+
+\begin{enumerate}
+  \item \textbf{comente o porquê, não o quê}: ``liga a bomba'' o código já diz; ``protege contra
+        cavitação'' diz o que ninguém deduz;
+  \item \textbf{numere as revisões e registre o que mudou} --- a pergunta ``o que mudou depois do
+        comissionamento?'' é a mais frequente na manutenção;
+  \item \textbf{descreva cada tag na lista de variáveis}, não apenas no programa.
+\end{enumerate}
+
+\section{Versionamento e backup}
+
+\begin{table}[H]
+  \centering
+  \caption{Rotina mínima de backup e versionamento.}
+  \label{tab:backup}
+  \begin{tabular}{p{4.4cm} p{10.2cm}}
+    \toprule
+    Item & Recomendação \\
+    \midrule
+    O que versionar
+      & O arquivo-fonte do projeto (que abre no ambiente de programação), não apenas o PDF ou o
+        arquivo compilado. Sem a fonte, não há manutenção possível \\
+    Frequência
+      & Sempre após alteração testada, antes e depois de qualquer intervenção em campo e em
+        periodicidade fixa (por exemplo, mensal) \\
+    Nomenclatura
+      & Nome da máquina, número de revisão, data e responsável: \texttt{ENV01\_rev07\_2026-09-22\_WSV} \\
+    Onde guardar
+      & Fora do controlador, em pelo menos dois locais, um deles fora da planta. Backup só no
+        computador da sala de controle não é backup \\
+    Quem responde
+      & Um responsável nomeado. Backup sem responsável não acontece \\
+    Restauração
+      & Testada pelo menos uma vez por ano. Backup nunca testado é suposição, não garantia \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Alteração em campo.} Programação \emph{on-line} (Capítulo~\ref{cap:funcionamento}) é o
+ponto em que a documentação se perde com mais facilidade: altera-se a lógica com a máquina rodando e
+ninguém registra. A regra prática: \textbf{toda alteração em campo gera uma revisão nova do arquivo,
+com data e autor}, mesmo que seja de uma linha.
+
+\section{Documentação como entrega contratual}
+
+A documentação discutida aqui é a mesma que a Seção de especificação e compra exige do fornecedor
+(Capítulo~\ref{cap:porte}). Ela deve estar prevista no contrato, com lista de artefatos, formato e
+prazo --- porque no fim da obra a pressa é grande e o que não está no contrato não é entregue.
+
+Para a instituição de ensino, vale a mesma lógica: trabalho de conclusão, projeto integrador e
+programa didático entregues sem documentação ensinam ao aluno o hábito errado.
+
+\begin{pratica}
+Monte a documentação de um trabalho prático seu, com quatro entregas:
+(a) arquitetura de automação em diagrama;
+(b) tabela de alocação de E/S no modelo da Tabela~\ref{tab:tabela-alocacao};
+(c) cabeçalho de POU para cada bloco do programa, no modelo da
+listagem~\ref{lst:cabecalho-pou};
+(d) rotina de backup preenchida na Tabela~\ref{tab:backup}, com nome do responsável.
+Depois troque o material com um colega e peça que ele explique o que o seu programa faz sem abrir o
+código. O que ele não conseguir explicar é o que falta documentar.
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Explique por que a tabela de alocação de E/S é o documento mais consultado na manutenção.
+  \item Uma instalação tem backup semanal do programa, guardado no computador da sala de controle.
+        Aponte dois problemas dessa rotina e como corrigi-los.
+  \item Por que versionar apenas o PDF do programa não é suficiente?
+  \item Escreva o cabeçalho de POU para um bloco que controla uma esteira com sensor de presença e
+        contador de peças.
+  \item Dê um exemplo de comentário que explica ``o quê'' e outro que explica ``porquê''. Qual dos
+        dois tem mais valor e por quê?
+  \item Uma alteração de uma linha foi feita em campo, com a máquina rodando, sem registro. Descreva
+        o risco que isso cria para o próximo mantenedor.
+  \item Liste o que deve constar em contrato de fornecimento de sistema de automação sobre
+        documentação.
+  \item Por que restaurar um backup de teste, uma vez por ano, é diferente de apenas fazer backup?
+\end{enumerate}
+\end{exercicios}

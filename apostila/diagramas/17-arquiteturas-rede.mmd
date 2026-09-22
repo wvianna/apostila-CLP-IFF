@@ -1,0 +1,19 @@
+flowchart TB
+  subgraph L["Local: módulos no próprio rack"]
+    direction LR
+    M["Módulos de E/S no rack"] --> C1["CPU do CLP"]
+    C1 --- IH1["IHM ou estação de programação"]
+  end
+  subgraph R["I/O remoto ou distribuído"]
+    direction LR
+    RM1["Remota de E/S no campo"] -->|"barramento de campo"| C2["CLP com cartão de interface"]
+    RM2["Remota de E/S no campo"] -->|"barramento de campo"| C2
+  end
+  subgraph N["Rede de CLPs"]
+    direction LR
+    C4["CLP escravo"] -->|"rede industrial"| C3["CLP mestre"]
+    C5["CLP escravo"] -->|"rede industrial"| C3
+    C3 -->|"mestre-escravo ou polling"| SUP["Sistema de supervisão"]
+  end
+  L ~~~ R
+  R ~~~ N

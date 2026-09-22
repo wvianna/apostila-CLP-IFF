@@ -1,0 +1,287 @@
+\chapter{Redes industriais e sistemas SCADA}
+\label{cap:redes-scada}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item reconhecer as três arquiteturas de rede de um CLP e escolher entre elas;
+  \item identificar os protocolos de campo e industriais mais usados e o emprego típico de cada um;
+  \item descrever a arquitetura de um sistema SCADA, componente por componente;
+  \item distinguir alarme, evento e intertravamento e dizer quem executa cada um;
+  \item justificar por que a rede de automação não pode ser projetada como a rede de escritório.
+\end{itemize}
+\end{objetivos}
+
+\section{Por que existe rede}
+
+Um CLP isolado só automatiza uma máquina. A partir do momento em que há duas máquinas, um painel de
+operação ou uma sala de controle, surge a necessidade de \emph{transportar informação}. O transporte
+pode ser feito a cabo dedicado, ponto a ponto, mas o custo cresce depressa: cada sinal exige par de
+condutores, borneira, caixa de passagem, bandeja e mão de obra. Em uma planta com centenas de pontos
+espalhados, o cabo passa a custar mais que o controlador.
+
+A rede resolve esse problema trocando \textbf{fios} por \textbf{mensagens}: em vez de levar cada
+sinal até o painel, leva-se um cabo de comunicação até uma unidade que concentra os sinais no próprio
+campo. É o mesmo raciocínio dos níveis apresentados no Capítulo~\ref{cap:estrutura}, visto agora pelo
+lado do meio físico.
+
+\index{rede industrial}\index{cabeamento!redução por rede}
+
+\section{Três arquiteturas de rede do CLP}
+
+A classificação prática considera onde estão os módulos de entrada e saída e como se dá a comunicação
+entre o controlador e a estação de programação ou supervisão.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.98\linewidth]{17-arquiteturas-rede.pdf}
+  \caption{As três arquiteturas de rede do CLP: local, I/O remoto e rede de CLPs.}
+  \label{fig:arq-redes}
+\end{figure}
+
+\begin{table}[H]
+  \centering
+  \caption{Comparação das três arquiteturas de rede do CLP.}
+  \label{tab:arquiteturas-rede}
+  \begin{tabular}{p{2.5cm} p{3.4cm} p{3.7cm} p{4.6cm}}
+    \toprule
+    Arquitetura & Onde ficam as E/S & Quando compensa & Cuidado \\
+    \midrule
+    Local
+      & No rack do próprio controlador
+      & Bancada, máquina pequena, pontos concentrados e próximos
+      & Todo sinal vindo do campo chega ao painel: o custo do cabo cresce rápido com a distância \\
+    \addlinespace
+    I/O remoto ou distribuído
+      & Em remotas instaladas no campo
+      & Campo distante, pontos espalhados por uma área extensa
+      & Exige cartão de interface, endereçamento da remota e diagnóstico do barramento; a queda do barramento derruba o conjunto de pontos ligado a ele \\
+    \addlinespace
+    Rede de CLPs
+      & Módulos locais em cada controlador
+      & Linhas com várias máquinas que precisam coordenar entre si
+      & É preciso definir quem comanda quem; dois controladores escrevendo na mesma saída é falha de projeto, não de programa \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Na arquitetura de rede de CLPs, a comunicação com a supervisão costuma ser \emph{mestre-escravo} ou
+por consulta periódica (\emph{polling}): a estação de supervisão pergunta, o controlador responde. É
+um modelo simples e previsível, que funciona bem para supervisão e mal para troca de dados rápida
+entre controladores.
+
+\begin{atencao}
+Na arquitetura de I/O remoto, a maior parte dos sinais deixou de passar pelo painel --- mas passou a
+depender de \emph{um} cabo de comunicação. Antes de adotá-la, responda: o que acontece com o processo
+se esse barramento cair? A resposta precisa estar escrita no projeto e no programa, não descoberta
+no dia da parada.
+\end{atencao}
+
+\section{Protocolos de campo e industriais}
+
+``Protocolo'' aqui significa o conjunto de regras que permite a dois equipamentos de fabricantes
+diferentes trocar dados. A Tabela~\ref{tab:protocolos} traz os mais encontrados em instalações
+industriais, com o emprego típico de cada um. Ela é um guia de conversa com o fornecedor, não uma
+especificação: os limites de taxa, alcance e número de nós de cada protocolo variam com o meio físico
+e com a implementação, e devem ser confirmados na documentação do produto.
+
+\begin{table}[H]
+  \centering
+  \caption{Protocolos de comunicação usuais na automação industrial e seu emprego típico.}
+  \label{tab:protocolos}
+  \begin{tabular}{p{2.3cm} p{4.2cm} p{7.7cm}}
+    \toprule
+    Protocolo & Meio e modelo usuais & Emprego típico e o que observar \\
+    \midrule
+    AS-i
+      & Barramento de dois fios que alimenta e comunica
+      & Ligação de sensores e atuadores discretos próximos ao processo. Transporta pouco dado por
+        dispositivo; serve para sinais simples, não para variáveis de controle. \\
+    \addlinespace
+    IO-Link
+      & Ponto a ponto, sobre o cabo do próprio sensor
+      & Sensores inteligentes com parâmetros e diagnóstico. Referenciado como parte 9 da família
+        IEC 61131 (SDCI). Não substitui o barramento: é o último trecho até o sensor. \\
+    \addlinespace
+    Modbus RTU
+      & Serial, tipicamente RS-485, modelo mestre-escravo
+      & Instrumentos, medidores, inversores de frequência e remotas simples. Protocolo aberto,
+        simples e largamente implementado. Não padroniza o significado dos registros: a tabela de
+        cada equipamento é que diz o que cada endereço contém. \\
+    \addlinespace
+    Modbus TCP
+      & Ethernet, modelo cliente-servidor
+      & Integração com supervisão e troca de dados entre equipamentos de marcas diferentes. Leva o
+        Modbus para a rede Ethernet; o determinismo passa a depender do projeto da rede, não do
+        protocolo. \\
+    \addlinespace
+    HART
+      & Comunicação digital sobreposta ao sinal analógico
+      & Transmissor analógico que também informa diagnóstico e parâmetros. Mantém o sinal de
+        $4$--$20\,$mA que o sistema já lê e acrescenta informação digital. \\
+    \addlinespace
+    Profibus DP
+      & Serial, mestre-escravo
+      & Controle de campo com I/O remoto. Rede consolidada, muito presente em instalações mais
+        antigas. \\
+    \addlinespace
+    PROFINET
+      & Ethernet industrial
+      & Controle em tempo real e integração de I/O remoto. Exige projeto de rede dedicado:
+        topologia, switches e priorização de tráfego. \\
+    \addlinespace
+    EtherNet/IP
+      & Ethernet industrial sobre o modelo CIP
+      & Controle e integração de equipamentos de uma mesma família de produtos. Comum em
+        instalações que já usam controladores dessa família. \\
+    \addlinespace
+    CANopen
+      & Barramento CAN, baseado em difusão de mensagens
+      & Máquinas, eixos e módulos compactos embarcados. Difundido em equipamentos móveis, em que o
+        alcance físico é curto. \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Duas conclusões práticas saem da Tabela~\ref{tab:protocolos}:
+
+\begin{enumerate}
+  \item \textbf{protocolo aberto não é o mesmo que dado padronizado}. Saber ler um registro Modbus
+        não diz o que ele significa. É por isso que o Capítulo~\ref{cap:iiot} discute uma camada de
+        informação, e não apenas de transporte.
+  \item \textbf{o protocolo não resolve a arquitetura}. Escolher Profinet ou EtherNet/IP não decide
+        quantas zonas de rede haverá, quem fica em qual e o que acontece quando um trecho cai.
+\end{enumerate}
+
+\index{protocolo!Modbus}\index{protocolo!PROFINET}\index{protocolo!EtherNet/IP}
+
+\section{Arquitetura SCADA}
+
+O sistema SCADA (\emph{Supervisory Control and Data Acquisition}) é a camada que transforma o
+conjunto de controladores da planta em uma operação visível e comandável a partir da sala de
+controle. Ele reúne cinco funções, sempre as mesmas, qualquer que seja o produto, e a
+Figura~\ref{fig:arq-scada} mostra como elas se encaixam:
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.98\linewidth]{17-arquitetura-scada.pdf}
+  \caption{Componentes de um sistema SCADA e o caminho do dado entre campo e nível gerencial.}
+  \label{fig:arq-scada}
+\end{figure}
+
+\begin{enumerate}
+  \item \textbf{servidor de dados e \emph{driver} de comunicação} --- é quem fala com os
+        controladores. O \emph{driver} codifica o protocolo de cada equipamento; sem ele, nada entra
+        no sistema. É também o ponto em que uma mudança de fabricante custa caro
+        (Capítulo~\ref{cap:interoperabilidade});
+  \item \textbf{interface homem-máquina (IHM)} --- telas de operação, comandos, sinóticos e
+        tendências. É o único componente que o operador efetivamente usa;
+  \item \textbf{histórico} (\emph{historian}) --- armazenamento de longo prazo das variáveis, com
+        carimbo de tempo. Sustenta relatórios, comparação entre turnos e análise de causa;
+  \item \textbf{gerenciador de alarmes e eventos} --- recebe, registra, ordena e apresenta o que fugiu
+        do esperado, com reconhecimento pelo operador;
+  \item \textbf{relatórios e integração gerencial} --- consolida indicadores e entrega dados ao MES ou
+        ao PIMS, no nível gerencial (Capítulo~\ref{cap:estrutura}).
+\end{enumerate}
+
+O ganho de reunir tudo isso é operacional: o operador deixa de caminhar por centenas de instrumentos
+distribuídos em uma sala extensa e passa a acompanhar o processo em uma tela, com registro do que
+aconteceu. O benefício real não é a tela --- é o \textbf{registro}. Uma planta sem histórico é uma
+planta que só sabe explicar o incidente por memória de quem estava lá.
+
+\section{Alarme, evento e intertravamento}
+
+Este é o ponto em que a maior parte dos projetos erra, porque as três palavras soam parecidas.
+Não são, e trocá-las é risco de acidente.
+
+\begin{table}[H]
+  \centering
+  \caption{Alarme, evento e intertravamento: quem faz o quê e qual é a consequência do erro.}
+  \label{tab:alarme-evento}
+  \begin{tabular}{p{2.8cm} p{4.3cm} p{3.0cm} p{4.1cm}}
+    \toprule
+    Função & O que é & Quem executa & Consequência do erro \\
+    \midrule
+    Intertravamento
+      & Condição que impede a máquina de assumir um estado inseguro, ou que a leva a um estado
+        seguro
+      & A lógica de controle --- no CLP, e quando há risco de ferimento, em controlador ou
+        dispositivo dedicado de segurança
+      & Tratar intertravamento como aviso coloca pessoas em risco: o sistema alerta e continua
+        operando \\
+    \addlinespace
+    Alarme
+      & Aviso de que um valor ou estado saiu da faixa esperada e exige atenção do operador
+      & O sistema de supervisão, com registro e reconhecimento
+      & Alarme demais faz o operador ignorar todos: é a fadiga de alarmes \\
+    \addlinespace
+    Evento
+      & Registro de algo que aconteceu, sem exigir ação imediata: partida, parada, troca de receita
+      & O sistema de supervisão
+      & Sem registro não existe análise de causa depois do incidente \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+A regra que evita o erro: \textbf{a proteção mora no controle, não na supervisão}. Se a única coisa
+que impede o transbordamento de um tanque é um alarme que o operador precisa ver e reconhecer, não há
+proteção --- há esperança. Intertravamento que depende da rede de supervisão cai junto com a rede de
+supervisão.
+
+\begin{atencao}
+Uma rede de supervisão não é determinística: a tela pode demorar, a estação pode travar, o operador
+pode estar em outro ponto da planta. Nada que precise responder \emph{sempre} em tempo previsível
+pode depender dela. Essa fronteira é o que separa supervisão de controle e é o mesmo raciocínio que
+reaparece no Capítulo~\ref{cap:iiot}, quando se discute levar dados para a nuvem.
+\end{atencao}
+
+\section{Boas práticas de projeto de rede}
+
+\begin{itemize}
+  \item \textbf{separe por função, não por conveniência}: rede de controle, rede de supervisão e rede
+        administrativa são domínios diferentes, com requisitos diferentes
+        (Capítulo~\ref{cap:seguranca});
+  \item \textbf{documente o endereçamento}: faixa de endereços por área, nome de cada nó, mapa de
+        portas e \emph{switch} usado. Rede não documentada é meia hora perdida em cada manutenção;
+  \item \textbf{padronize os nomes} de variáveis publicadas na supervisão, como no
+        Capítulo~\ref{cap:boas-praticas}. Um mesmo dado não deve chegar com dois nomes diferentes;
+  \item \textbf{defina o comportamento na falha}: o que o CLP faz se perder a comunicação; o que a
+        supervisão mostra quando o dado está velho. Dado sem carimbo de tempo não é dado --- é
+        suposição;
+  \item \textbf{redundância onde dói}: redundância de rede e de servidor deve ser decidida pelo custo
+        da parada, não por simpatia pela tecnologia.
+\end{itemize}
+
+\begin{pratica}
+Escolha uma arquitetura de rede que você conheça e monte o desenho dela no formato da
+Figura~\ref{fig:arq-redes}. Depois responda:
+(a) onde estão as E/S: no rack, em remotas ou em outros CLPs?
+(b) qual protocolo é usado em cada trecho e quem é mestre em cada um?
+(c) se o trecho entre o controlador e a supervisão cair por dez minutos, o que a planta faz?
+(d) quem é avisado, e por qual alarme?
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Explique, em três linhas, por que a rede reduz o custo de instalação em uma área grande.
+  \item Uma máquina tem 40 pontos digitais concentrados no painel e fica a 8\,m do quadro de
+        supervisão. Qual arquitetura da Tabela~\ref{tab:arquiteturas-rede} você escolhe? Justifique.
+  \item Cite duas situações em que a arquitetura de I/O remoto é claramente mais vantajosa e uma em
+        que ela é um risco.
+  \item Escolha dois protocolos da Tabela~\ref{tab:protocolos} e diga em que situação real cada um
+        seria a escolha natural.
+  \item Por que saber ler um registro Modbus não garante entender o que ele significa?
+  \item Liste os cinco componentes de um sistema SCADA e diga qual deles é responsável por sustentar
+        um relatório de turno.
+  \item Classifique cada caso como intertravamento, alarme ou evento:
+        (i) porta de proteção aberta com a máquina em movimento;
+        (ii) temperatura da água 5\,$^\circ$C acima da faixa normal;
+        (iii) registro automático da troca de receita de produção;
+        (iv) ausência de confirmação de fim de curso na partida.
+  \item Um colega propõe desligar a bomba de resfriamento ``porque o supervisório avisa''. Explique
+        por que a proposta é inaceitável, citando a Tabela~\ref{tab:alarme-evento}.
+  \item Por que o \emph{driver} de comunicação é o componente do SCADA que mais encarece uma troca de
+        fabricante?
+  \item Escreva três itens que obrigatoriamente devem constar da documentação de rede de uma planta.
+\end{enumerate}
+\end{exercicios}

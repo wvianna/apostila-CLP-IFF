@@ -1,0 +1,279 @@
+\chapter{Manutenção preventiva e corretiva}
+\label{cap:manutencao}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item reconhecer os modos de falha típicos de um sistema com CLP;
+  \item montar uma rotina preventiva com período e evidência para cada item;
+  \item diagnosticar por sintoma, seguindo um roteiro de verificação;
+  \item executar uma intervenção em campo com bloqueio e registro;
+  \item identificar quando a manutenção preditiva é viável e quando é apenas dado sem uso.
+\end{itemize}
+\end{objetivos}
+
+\section{Três formas de manter}
+
+\begin{itemize}
+  \item \textbf{corretiva}: age depois da falha. É inevitável em algum grau, mas cara: a parada não é
+        planejada, o sobressalente pode não existir e a produção está perdida;
+  \item \textbf{preventiva}: age em intervalo programado, substituindo ou verificando antes de a falha
+        acontecer. Custa mesmo quando o componente estaria bom --- mas a parada é planejada;
+  \item \textbf{preditiva}: age quando a condição medida indica degradação. Reduz intervenção
+        desnecessária, mas exige medição, histórico e critério --- sem os três, vira preventiva com
+        nome novo.
+\end{itemize}
+
+Em automação, o ganho maior não está em escolher uma das três, e sim em \emph{deslocar o esforço para
+o lado barato}: registro de falha bem feito (que permite o diagnóstico rápido), sobressalente
+disponível e intervenção com procedimento escrito.
+
+\index{manutenção!preventiva}\index{manutenção!corretiva}\index{manutenção!preditiva}
+
+\section{Modos de falha típicos}
+
+\begin{table}[H]
+  \centering
+  \caption{Modos de falha usuais em sistemas com CLP, sinal observável e prevenção.}
+  \label{tab:modos-falha}
+  \begin{tabular}{p{3.2cm} p{4.6cm} p{3.2cm} p{3.3cm}}
+    \toprule
+    Componente & Modo de falha & Sinal observável & Prevenção \\
+    \midrule
+    Bateria de retenção
+      & Descarga: as variáveis retentivas e o relógio de tempo real são perdidos quando a energia cai
+      & Perda de contadores e de horário após parada; aviso de bateria fraca no diagnóstico do
+        controlador
+      & Substituição em intervalo definido, com registro da data, e conferência do aviso de
+        diagnóstico (Capítulo~\ref{cap:memoria}) \\
+    \addlinespace
+    Cartão de entrada ou saída
+      & Canal queimado por surto, curto ou sobrecarga
+      & Um ponto específico não lê ou não atua, enquanto os demais do mesmo cartão funcionam
+      & Proteção de circuito, separação de cargas indutivas, conferência dos sinais de campo e
+        registro de falha por ponto \\
+    \addlinespace
+    Fonte de alimentação
+      & Envelhecimento de capacitores, sobretensão, sobrecarga
+      & Reinícios aleatórios, falha intermitente de módulos, reinício em partida de motor
+      & Medição de tensão sob carga, dimensionamento correto, reserva de capacidade e ventilação do
+        painel \\
+    \addlinespace
+    Térmica e poeira
+      & Acúmulo de pó, filtro saturado, ventilação obstruída
+      & Falha que aparece no verão ou depois de horas de operação e desaparece depois de esfriar
+      & Limpeza e troca de filtro em rotina; medição de temperatura no interior do painel \\
+    \addlinespace
+    Programa e memória
+      & Corrupção de programa, bateria fraca, edição indevida em campo
+      & Comportamento diferente do documentado, sem falha de hardware
+      & Backup versionado, restrição de acesso e controle de quem altera o quê
+        (Capítulos~\ref{cap:documentacao} e~\ref{cap:seguranca}) \\
+    \addlinespace
+    Rede de comunicação
+      & Cabo, conector, terminador, endereço duplicado, interferência
+      & Comunicação cai e volta; erro em um nó específico
+      & Conferência de cabeamento e de aterramento, documentação do endereçamento e teste de
+        continuidade \\
+    \addlinespace
+    Campo
+      & Sensor descalibrado, atuador travado, fim de curso desregulado
+      & Leitura plausível e errada --- o pior tipo de falha
+      & Conferência periódica com instrumento padrão e teste de atuação
+        (Capítulo~\ref{cap:simulacao}) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Rotina preventiva}
+
+A rotina precisa ser executável por quem está no turno e verificável por quem responde pela planta.
+Cada item tem período, responsável e evidência.
+
+\begin{table}[H]
+  \centering
+  \caption{Rotina preventiva mínima e evidência de execução.}
+  \label{tab:rotina-preventiva}
+  \begin{tabular}{p{4.4cm} p{3.0cm} p{6.9cm}}
+    \toprule
+    Item & Período & Evidência \\
+    \midrule
+    Backup do projeto do controlador & A cada alteração e em intervalo fixo
+      & Arquivo versionado, com identificação de versão do programa e data; cópia guardada fora do
+        equipamento \\
+    Leitura do diagnóstico do controlador & Mensal
+      & Registro dos avisos ativos, incluindo bateria, temperatura e estatística de erros de
+        comunicação \\
+    Inspeção visual e limpeza do painel & Semestral ou conforme ambiente
+      & Lista assinada: pó, ventilação, filtros, conexões, sinais de aquecimento \\
+    Medição de temperatura interna & Semestral, nos meses quentes
+      & Valor registrado, comparado ao histórico \\
+    Teste de bateria de retenção & Conforme o fabricante e o histórico
+      & Data de substituição anotada no painel e no sistema de manutenção \\
+    Conferência de pontos de E/S & Anual, ou após intervenção
+      & Lista de pontos testados, com resultado (Capítulo~\ref{cap:es}) \\
+    Teste dos intertravamentos e da parada de emergência & Anual e após qualquer alteração de lógica
+      & Roteiro de teste assinado, com data e responsável (Capítulo~\ref{cap:simulacao}) \\
+    Restauração de backup em bancada & Anual
+      & Registro do teste de restauração: sem isso, o backup é apenas uma esperança \\
+    Revisão da documentação e da lista de tags & Anual
+      & Documentação atualizada e publicada na versão vigente \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{atencao}
+Teste de intertravamento e de parada de emergência só pode ser feito com a máquina em condição
+segura, com a área liberada e com autorização de quem responde pela produção. Testar proteção com
+pessoa em zona de risco é a receita do acidente que a proteção existia para evitar
+(Capítulo~\ref{cap:simulacao}).
+\end{atencao}
+
+\section{Diagnóstico por sintoma}
+
+O roteiro da Figura~\ref{fig:fluxo-diagnostico} parte do sintoma e desce pela cadeia, sempre do mais
+provável e mais barato de verificar para o menos provável. A ordem importa: conferir o programa antes
+de conferir a fonte é o erro mais comum e o mais caro em tempo.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\linewidth]{24-diagnostico.pdf}
+  \caption{Roteiro de verificação a partir do sintoma observado.}
+  \label{fig:fluxo-diagnostico}
+\end{figure}
+
+\begin{table}[H]
+  \centering
+  \caption{Diagnóstico: sintoma, causas prováveis e verificação.}
+  \label{tab:diagnostico}
+  \begin{tabular}{p{3.3cm} p{5.1cm} p{5.9cm}}
+    \toprule
+    Sintoma & Causas prováveis & Como verificar \\
+    \midrule
+    Saída não atua
+      & Ponto forçado no ambiente de programação; canal do cartão queimado; lógica não satisfeita;
+        circuito de campo aberto; fusível ou relé
+      & Conferir a força ativa (\emph{force}); observar o LED do canal; verificar a condição que
+        deveria acionar a saída; medir tensão no borne com o ponto comandado \\
+    \addlinespace
+    Entrada não lê
+      & Sinal de campo ausente; tensão de alimentação incorreta; filtro de entrada longo demais para o
+        evento; endereço errado na lista de tags; borneira solta
+      & Medir o sinal no borne; conferir o tipo de entrada (sourcing ou sinking); comparar o tempo do
+        evento com o filtro configurado; conferir a alocação do ponto \\
+    \addlinespace
+    CLP em \emph{fault}
+      & Falha de fonte; módulo com erro; programa incompatível com o \emph{firmware}; erro de
+        configuração de rack
+      & Ler o diagnóstico do controlador; conferir tensões; testar módulo por módulo; verificar a
+        versão do ambiente de programação \\
+    \addlinespace
+    Comportamento diferente do documentado
+      & Programa alterado em campo; variável retentiva perdida; temporizador com base de tempo
+        diferente da prevista
+      & Comparar o programa carregado com o backup versionado; conferir bateria e retenção; medir o
+        tempo real de operação com cronômetro \\
+    \addlinespace
+    Comunicação cai e volta
+      & Cabo, conector, terminador, endereço duplicado, aterramento, interferência de acionamento
+      & Conferir endereçamento e terminadores; revisar aterramento e roteamento dos cabos junto aos
+        cabos de potência \\
+    \addlinespace
+    Leitura plausível, mas errada
+      & Sensor descalibrado ou com sinal de campo degradado; escala ou unidade trocadas
+      & Comparar com instrumento padrão; conferir escala e unidade na lista de tags
+        (Capítulo~\ref{cap:documentacao}) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Procedimento de intervenção}
+
+Este procedimento vale para qualquer intervenção em máquina em produção. Ele não é uma sugestão de
+boa prática: é a sequência mínima que separa a manutenção do acidente.
+
+\begin{enumerate}
+  \item \textbf{comunicar} quem opera e quem responde pela área antes de começar;
+  \item \textbf{bloquear e etiquetar a energia}: desligar, bloquear o dispositivo de seccionamento e
+        identificar o responsável. Energia residual --- pressão, mola, gravidade, capacitor, inércia
+        --- precisa ser dissipada ou contida. \emph{Nenhum trabalho de ligação, medição ou troca de
+        componente é feito em equipamento energizado};
+  \item \textbf{conferir a ausência de tensão} com instrumento adequado, no ponto onde se vai
+        trabalhar, antes de tocar no circuito;
+  \item \textbf{fazer backup antes de alterar} qualquer coisa no programa, e anotar a versão;
+  \item \textbf{se a alteração for no programa}, usar o modo de operação mais seguro possível e
+        manter a lógica de proteção ativa. Forçar ponto para ``testar'' com a máquina em produção é
+        proibido: a força desabilita a proteção;
+  \item \textbf{testar após a intervenção} pelos casos críticos do roteiro
+        (Capítulo~\ref{cap:simulacao}), antes de liberar a produção;
+  \item \textbf{registrar}: o que foi feito, por quê, quando, por quem, qual a versão do programa
+        resultante e qual sobressalente foi consumido. Registro é o que transforma a próxima
+        ocorrência em diagnóstico rápido, em vez de investigação do zero;
+  \item \textbf{liberar} com a área segura e as proteções restabelecidas, comunicando quem
+        bloqueou.
+\end{enumerate}
+
+\begin{atencao}
+Dois hábitos causam acidente com controlador: forçar saída para testar com a máquina em operação e
+editar o programa \emph{on-line} sem conferir o efeito imediato na máquina. A edição em modo de
+execução altera o comportamento no ciclo seguinte --- o que significa que o efeito é instantâneo. Se
+a edição for inevitável, faça-a com o equipamento em condição segura e com o intertravamento
+intacto.
+\end{atencao}
+
+\section{Manutenção preditiva como evolução}
+
+Predição útil não exige sensor exótico. Três fontes de dado simples, já presentes ou de fácil
+obtenção, cobrem boa parte dos casos:
+
+\begin{itemize}
+  \item \textbf{contagem de ciclos e de manobras} por atuador, comparada à vida declarada pelo
+        fabricante. É o dado mais confiável e o mais barato de manter
+        (Capítulo~\ref{cap:dados});
+  \item \textbf{temperatura}, no painel e no motor, com tendência comparada ao histórico. Degradação
+        aparece como desvio lento, não como limite atingido;
+  \item \textbf{corrente e tempo de etapa}: corrente de motor que sobe lentamente indica desgaste ou
+        obstrução; tempo de etapa que cresce indica perda de desempenho
+        (Capítulo~\ref{cap:eficiencia}).
+\end{itemize}
+
+O critério de viabilidade é econômico e operacional: só compensa predição quando o custo da falha
+não planejada é maior que o custo de medir, guardar e analisar o dado --- e quando existe alguém
+encarregado de olhar o resultado. Indicador de degradação publicado e não acompanhado é a pior forma
+de preventiva: parece controle e não é.
+
+\begin{pratica}
+Escolha um equipamento automatizado da sua planta ou bancada e monte o plano de manutenção dele:
+(a) liste os cinco modos de falha mais prováveis, no formato da Tabela~\ref{tab:modos-falha};
+(b) preencha a Tabela~\ref{tab:rotina-preventiva} com período e responsável para cada item aplicável;
+(c) redija o procedimento de intervenção em uma página, na ordem dos oito passos;
+(d) descreva dois sintomas e o roteiro de verificação de cada um, usando o formato da
+Tabela~\ref{tab:diagnostico}.
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Explique a diferença entre manutenção preventiva e preditiva, e diga o que a preditiva exige
+        além da medição.
+  \item Por que a perda de variáveis retentivas após uma queda de energia é um modo de falha
+        previsível?
+  \item Uma saída não atua. Descreva o roteiro de verificação na ordem correta, com base na
+        Tabela~\ref{tab:diagnostico}.
+  \item Uma entrada não lê um pulso curto, mas lê um sinal contínuo. Qual é a causa mais provável e
+        como confirmar?
+  \item Por que a falha mais perigosa é a leitura plausível e errada? Dê um exemplo.
+  \item Liste, em ordem, os oito passos do procedimento de intervenção e explique a função de cada um.
+  \item Por que não se deve forçar ponto de saída para testar uma máquina em produção?
+  \item Por que a edição \emph{on-line} tem efeito imediato, e que cuidado isso exige?
+  \item Um painel apresenta falhas que só acontecem nos meses mais quentes. Que modo de falha
+        suspeitar e como confirmar?
+  \item Por que é obrigatório testar a restauração de um backup, e não apenas produzi-lo?
+  \item Escolha três itens da Tabela~\ref{tab:rotina-preventiva} e diga qual evidência prova que
+        foram executados.
+  \item Cite duas fontes de dado já disponíveis que permitem manutenção preditiva sem sensor novo, e
+        diga o que cada uma antecipa.
+  \item Em que condições a manutenção preditiva não compensa? Dê duas condições.
+  \item Um fornecedor propõe um pacote de predição que ``avisa tudo automaticamente''. Que perguntas
+        você faz antes de assinar? Relacione com os três requisitos da predição viável.
+\end{enumerate}
+\end{exercicios}

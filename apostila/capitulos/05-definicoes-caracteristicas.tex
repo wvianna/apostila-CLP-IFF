@@ -1,0 +1,192 @@
+\chapter{Definições, características e aplicações}
+\label{cap:definicoes}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item definir CLP a partir da definição normativa e de uma definição operacional;
+  \item reconhecer as características que qualificam um equipamento como controlador industrial;
+  \item identificar os blocos que compõem um CLP e o que cada um faz;
+  \item diferenciar controlador compacto, modular e com I/O distribuído;
+  \item distinguir o CLP de um computador de uso geral.
+\end{itemize}
+\end{objetivos}
+
+\section{Definição}
+
+A definição clássica de controlador programável, dada pela \emph{National Electrical Manufacturers
+Association} (NEMA), é:
+
+\begin{quote}
+\emph{``Aparelho eletrônico digital que utiliza uma memória programável para o armazenamento interno
+de instruções para implementações específicas, tais como lógica, sequenciamento, temporização,
+contagem e aritmética, para controlar, através de módulos de entradas e saídas, vários tipos de
+máquinas ou processos.''}
+\end{quote}
+
+Vale destacar quatro elementos dessa definição, porque cada um corresponde a uma decisão de
+engenharia:
+
+\begin{enumerate}
+  \item \textbf{eletrônico digital} --- não eletromecânico;
+  \item \textbf{memória programável} --- a função é definida por programa, não por fiação;
+  \item \textbf{funções específicas} --- lógica, sequenciamento, temporização, contagem e
+        aritmética: este é o repertório mínimo esperado;
+  \item \textbf{módulos de entrada e saída} --- a interface com o processo é parte do produto.
+\end{enumerate}
+
+Em uma frase operacional, para o técnico de campo: \emph{CLP é o equipamento que lê o estado das
+entradas, executa uma lógica gravada em memória e escreve o resultado nas saídas, repetidamente e em
+tempo previsível.}
+
+\index{CLP!definição}
+
+\section{Características gerais}
+
+As características abaixo são o que um comprador espera encontrar em um controlador industrial. O
+reconhecimento delas é útil em especificação (Capítulo~\ref{cap:porte}) e em manutenção
+(Capítulo~\ref{cap:manutencao}).
+
+\begin{table}[H]
+  \centering
+  \caption{Características de um controlador programável e sua consequência prática.}
+  \label{tab:caracteristicas}
+  \begin{tabular}{p{6.2cm} p{8.4cm}}
+    \toprule
+    Característica & Consequência prática \\
+    \midrule
+    Operação em ambiente industrial & Suporta faixa de temperatura, vibração, umidade e
+      interferência eletromagnética que um computador comum não suporta \\
+    Programação e reprogramação rápidas, com mínima interrupção da produção & Altera-se a lógica sem
+      refazer painel \\
+    Sinalizadores de estado e módulos \emph{plug-in} & Troca de módulo por encaixe, sem mexer na
+      fiação dos pontos vizinhos \\
+    Dimensão reduzida e baixo consumo & Ocupa menos espaço de painel e dissipa menos calor que o
+      painel de relés equivalente \\
+    Compatibilidade com diferentes sinais de E/S & Aceita discreto e analógico, em corrente ou
+      tensão, com cartões distintos \\
+    Capacidade de acionar cargas reais & A saída discreta adequada aciona cargas de alguns ampères,
+      como bobinas de contatora e válvulas \\
+    Expansão de módulos e de memória & Cresce por módulos, e não por troca de equipamento \\
+    Comunicação em rede & Integra-se a outras CPUs, à supervisão e às redes de chão de fábrica \\
+    Monitoração do processo por computador & Permite supervisão, controle e aquisição de dados \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Aplicações}
+
+O CLP automatiza processos de sequenciamento, intertravamento, controle de processo e batelada. Além
+da manufatura e dos processos contínuos, aparece em automação elétrica, predial e até dentro de
+produtos. Os casos mais frequentes são:
+
+\begin{itemize}
+  \item máquinas industriais: usinagem, injetoras de plástico, têxteis, calçados;
+  \item processos contínuos e de batelada: siderurgia, papel e celulose, petroquímica, química,
+        alimentos, mineração;
+  \item controle de energia: gestão de demanda e fator de carga;
+  \item sinalização, intertravamento e controle PID em utilidades;
+  \item aquisição de dados de supervisão em fábricas, edifícios inteligentes e laboratórios;
+  \item bancadas de teste automático de componentes;
+  \item controle embarcado em máquinas móveis, agrícolas e de construção.
+\end{itemize}
+
+\index{aplicações de CLP}
+
+\section{Arquitetura de blocos}
+
+Um CLP é um sistema microprocessado, mais simples que um computador de uso geral, porém projetado
+para operar em condições severas. Seus blocos essenciais são a unidade central de processamento
+(UCP), as interfaces de entrada e saída e as memórias, todos apoiados por uma fonte de alimentação
+tratada e por um barramento interno.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{05-arquitetura-clp.pdf}
+  \caption{Blocos básicos de um CLP e o caminho do sinal, do campo ao atuador.}
+  \label{fig:arquitetura-clp}
+\end{figure}
+
+O \textbf{microprocessador} é a inteligência do sistema: obtém os dados dos cartões de entrada, os
+processa conforme o programa do usuário e escreve o resultado nos cartões de saída. Um único
+processador costuma controlar dezenas ou centenas de pontos de E/S.
+
+A \textbf{fonte de alimentação} recebe tratamento especial de filtragem e estabilização, porque
+disponibilidade e qualidade de energia são a diferença entre o ambiente industrial e o escritório. A
+alimentação dos \emph{dispositivos de campo}, porém, é externa ao CLP --- veja a caixa de atenção ao
+final deste capítulo.
+
+\section{Compacto, modular e com I/O distribuído}
+
+Quanto à estrutura física dos pontos de E/S, há três arranjos:
+
+\begin{table}[H]
+  \centering
+  \caption{Arranjos físicos de E/S e quando cada um é adequado.}
+  \label{tab:arranjos-es}
+  \begin{tabular}{p{3.2cm} p{6.0cm} p{5.4cm}}
+    \toprule
+    Arranjo & Como é & Quando convém \\
+    \midrule
+    Compacto
+      & Todos os componentes em um único módulo, exceto o terminal de programação; costuma usar
+        microcontrolador no lugar do conjunto processador, memória e interface
+      & Aplicações pequenas, poucos pontos, custo e espaço reduzidos \\
+    Modular
+      & Um ou mais racks, com fonte, CPU e cartões de E/S encaixáveis, escolhidos conforme a
+        necessidade
+      & Aplicações que crescem, exigem cartões especiais ou troca a quente \\
+    I/O distribuído
+      & Ao menos uma CPU, fonte e módulos de E/S separados, comunicando por rede de campo
+        (\emph{fieldbus})
+      & Instrumentação espalhada por área extensa, com economia de cabeamento \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Na prática os arranjos se misturam: existem controladores com E/S embutida que também aceitam cartões
+modulares e ainda operam com E/S distribuída por \emph{fieldbus}.
+
+\section{O que distingue o CLP de um computador comum}
+
+A estrutura é parecida, o propósito não é:
+
+\begin{itemize}
+  \item \textbf{determinismo} --- o ciclo se repete em tempo previsível; no computador comum, o
+        escalonamento do sistema operacional não garante prazo;
+  \item \textbf{fonte e entradas tratadas} --- filtragem, estabilização e imunidade a ruído são
+        requisito de projeto, não acessório;
+  \item \textbf{invólucro e faixa de operação} --- temperatura, vibração e umidade de ambiente
+        industrial;
+  \item \textbf{diagnóstico} --- sinalização de estado por ponto e por módulo, pensada para quem
+        mantém a máquina.
+\end{itemize}
+
+\begin{atencao}
+A alimentação dos dispositivos de campo deve ser fornecida externamente. A fonte do CLP é
+dimensionada para a parte interna do equipamento, não para alimentar sensores, válvulas e
+sinalizadores. Tentar alimentar carga de campo pela fonte interna é uma das causas mais comuns de
+queima de fonte e de reset indevido.
+\end{atencao}
+
+\begin{pratica}
+Abra o catálogo de um controlador disponível na sua escola e localize, para ele:
+(a) o arranjo de E/S (compacto, modular ou distribuído);
+(b) a tensão de alimentação da CPU e a das saídas digitais;
+(c) o tempo de varredura por mil instruções;
+(d) quais cartões de entrada analógica existem e com quantos bits de resolução.
+Relacione cada dado com uma linha da Tabela~\ref{tab:caracteristicas}.
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Reescreva a definição da NEMA em linguagem de manutenção, em no máximo três linhas.
+  \item Um equipamento lê entradas, executa lógica e aciona saídas, mas não resiste a vibração e
+        calor de painel. Ele é um CLP? Justifique pela definição.
+  \item Explique por que o CLP compacto costuma empregar microcontrolador em vez do conjunto
+        processador, memória e interface.
+  \item Em que situação o I/O distribuído é mais barato que o modular, e em que situação é mais caro?
+  \item Um aluno afirma que ``um CLP é um computador industrial''. Aponte duas diferenças que
+        tornam essa afirmação tecnicamente imprecisa.
+\end{enumerate}
+\end{exercicios}

@@ -1,0 +1,260 @@
+\chapter{CLP conforme IEC 61131-3 versus CLP legado}
+\label{cap:iec-versus-legado}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item dizer, diante de uma instrução qualquer, se ela é normatizada ou proprietária;
+  \item identificar um programa escrito em dialeto de fabricante e reescrevê-lo em elementos da
+        norma;
+  \item reconhecer as duas famílias de problemas que impedem a portabilidade;
+  \item avaliar o custo real de uma migração de fabricante.
+\end{itemize}
+\end{objetivos}
+
+\section{A pergunta que separa dois mundos}
+
+Todo programa de CLP é escrito em algo. A pergunta decisiva, que este capítulo ensina a responder, é:
+\emph{o que estou usando pertence à norma ou ao fabricante?}
+
+A distinção não é acadêmica. Ela determina se o programa sobrevive à troca de um equipamento, se um
+técnico formado em outra marca consegue mantê-lo e se o material didático que você estudou continua
+válido depois da próxima revisão.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\linewidth]{13-norma-versus-fabricante.pdf}
+  \caption{O que a norma padroniza e o que permanece decisão do fabricante.}
+  \label{fig:norma-versus-fabricante}
+\end{figure}
+
+\section{O caso concreto das apostilas de origem}
+
+O material didático que serviu de base a esta apostila foi escrito a partir de 2017 e, na parte de
+programação, ensina um conjunto de instruções com nomes como \texttt{XIC}, \texttt{XIO}, \texttt{OTL}
+e \texttt{JSR}. Sua bibliografia declara a origem: o \emph{manual de referência geral do conjunto de
+instruções} de uma família específica de controladores.
+
+Ou seja: o capítulo de ``prática -- programação'' do material original ensina um \textbf{dialeto de
+fabricante}, não a norma --- e o faz logo depois de um capítulo que apresenta a norma e afirma que ela
+existe ``para que os CLP's de diferentes fabricantes possam ser utilizados por programas distintos''.
+Há uma contradição interna no próprio texto.
+
+Esta apostila corrige o problema de duas formas: reescreve o conteúdo em elementos normatizados
+(este capítulo) e mantém o legado documentado no Apêndice~\ref{apB}, para quem precisa ler código
+existente.
+
+\index{legado (código)}\index{dialeto de fabricante}
+
+\section{Comparação, aspecto por aspecto}
+
+\begin{table}[H]
+  \centering
+  \caption{Implementação conforme a norma e implementação legada, lado a lado.}
+  \label{tab:iec-versus-legado}
+  \begin{tabular}{p{3.0cm} p{5.6cm} p{6.0cm}}
+    \toprule
+    Aspecto & Conforme IEC 61131-3 & Legado proprietário \\
+    \midrule
+    Linguagens
+      & LD, FBD, ST e SFC definidas pela norma (IL até a 3ª edição)
+      & Conjunto de mnemônicos do ambiente do fabricante \\
+    \addlinespace
+    Contato normalmente aberto
+      & Contato NA; em IL, \texttt{LD}; em ST, uso direto da variável booleana
+      & \texttt{XIC} --- \emph{examine if closed} \\
+    \addlinespace
+    Contato normalmente fechado
+      & Contato NF; em IL, \texttt{LDN}; em ST, \texttt{NOT} da variável
+      & \texttt{XIO} --- \emph{examine if opened} \\
+    \addlinespace
+    Bobina simples
+      & Bobina de saída; em ST, atribuição
+      & \texttt{OTE} --- \emph{output energize} \\
+    \addlinespace
+    Retenção de saída
+      & Bobina de retenção (\texttt{SET}) e de desretenção (\texttt{RESET}), definidas na norma
+      & \texttt{OTL} e \texttt{OTU} --- \emph{output latch} e \emph{unlatch} \\
+    \addlinespace
+    Detecção de borda
+      & Blocos de detecção de borda de subida e de descida
+      & \texttt{ONS}, \texttt{OSR} e \texttt{OSF} \\
+    \addlinespace
+    Temporização
+      & Blocos padronizados \texttt{TON} e \texttt{TOF}
+      & \texttt{TON} e \texttt{TOF} com parâmetros próprios (\texttt{PRE}, \texttt{ACC}, \texttt{DN})
+        e base de tempo fixa \\
+    \addlinespace
+    Aritmética
+      & Funções padronizadas: \texttt{ADD}, \texttt{SUB}, \texttt{MUL}, \texttt{DIV}, \texttt{MOD},
+        \texttt{SQRT}, \texttt{ABS}, \texttt{NEG}
+      & Mesmas operações com nomes do fabricante, como \texttt{SQR} e \texttt{CPT} \\
+    \addlinespace
+    Deslocamento de bits
+      & \texttt{SHL} e \texttt{SHR}
+      & \texttt{BSL} e \texttt{BSR} --- \emph{bit shift left/right} \\
+    \addlinespace
+    Chamada de rotina
+      & Chamada de POU: função, bloco de função ou programa
+      & \texttt{JSR} --- \emph{jump to subroutine} \\
+    \addlinespace
+    Tipagem
+      & Tipagem forte, com tipos elementares e derivados padronizados (Capítulo~\ref{cap:memoria})
+      & Tipagem própria do ambiente; endereçamento por área de memória \\
+    \addlinespace
+    Endereçamento de E/S
+      & \textbf{Não padronizado} pela norma
+      & Próprio de cada família, com sintaxe e convenção particulares \\
+    \addlinespace
+    Blocos de sistema e comunicação
+      & \textbf{Não padronizados} pela norma
+      & Específicos do fabricante; principal obstáculo na migração \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Mapa de conversão}
+
+A Tabela~\ref{tab:conversao} é o instrumento de trabalho para ler código antigo. A coluna da direita
+indica o elemento normatizado equivalente.
+
+\begin{table}[H]
+  \centering
+  \caption{Conversão de mnemônicos de fabricante para elementos da norma.}
+  \label{tab:conversao}
+  \begin{tabular}{l l l}
+    \toprule
+    Mnemônico legado & Significado & Equivalente normatizado \\
+    \midrule
+    \texttt{XIC} & examina se fechado & contato NA (em IL: \texttt{LD}) \\
+    \texttt{XIO} & examina se aberto & contato NF (em IL: \texttt{LDN}; em ST: \texttt{NOT}) \\
+    \texttt{OTE} & energiza saída & bobina de saída / atribuição \\
+    \texttt{OTL} & travamento de saída & bobina de retenção \texttt{SET} \\
+    \texttt{OTU} & destravamento de saída & bobina de desretenção \texttt{RESET} \\
+    \texttt{ONS}, \texttt{OSR} & pulso único na subida & bloco de detecção de borda de subida \\
+    \texttt{OSF} & pulso único na descida & bloco de detecção de borda de descida \\
+    \texttt{TON} & temporizador na energização & bloco \texttt{TON} padronizado \\
+    \texttt{TOF} & temporizador na desenergização & bloco \texttt{TOF} padronizado \\
+    \texttt{MOV} & move valor & bloco \texttt{MOVE} padronizado \\
+    \texttt{CLR} & zera o valor & \texttt{MOVE} com valor zero \\
+    \texttt{CPT} & bloco de cálculo & expressão em texto estruturado \\
+    \texttt{SQR} & raiz quadrada & função \texttt{SQRT} \\
+    \texttt{ABS}, \texttt{NEG} & valor absoluto e negação & funções \texttt{ABS} e \texttt{NEG} \\
+    \texttt{BSL}, \texttt{BSR} & deslocamento de bits & \texttt{SHL} e \texttt{SHR} \\
+    \texttt{AND}, \texttt{OR}, \texttt{XOR}, \texttt{NOT} & operações em palavra & mesmos operadores
+      padronizados \\
+    \texttt{JSR} & salto para sub-rotina & chamada de POU \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+O Apêndice~\ref{apB} traz o mesmo mapa com exemplo de código lado a lado, para uso em laboratório.
+
+\section{As duas famílias de problemas}
+
+Quem avalia portabilidade costuma olhar apenas a linguagem, e é aí que erra a avaliação. Os
+obstáculos reais se dividem em dois grupos:
+
+\subsection{Problemas de linguagem --- os menores}
+
+Mnemônicos diferentes para a mesma função. São inconvenientes, mas a conversão é mecânica: a
+Tabela~\ref{tab:conversao} resolve, e a maior parte das diferenças desaparece com uma reescrita
+cuidadosa.
+
+\subsection{Problemas de estrutura --- os maiores}
+
+\begin{itemize}
+  \item \textbf{endereçamento físico}: cada família usa uma sintaxe e uma organização de memória
+        próprias. Mesmo escrevendo em Ladder idêntico, o programa não roda sem refazer a ligação
+        entre variável e ponto físico;
+  \item \textbf{blocos de sistema e comunicação}: leitura de módulo, controle de rede, diagnóstico de
+        rack e blocos de protocolo proprietário não têm equivalente direto;
+  \item \textbf{temporização e contagem}: parâmetros, base de tempo e comportamento de acumulação
+        variam, e uma diferença de base de tempo muda o comportamento do processo;
+  \item \textbf{ambiente de programação}: formato de arquivo, versionamento e bibliotecas são do
+        fabricante, o que inviabiliza a reutilização direta do projeto.
+\end{itemize}
+
+Só o primeiro grupo é resolvido por conformidade com a norma. Os demais exigem projeto de migração,
+teste e comissionamento --- e é isso que precisa estar no orçamento.
+
+\begin{atencao}
+Nunca prometa portabilidade a partir de conformidade normativa. O correto é dizer: ``o software
+aplicativo é escrito em linguagem padronizada, o que reduz o esforço de migração; endereçamento,
+blocos de sistema e protocolos permanecem específicos e exigem reescrita e teste''. Afirmar o
+contrário é criar expectativa que se transforma em prejuízo na próxima troca de fornecedor.
+\end{atencao}
+
+\section{Por que este capítulo existe}
+
+Quatro razões práticas:
+
+\begin{enumerate}
+  \item \textbf{manutenção}: quem aprendeu só um dialeto fica incapaz de manter a máquina do lado;
+  \item \textbf{formação}: um curso técnico que ensina dialeto forma profissional para um fornecedor,
+        não para o mercado;
+  \item \textbf{custo}: o custo de migração é definido por decisões tomadas anos antes, na escrita do
+        programa;
+  \item \textbf{documentação}: registrar em que padrão o código foi escrito é parte da entrega
+        técnica (Capítulo~\ref{cap:documentacao}).
+\end{enumerate}
+
+\section{Como escrever código que envelhece bem}
+
+\begin{table}[H]
+  \centering
+  \caption{Recomendações para reduzir dependência de fabricante.}
+  \label{tab:recomendacoes-portabilidade}
+  \begin{tabular}{p{6.0cm} p{8.6cm}}
+    \toprule
+    Prática & Efeito \\
+    \midrule
+    Usar as linguagens e os blocos padronizados sempre que existirem
+      & Elimina a maior parte dos problemas de linguagem \\
+    Isolar o que é específico do fabricante em poucos blocos, bem nomeados e comentados
+      & Concentra o problema de migração em pontos conhecidos, em vez de espalhá-lo pelo programa \\
+    Separar a lógica de processo da lógica de comunicação e de diagnóstico
+      & Permite reaproveitar a lógica de processo na migração \\
+    Declarar tipos explicitamente, sem depender de conversão implícita
+      & Evita comportamento diferente entre ambientes \\
+    Nomear variáveis com o significado do processo, não com o endereço físico
+      & O nome sobrevive à troca de endereçamento \\
+    Registrar em que edição da norma o programa foi escrito
+      & Torna a conformidade verificável anos depois \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Uma palavra em defesa do legado.} Nada disso significa que instalação com controlador
+legado deva ser descartada. Ela funciona, tem lógica documentada (ou deveria) e substituí-la pode não
+se pagar. O que se pede é consciência: saber que aquilo é dialeto, manter a documentação em dia e
+planejar a migração antes que ela seja forçada por falta de peça de reposição.
+
+\begin{pratica}
+Pegue um trecho de programa escrito em dialeto de fabricante --- pode ser o do Apêndice~\ref{apB} ou
+um da sua escola. Então:
+(a) classifique cada instrução como normatizada ou proprietária, usando a
+Tabela~\ref{tab:conversao};
+(b) reescreva o trecho em LD e em ST conforme a norma;
+(c) liste o que \emph{não} foi possível converter e explique por quê;
+(d) escreva um parágrafo de avaliação sobre o esforço de migrar aquele trecho para outro fabricante.
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Classifique como normatizado ou proprietário: \texttt{LD}, \texttt{XIC}, \texttt{TON},
+        \texttt{OTL}, \texttt{SHL}, \texttt{BSR}, \texttt{MOVE}, \texttt{JSR}, \texttt{ABS}.
+  \item Por que o endereçamento de E/S não é padronizado pela norma, e qual é a consequência prática
+        disso em uma migração?
+  \item Reescreva em texto estruturado: \texttt{XIC chave1} em série com \texttt{XIO chave2},
+        acionando \texttt{OTL saida1}.
+  \item Explique a diferença entre bobina simples, bobina de retenção e bobina de desretenção.
+  \item Um gestor afirma: ``contratamos controlador conforme IEC 61131-3, então podemos trocar de
+        fabricante sem custo''. Escreva a resposta técnica, com três argumentos.
+  \item Dê um exemplo de bloco que \emph{nunca} será portável entre fabricantes, e explique por quê.
+  \item Escolha duas das recomendações da Tabela~\ref{tab:recomendacoes-portabilidade} e explique
+        como aplicá-las em um programa que você conhece.
+  \item Um controlador legado em operação apresenta falha de peça de reposição. Descreva o
+        procedimento que você recomenda, considerando o que este capítulo apresenta.
+\end{enumerate}
+\end{exercicios}

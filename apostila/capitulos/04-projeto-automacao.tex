@@ -1,0 +1,176 @@
+\chapter{Projeto de automação industrial}
+\label{cap:projeto}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item situar a documentação básica dentro do ciclo de um projeto de automação;
+  \item ler um P\&ID e extrair dele as informações necessárias ao controle;
+  \item montar uma lista de I/O a partir da instrumentação identificada;
+  \item reconhecer o que um descritivo operacional precisa conter;
+  \item entender como a planta baixa e a arquitetura definem I/O local ou remoto.
+\end{itemize}
+\end{objetivos}
+
+\section{O projeto antes do programa}
+
+Programar o CLP é a última etapa de um processo que começa muito antes. Um projeto de automação ---
+básico, detalhado ou executivo --- se apoia em documentação consistente que define o que o sistema
+deve fazer. Sem ela, o programa vira registro de decisões improvisadas, e a manutenção futura fica
+dependente de quem escreveu o código.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{04-fluxo-projeto.pdf}
+  \caption{Fluxo simplificado de um projeto de automação, do requisito à entrega técnica.}
+  \label{fig:fluxo-projeto}
+\end{figure}
+
+\begin{atencao}
+Documentação não é burocracia posterior. É insumo de projeto: a lista de I/O define o porte do
+controlador (Capítulo~\ref{cap:porte}), e o descritivo operacional define a lógica
+(Capítulo~\ref{cap:boas-praticas}). Documento atrasado é retrabalho garantido.
+\end{atencao}
+
+\index{projeto de automação}\index{documentação!de projeto}
+
+\section{Documentos básicos e essenciais}
+
+Cinco documentos formam o núcleo do projeto. Os dois primeiros sustentam os demais:
+
+\begin{table}[H]
+  \centering
+  \caption{Documentos básicos de um projeto de automação.}
+  \label{tab:documentos}
+  \begin{tabular}{p{3.8cm} p{6.4cm} p{4.2cm}}
+    \toprule
+    Documento & O que define & Serve de base para \\
+    \midrule
+    P\&ID (fluxograma de processo e instrumentação)
+      & Equipamentos, tubulação, instrumentação, malhas de controle, intertravamentos e segurança
+      & Lista de I/O, descritivo operacional e definição das malhas \\
+    Lista de I/O
+      & Quantidade e tipo de pontos: DI, DO, AI e AO, por instrumento
+      & Dimensionamento de cartões, remotas e porte do controlador \\
+    Descritivo operacional
+      & Como o processo funciona, o que deve acontecer em cada condição e quais são as lógicas de
+        segurança e intertravamento
+      & Programação e especificação de modos de operação \\
+    Planta baixa de instrumentação
+      & Localização geográfica dos instrumentos e o caminho dos cabos
+      & Decisão entre I/O local e I/O remoto; arquitetura de rede \\
+    Arquitetura de automação
+      & Concepção geral do sistema e seus componentes principais
+      & Detalhamento e especificação final de compra \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{P\&ID: o ponto de partida}
+
+O P\&ID é um diagrama de engenharia de processo que mostra o fluxo físico --- equipamentos,
+tubulação e instrumentação --- e é nele que se enxerga o sistema de controle necessário. Uma vez o
+P\&ID definido, com a instrumentação exigida pelo funcionamento do processo e suas respectivas
+malhas de controle, segurança e intertravamento, inicia-se o \textbf{levantamento de pontos}.
+
+\`A medida que a instrumentação é identificada, cada tag do P\&ID precisa ser analisada quanto ao
+sinal que ocupa no controlador. É aqui que nasce a lista de I/O.
+
+\section{Lista de I/O}
+
+A leitura dos sinais de entrada é feita por cartões específicos, e o mesmo vale para as saídas. Os
+sinais mais comuns em campo são 4--20\,mA, 1--5\,V CC, 0/24\,V CC, além de entradas para RTD
+(PT-100) e termopar em milivolts. Nem todos os tipos cabem no mesmo cartão --- por isso os pontos
+são classificados e contados separadamente:
+
+\begin{itemize}
+  \item \textbf{DI} (\emph{discrete input}) --- entrada discreta;
+  \item \textbf{DO} (\emph{discrete output}) --- saída discreta;
+  \item \textbf{AI} (\emph{analog input}) --- entrada analógica;
+  \item \textbf{AO} (\emph{analog output}) --- saída analógica.
+\end{itemize}
+
+\begin{table}[H]
+  \centering
+  \caption{Exemplo de lista de I/O.}
+  \label{tab:lista-io}
+  \begin{tabular}{r l l l c c c c}
+    \toprule
+    Item & Tag & P\&ID & Serviço & DI & DO & AI & AO \\
+    \midrule
+    1 & FIT-1003402/1 & DE-001-023 & Vazão de alimentação do R-2371 & 1 &   & 1 &   \\
+    2 & XV-1003401/1  & DE-001-023 & Saída de produtos do R-2373      & 2 & 1 &   &   \\
+    3 & SX-1003503    & DE-001-023 & Controle de vazão                & 2 & 1 & 1 & 1 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+A soma dos pontos define quantos cartões e quantas remotas serão necessários e, com isso, o porte
+do controlador mais adequado ao processo (Capítulo~\ref{cap:porte}).
+
+\begin{pratica}
+Preencha a Tabela~\ref{tab:lista-io} com cinco instrumentos de um processo que você conheça. Para
+cada um, decida explicitamente:
+(a) o sinal é discreto ou analógico?
+(b) quantos pontos de cada tipo ele consome?
+(c) existe algum ponto que \emph{não} seja de medição nem de comando, mas precise entrar na lista
+--- por exemplo, um contato de status de partida de motor ou um alarme de falha do inversor?
+Esse último item é o erro mais comum em listas de I/O iniciantes.
+\end{pratica}
+
+\section{Descritivo operacional}
+
+O descritivo operacional descreve o funcionamento do processo. É ele que permite entender tanto o
+processo quanto a contribuição da automação sobre ele, e é a fonte direta da lógica: condições de
+partida, sequência, paradas, alarmes e intertravamentos.
+
+Um descritivo útil responde, para cada equipamento:
+
+\begin{enumerate}
+  \item quais são as condições para partir e para parar;
+  \item qual é a sequência normal de operação, e o que acontece se um passo não for cumprido;
+  \item o que fazer em falha de energia, de comunicação, de instrumento e de equipamento;
+  \item quais situações exigem parada de emergência e qual o estado seguro resultante;
+  \item o que o operador pode comandar manualmente, e sob quais restrições.
+\end{enumerate}
+
+\section{Planta baixa, I/O remoto e arquitetura}
+
+A planta baixa com a localização dos instrumentos define o caminho dos cabos até o sistema de
+controle. Dependendo da distribuição e da densidade de instrumentos na área, decide-se entre I/O
+local --- todos os sinais indo até o rack do CLP --- e I/O remoto ou distribuído, com as remotas
+instaladas no campo.
+
+A instalação com I/O local consome muito cabeamento, borneiras, caixas de passagem, bandejas,
+projeto e mão de obra. Os blocos de I/O remotos reduzem esses gastos de forma significativa, porque
+os sinais param de percorrer longas distâncias até o painel. A decisão é técnica e financeira, e
+resulta na arquitetura de rede do sistema (Capítulo~\ref{cap:redes-scada}).
+
+O documento de \textbf{arquitetura geral de automação} consolida a concepção do sistema: define os
+componentes principais que orientarão o detalhamento e a especificação final de compra.
+
+\begin{atencao}
+Arquitetura definida sem a planta baixa é chute. Antes de fechar a arquitetura, responda: quantos
+instrumentos existem por área? Qual a distância máxima? Quanto custa o metro de cabo, considerando
+bandeja, passagem e mão de obra? Qual é o tempo de resposta exigido pelo processo?
+\end{atencao}
+
+\section{Fechamento: o que fica para as próximas etapas}
+
+Ao final desta fase o projeto tem: P\&ID definido, lista de I/O fechada com folga, descritivo
+operacional escrito, arquitetura definida e a especificação de compra encaminhada. Com isso o
+trabalho de programação deixa de ser criativo e passa a ser verificável --- o programa implementa o
+que está descrito, e o descritivo permite conferir se implementou.
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Qual documento define a quantidade de cartões de entrada e saída de um projeto? Justifique.
+  \item A uma lista de I/O de um motor foi anotado apenas o comando de partida (DO). Aponte o que
+        está faltando e por que isso impediria a lógica de diagnóstico funcionar.
+  \item Um P\&ID indica vazão, pressão e nível em uma mesma linha, com uma válvula de controle.
+        Descreva a malha e diga quais pontos de I/O ela provoca.
+  \item Dê um exemplo de situação em que o I/O remoto é pior escolha que o I/O local no rack.
+  \item Escreva, em no máximo dez linhas, o descritivo operacional de uma bomba que deve partir
+        manualmente e parar automaticamente por nível alto, com alarme de falha elétrica.
+\end{enumerate}
+\end{exercicios}

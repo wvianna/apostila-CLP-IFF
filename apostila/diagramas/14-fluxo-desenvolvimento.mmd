@@ -1,0 +1,8 @@
+flowchart LR
+  A["Definir requisitos:<br/>segurança, pontos de E/S,<br/>lógica de funcionamento"] --> B["Elaborar o programa"]
+  B --> C["Testar em simulação"]
+  C --> D{"Funciona?"}
+  D -->|"não"| E["Corrigir o programa"]
+  E --> C
+  D -->|"sim"| F["Documentar e arquivar"]
+  F --> G["Instalar, comissionar<br/>e liberar para uso"]

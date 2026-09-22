@@ -1,0 +1,409 @@
+\chapter{Práticas de laboratório}
+\label{apA}
+
+\begin{objetivos}
+Ao final das práticas deste apêndice você deve ser capaz de:
+\begin{itemize}
+  \item escrever e testar lógica em \textbf{linguagens padronizadas pela IEC 61131-3}, sem depender de
+        dialeto de fabricante;
+  \item aplicar detecção de borda, temporização, contagem e retenção com comportamento previsível;
+  \item converter um sinal analógico em grandeza de engenharia e justificar a resolução obtida;
+  \item documentar cada prática como entrega técnica, com lista de E/S, tags e casos de teste.
+\end{itemize}
+\end{objetivos}
+
+\section{Como usar este apêndice}
+
+O material de origem trazia uma bateria de práticas escrita inteiramente em mnemônicos de um
+fabricante. Aqui as mesmas práticas foram reescritas em \textbf{elementos normatizados}: contatos,
+bobinas, blocos de função padronizados (\texttt{TON}, \texttt{TOF}, \texttt{TP}, \texttt{CTU},
+\texttt{CTD}), operadores e expressões em texto estruturado. O Apêndice~\ref{apB} traz o mapa de
+conversão para quem precisar ler o código antigo.
+
+Cada prática tem a mesma estrutura: \textbf{objetivo}, \textbf{material}, \textbf{procedimento},
+\textbf{critério de aceite} e \textbf{o que entregar}. O critério de aceite é escrito de forma
+verificável --- ``a saída liga'', não ``entender o funcionamento''.
+
+\begin{atencao}
+\textbf{Regras de segurança do laboratório.} Nenhum procedimento deste apêndice autoriza trabalho em
+circuito energizado.
+\begin{enumerate}
+  \item só monte, desmonte ou meça com a bancada \textbf{desenergizada e bloqueada}, conferindo a
+        ausência de tensão antes de tocar no circuito (Capítulo~\ref{cap:manutencao});
+  \item ligação de motor, rede elétrica ou qualquer tensão acima da alimentação da bancada exige
+        supervisão do professor;
+  \item força de ponto (\emph{force}) só é permitida em bancada, com o equipamento sem carga mecânica
+        e com autorização;
+  \item teste de intertravamento com máquina energizada exige área liberada e autorização de quem
+        responde pela produção;
+  \item ao terminar, desenergize, organize o cabeamento e registre o que foi alterado no projeto.
+\end{enumerate}
+\end{atencao}
+
+A Tabela~\ref{tab:visao-praticas} dá a visão geral das onze práticas e indica, para cada uma, a
+linguagem sugerida e os capítulos de apoio.
+
+\begin{table}[H]
+  \centering
+  \caption{Visão geral das práticas, linguagem sugerida e capítulos de apoio.}
+  \label{tab:visao-praticas}
+  \begin{tabular}{p{0.8cm} p{5.0cm} p{2.6cm} p{4.6cm}}
+    \toprule
+    Nº & Tema & Linguagem & Apoio teórico \\
+    \midrule
+    1 & Partida e parada com selo & LD & Capítulos~\ref{cap:linguagens} e~\ref{cap:boas-praticas} \\
+    \addlinespace
+    2 & Condição de falha segura e contato NF & LD & Capítulo~\ref{cap:linguagens} \\
+    \addlinespace
+    3 & Detecção de borda e pulso único & LD e ST & Capítulos~\ref{cap:linguagens} e~\ref{cap:iec-modelo} \\
+    \addlinespace
+    4 & Temporização com \texttt{TON}, \texttt{TOF} e \texttt{TP} & FBD & Capítulo~\ref{cap:iec-modelo} \\
+    \addlinespace
+    5 & Contagem, retenção e retomada & FBD e ST & Capítulos~\ref{cap:memoria} e~\ref{cap:iec-modelo} \\
+    \addlinespace
+    6 & Sequência por etapas com SFC & SFC & Capítulo~\ref{cap:linguagens} \\
+    \addlinespace
+    7 & Escala de sinal analógico & ST & Capítulo~\ref{cap:es} \\
+    \addlinespace
+    8 & Comparação, aritmética e alarme de faixa & ST & Capítulos~\ref{cap:memoria} e~\ref{cap:linguagens} \\
+    \addlinespace
+    9 & Intertravamento e partida segura & LD & Capítulos~\ref{cap:boas-praticas} e~\ref{cap:simulacao} \\
+    \addlinespace
+    10 & Remota de E/S e supervisão & Integração & Capítulos~\ref{cap:redes-scada} e~\ref{cap:dados} \\
+    \addlinespace
+    11 & Documentação e versionamento do projeto & --- & Capítulo~\ref{cap:documentacao} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\index{prática de laboratório}
+
+\section{Prática 1 --- Partida e parada com selo}
+
+\paragraph{Objetivo.} Implementar o comando clássico de partida e parada com retenção, em Ladder
+conforme a norma, e explicar o papel do contato de selo.
+
+\paragraph{Material.} Controlador com módulo de entradas e saídas digitais; botoeira NA (partida) e
+botoeira NF (parada); uma saída com sinalizador.
+
+\paragraph{Procedimento.}
+\begin{enumerate}
+  \item declare as variáveis com nome do processo (\texttt{bt\_partida}, \texttt{bt\_parada},
+        \texttt{motor}), no padrão do Capítulo~\ref{cap:boas-praticas};
+  \item escreva a lógica: o contato de partida em paralelo com o contato do próprio motor, em série
+        com o contato de parada, acionando a bobina do motor;
+  \item carregue o programa, ligue a bancada e teste as quatro combinações de partida e parada;
+  \item acrescente uma segunda saída que só ligue com o motor em operação e confirme o
+        comportamento;
+  \item desligue a bancada no meio da operação e religue: o motor deve permanecer parado.
+\end{enumerate}
+
+\paragraph{Critério de aceite.} Um toque na partida liga o motor e ele permanece ligado; um toque na
+parada desliga; soltar as botoeiras não altera o estado; após queda e retorno de energia o motor não
+religa sozinho.
+
+\paragraph{O que entregar.} Diagrama Ladder comentado, lista de variáveis com o ponto físico de cada
+uma e registro do teste das quatro combinações.
+
+\section{Prática 2 --- Condição de falha segura e contato NF}
+
+\paragraph{Objetivo.} Reconhecer que o tipo de contato no programa decorre da condição de falha
+segura, e não do tipo de chave disponível em campo.
+
+\paragraph{Material.} A bancada da Prática~1 acrescida de uma chave fim de curso NA e de uma chave
+fim de curso NF.
+
+\paragraph{Procedimento.}
+\begin{enumerate}
+  \item monte uma saída que só permaneça ligada com a proteção fechada, usando a chave NA;
+  \item refaça com a chave NF, mantendo o mesmo comportamento final;
+  \item preencha a tabela de contato em função da chave (Capítulo~\ref{cap:linguagens}) para os dois
+        casos;
+  \item desconecte o fio de uma das chaves com a bancada desenergizada, religue e observe o
+        comportamento;
+  \item explique por escrito qual das duas montagens é a correta para uma proteção de máquina.
+\end{enumerate}
+
+\paragraph{Critério de aceite.} A montagem escolhida leva a máquina ao estado seguro quando o sinal
+da proteção é perdido; a justificativa cita a condição de falha segura.
+
+\paragraph{O que entregar.} Tabela preenchida, os dois programas e o parágrafo de justificativa.
+
+\section{Prática 3 --- Detecção de borda e pulso único}
+
+\paragraph{Objetivo.} Diferenciar nível de borda, e usar detecção de borda para contar um evento
+único por acionamento.
+
+\paragraph{Material.} A bancada da Prática~1 e um contador na saída.
+
+\paragraph{Procedimento.}
+\begin{enumerate}
+  \item escreva uma lógica que incremente um contador \emph{enquanto} a entrada estiver acionada e
+        observe o resultado;
+  \item reescreva usando um bloco de detecção de borda de subida, de modo que cada acionamento conte
+        \textbf{uma única vez};
+  \item repita com detecção de borda de descida;
+  \item escreva a versão em texto estruturado e compare com a versão em Ladder;
+  \item anote, com o cronômetro do ambiente de programação, o tempo em que a entrada permaneceu
+        acionada.
+\end{enumerate}
+
+\paragraph{Critério de aceite.} A primeira versão conta muitas vezes por acionamento; a segunda conta
+exatamente uma vez por transição; as versões em Ladder e em texto estruturado têm o mesmo
+comportamento.
+
+\paragraph{O que entregar.} Os três programas, a medição de tempo e uma frase explicando por que a
+detecção de borda é indispensável em contagem de peças.
+
+\section{Prática 4 --- Temporização com \texttt{TON}, \texttt{TOF} e \texttt{TP}}
+
+\paragraph{Objetivo.} Aplicar os três blocos de temporização padronizados e distinguir os seus
+comportamentos.
+
+\paragraph{Material.} A bancada da Prática~1; duas saídas com sinalizador.
+
+\paragraph{Procedimento.}
+\begin{enumerate}
+  \item com \texttt{TON}, acione uma saída 3\,s após a entrada ser ativada; desative a entrada e
+        observe o tempo acumulado;
+  \item com \texttt{TOF}, mantenha a saída ligada por 3\,s \emph{depois} de a entrada ser desativada;
+  \item com \texttt{TP}, gere um pulso de 3\,s a partir da borda de subida da entrada, mesmo que a
+        entrada continue ativa;
+  \item para cada bloco, desative a entrada antes de o tempo completar e registre o que acontece com
+        a saída e com o tempo acumulado;
+  \item declare o tempo de referência (\texttt{PT}) como constante nomeada no início do programa, e
+        não como número solto no bloco.
+\end{enumerate}
+
+\paragraph{Critério de aceite.} Os três comportamentos são distintos e descritos corretamente no
+relatório; o tempo cronometrado confere com o programado dentro da tolerância do ciclo de varredura.
+
+\paragraph{O que entregar.} Diagrama de blocos dos três casos, registro dos tempos medidos e a
+explicação da diferença entre \texttt{TON}, \texttt{TOF} e \texttt{TP}.
+
+\begin{atencao}
+Confira a \textbf{base de tempo} declarada no ambiente antes de comparar resultados. Um temporizador
+escrito com base de 10\,ms lido como se fosse de 1\,ms produz um erro de dez vezes --- e é o tipo de
+defeito que só aparece na máquina, quando o tempo do processo não é mais o esperado.
+\end{atencao}
+
+\section{Prática 5 --- Contagem, retenção e retomada}
+
+\paragraph{Objetivo.} Usar contagem com valor de referência e variável retentiva, e verificar o
+comportamento do sistema após falta de energia.
+
+\paragraph{Material.} A bancada da Prática~3, com sinalizador de fim de lote.
+
+\paragraph{Procedimento.}
+\begin{enumerate}
+  \item conte 10 acionamentos de uma entrada e acione uma saída ao atingir o valor de referência;
+  \item use um contador decrescente partindo de 10 e acione a mesma saída ao chegar a zero;
+  \item acrescente um botão de reinício que zere o acumulado;
+  \item declare o acumulado como variável \textbf{retentiva} e repita o ensaio desenergiando a
+        bancada no meio da contagem;
+  \item com o acumulado \emph{não} retentivo, repita o mesmo ensaio e compare.
+\end{enumerate}
+
+\paragraph{Critério de aceite.} Com retenção, a contagem continua de onde parou; sem retenção, o
+acumulado volta ao valor inicial; em ambos os casos o reinício zera no momento correto.
+
+\paragraph{O que entregar.} Os dois programas, o registro dos ensaios e a explicação do efeito da
+retenção, ligando com o mapa de memória do Capítulo~\ref{cap:memoria}.
+
+\section{Prática 6 --- Sequência por etapas com SFC}
+
+\paragraph{Objetivo.} Descrever uma sequência de máquina com passos, ações e transições, na
+linguagem de sequenciamento da norma.
+
+\paragraph{Material.} A bancada das práticas anteriores; duas saídas com sinalizador.
+
+\paragraph{Procedimento.}
+\begin{enumerate}
+  \item descreva em texto a sequência: passo inicial $\rightarrow$ avanço do atuador A
+        $\rightarrow$ avanço do atuador B $\rightarrow$ recuo de B $\rightarrow$ recuo de A
+        $\rightarrow$ retorno ao passo inicial;
+  \item defina a \textbf{condição de transição} de cada passo, como expressão booleana sobre as
+        entradas;
+  \item implemente em SFC, com um passo ativo por vez;
+  \item acrescente um passo de \textbf{falha} que seja ativado se uma transição não ocorrer dentro de
+        5\,s, e que desligue todas as saídas;
+  \item force a falha por tempo e confirme que a sequência para em estado seguro.
+\end{enumerate}
+
+\paragraph{Critério de aceite.} A sequência avança apenas quando a transição é verdadeira; nunca há
+dois passos ativos ao mesmo tempo; a falha por tempo desliga as saídas e é sinalizada.
+
+\paragraph{O que entregar.} Diagrama SFC, tabela de transições com a condição de cada uma e registro
+do teste de falha por tempo.
+
+\section{Prática 7 --- Escala de sinal analógico}
+
+\paragraph{Objetivo.} Converter a leitura bruta de uma entrada analógica em grandeza de engenharia e
+avaliar a resolução obtida.
+
+\paragraph{Material.} Controlador com entrada analógica; potenciômetro ou transmissor de
+$4$--$20\,$mA; instrumento de referência.
+
+\paragraph{Procedimento.}
+\begin{enumerate}
+  \item identifique a resolução da entrada, em bits, e a faixa elétrica aceita
+        (Capítulo~\ref{cap:es});
+  \item defina duas variáveis de referência, \texttt{bruto\_min} e \texttt{bruto\_max}, correspondentes
+        ao fundo de escala;
+  \item escreva a expressão de escala em texto estruturado, usando tipo real para o resultado;
+  \item aplique três valores de entrada e compare a leitura com o instrumento de referência;
+  \item calcule a resolução obtida na grandeza de engenharia e registre o número de casas decimais que
+        faz sentido exibir;
+  \item provoque sinal abaixo do mínimo e acima do máximo e defina o que o programa deve fazer nesses
+        casos.
+\end{enumerate}
+
+\paragraph{Critério de aceite.} A grandeza calculada confere com a referência dentro da resolução
+declarada; o programa trata sinal fora de faixa; a documentação registra a resolução obtida e não
+apenas a do cartão.
+
+\paragraph{O que entregar.} Cálculo da resolução, a expressão de escala comentada e a tabela de
+comparação com o instrumento.
+
+\section{Prática 8 --- Comparação, aritmética e alarme de faixa}
+
+\paragraph{Objetivo.} Construir uma lógica de alarme com histerese e temporização, a partir da
+comparação de grandezas.
+
+\paragraph{Material.} A bancada da Prática~7 e um sinalizador de alarme.
+
+\paragraph{Procedimento.}
+\begin{enumerate}
+  \item defina os limites alto e baixo de operação e os limites de alarme;
+  \item acione o alarme quando a grandeza ultrapassar o limite alto, e só o desligue quando ela cair
+        abaixo de um valor \emph{menor} --- a histerese;
+  \item faça o mesmo para o limite baixo, na direção oposta;
+  \item acrescente uma temporização de \textbf{confirmação}: o alarme só é registrado se a condição
+        persistir por 5\,s;
+  \item registre a contagem de acionamentos do alarme em variável retentiva;
+  \item explique, em três linhas, por que histerese e confirmação por tempo reduzem alarme falso.
+\end{enumerate}
+
+\paragraph{Critério de aceite.} O alarme não oscila perto do limite; a oscilação transitória não gera
+registro; o contador de acionamentos confere com o número de eventos provocados.
+
+\paragraph{O que entregar.} O programa comentado, a tabela de limites e histerese e o registro dos
+eventos provocados.
+
+\section{Prática 9 --- Intertravamento e partida segura}
+
+\paragraph{Objetivo.} Implementar intertravamento a partir de uma tabela de causa e efeito e provar
+o seu funcionamento antes de energizar a máquina.
+
+\paragraph{Material.} Bancada com pelo menos duas entradas de proteção e duas saídas de atuação;
+roteiro de teste em branco (Capítulo~\ref{cap:simulacao}).
+
+\paragraph{Procedimento.}
+\begin{enumerate}
+  \item monte a tabela de causa e efeito do processo: para cada proteção, o que deve acontecer;
+  \item escreva a lógica de intertravamento em Ladder, com a proteção \textbf{em série} no comando de
+        cada atuador que ela deve bloquear;
+  \item escreva também os alarmes correspondentes, deixando claro que o alarme \emph{informa} e o
+        intertravamento \emph{age} (Capítulo~\ref{cap:redes-scada});
+  \item preencha o roteiro de teste: caso, estímulo, resultado esperado e evidência;
+  \item execute o roteiro em bancada, com as saídas sem carga mecânica, e registre o resultado de cada
+        caso;
+  \item provoque a partida com a proteção violada e confirme que o atuador não parte.
+\end{enumerate}
+
+\paragraph{Critério de aceite.} Nenhum atuador parte com a proteção violada; toda atuação de
+intertravamento tem alarme correspondente; o roteiro está preenchido e assinado.
+
+\paragraph{O que entregar.} Tabela de causa e efeito, programa, roteiro preenchido e a lista do que
+ficou impossível testar em bancada.
+
+\section{Prática 10 --- Remota de E/S e supervisão}
+
+\paragraph{Objetivo.} Ampliar a bancada com uma remota de E/S em rede e levar uma variável até uma
+tela de supervisão, com registro histórico.
+
+\paragraph{Material.} Controlador, remota de E/S acessível por protocolo aberto, computador com
+ambiente de supervisão.
+
+\paragraph{Procedimento.}
+\begin{enumerate}
+  \item conecte a remota e documente endereço, protocolo e meio físico;
+  \item mapeie duas entradas e duas saídas da remota em variáveis com nome de processo;
+  \item monte uma tabela de registros ou de nós usados, com o significado de cada posição;
+  \item no programa, faça uma entrada da remota acionar uma saída local, e uma entrada local acionar
+        uma saída da remota;
+  \item publique a variável na supervisão, crie uma tela simples e habilite histórico para ela;
+  \item com a bancada em operação, desconecte o cabo de rede da remota e registre o que acontece: o
+        programa para? A saída da remota assume que estado?
+\end{enumerate}
+
+\paragraph{Critério de aceite.} A troca de sinais funciona nos dois sentidos; a tabela de registros
+está completa; o histórico registra a variável; o comportamento na perda de comunicação está descrito
+e é seguro.
+
+\paragraph{O que entregar.} Desenho da arquitetura de rede, tabela de registros, tela, e o parágrafo
+sobre o comportamento na falha de rede, ligando com o Capítulo~\ref{cap:seguranca}.
+
+\section{Prática 11 --- Documentação e versionamento do projeto}
+
+\paragraph{Objetivo.} Fechar o conjunto de práticas com a entrega documental, que é o que permite a
+outra pessoa manter o sistema (Capítulo~\ref{cap:documentacao}).
+
+\paragraph{Material.} Todos os arquivos produzidos nas práticas anteriores.
+
+\paragraph{Procedimento.}
+\begin{enumerate}
+  \item monte o descritivo de arquitetura: o que o sistema faz, quais são as entradas, as saídas e os
+        atuadores;
+  \item preencha a \textbf{lista de alocação de E/S}, ligando cada variável ao ponto físico;
+  \item monte a \textbf{tabela de tags} com nome, tipo, unidade, faixa e descrição;
+  \item versione o projeto-fonte e registre a versão no cabeçalho do programa;
+  \item execute o backup e faça o teste de \textbf{restauração} em bancada, registrando o resultado;
+  \item escreva o procedimento de operação em uma página: como partir, como parar, o que fazer em
+        alarme.
+\end{enumerate}
+
+\paragraph{Critério de aceite.} Um colega que não participou da montagem consegue ligar a bancada e
+executar a sequência apenas com a documentação entregue; a restauração do backup foi testada e
+registrada.
+
+\paragraph{O que entregar.} O conjunto documental completo e a versão identificada do projeto.
+
+\begin{pratica}
+Escolha três práticas deste apêndice, monte-as como um único sistema --- por exemplo: comando de
+partida com selo, temporização de partida e alarme de faixa --- e integre-as em um programa com
+POUs separadas, uma por função. Depois:
+
+(a) documente o conjunto com o mesmo checklist da Prática~11;
+(b) monte um roteiro de teste que cubra os casos críticos (partida, parada, falha de proteção e
+retomada após queda de energia);
+(c) execute o roteiro em bancada e registre a evidência de cada caso;
+(d) escreva duas linhas sobre o que mudou no seu entendimento sobre ``programar CLP'' depois de
+separar as funções em POUs, em vez de escrever tudo em uma única varredura longa.
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Explique por que o contato de selo é necessário em um comando de partida e parada.
+  \item Descreva a diferença entre o que se mede em uma \textbf{entrada} com contato NA e a lógica que
+        se escreve para ligar um atuador a partir dela.
+  \item Por que a escolha entre contato NA e NF em uma proteção de máquina não pode ser feita pelo
+        tipo de chave disponível em campo?
+  \item Liste duas situações em que contar \emph{nível} produz resultado errado e a detecção de borda
+        corrige.
+  \item Compare o comportamento de \texttt{TON}, \texttt{TOF} e \texttt{TP} quando a entrada é
+        desativada antes de o tempo completar.
+  \item O que muda no resultado de uma contagem quando o acumulado é declarado retentivo? Relacione
+        com o mapa de memória do Capítulo~\ref{cap:memoria}.
+  \item Por que uma sequência em SFC precisa de um passo de falha com temporização?
+  \item Na Prática~7, por que a resolução na grandeza de engenharia difere da resolução do cartão?
+  \item Explique o papel da histerese e o da confirmação por tempo em uma lógica de alarme.
+  \item Qual é a diferença prática entre alarme e intertravamento na Prática~9?
+  \item Na Prática~10, o que deve acontecer com as saídas da remota quando a comunicação cai, e por
+        que essa decisão não pode ser deixada para o momento da falha?
+  \item Um colega entregou o programa sem lista de E/S, dizendo que ``o código está comentado''.
+        Aponte duas consequências concretas dessa decisão.
+  \item Escolha uma das práticas e escreva o critério de aceite dela em uma frase verificável, como
+        se fosse uma cláusula de contrato.
+\end{enumerate}
+\end{exercicios}

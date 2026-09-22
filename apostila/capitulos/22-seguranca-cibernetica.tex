@@ -1,0 +1,292 @@
+\chapter{Segurança cibernética em automação industrial}
+\label{cap:seguranca}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item distinguir segurança funcional (\emph{safety}) de segurança cibernética (\emph{security});
+  \item aplicar os conceitos de zona, conduto e nível de segurança da série IEC 62443;
+  \item reconhecer a superfície de ataque de um controlador industrial;
+  \item escolher contramedidas proporcionais ao risco de cada zona;
+  \item descrever um plano de resposta a incidente sem improviso.
+\end{itemize}
+\end{objetivos}
+
+\section{Safety e security: duas palavras, dois problemas}
+
+O português usa ``segurança'' para as duas coisas, e essa coincidência esconde uma diferença que
+decide projetos.
+
+\begin{table}[H]
+  \centering
+  \caption{Segurança funcional e segurança cibernética.}
+  \label{tab:safety-security}
+  \begin{tabular}{p{2.6cm} p{5.6cm} p{6.1cm}}
+    \toprule
+    Aspecto & Segurança funcional (\emph{safety}) & Segurança cibernética (\emph{security}) \\
+    \midrule
+    Protege contra
+      & Falha do sistema que cause dano a pessoas, ao ambiente ou ao patrimônio
+      & Ação humana intencional que explore uma vulnerabilidade \\
+    \addlinespace
+    Pergunta central
+      & O sistema falha de forma segura?
+      & Alguém de fora consegue fazer o sistema fazer o que não deveria? \\
+    \addlinespace
+    Base normativa usual
+      & Séries IEC 61508 (genérica) e IEC 61511 (indústria de processo), com níveis de integridade de
+        segurança (SIL)
+      & Série IEC 62443, para sistemas de automação e controle; ISO/IEC 27001 para o sistema de gestão
+        corporativo \\
+    \addlinespace
+    Métrica típica
+      & Probabilidade de falha perigosa; nível SIL
+      & Nível de segurança (SL) por zona, e requisitos atendidos \\
+    \addlinespace
+    Documento típico
+      & Análise de risco e matriz de causa e efeito dos intertravamentos
+      & Análise de risco por zona, arquitetura de rede e plano de resposta \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+As duas se cruzam em um ponto perigoso, e a Tabela~\ref{tab:safety-security} resume a distinção
+antes de detalhá-la: \textbf{um incidente cibernético pode anular a proteção funcional}. Se um invasor altera a lógica que desliga a máquina, o sistema perde a característica de
+segurança que havia sido projetada e validada. É por isso que proteção de máquina não se resolve só
+com projeto de \emph{safety}: ela depende também de quem consegue escrever no controlador.
+
+\index{segurança funcional}\index{segurança cibernética}
+
+\section{A base normativa: a série IEC 62443}
+
+A série \textbf{IEC 62443} trata da segurança cibernética de sistemas de automação e controle
+industriais. Ela nasceu do comitê ISA99, em 2002, e passou a ser desenvolvida em conjunto com o grupo
+de trabalho IEC TC65 WG10; hoje é publicada pela ISA como ANSI/ISA 62443 nos Estados Unidos e pela
+IEC como IEC 62443 internacionalmente, com conteúdo técnico equivalente quando as duas organizações
+aceitam o texto. A IEC a reconhece como norma horizontal: normas setoriais de segurança em
+tecnologia de operação devem usá-la como base.
+
+Os conceitos que interessam ao profissional de automação:
+
+\begin{itemize}
+  \item \textbf{papéis}: o proprietário do ativo, o fornecedor do produto e o prestador de serviço
+        têm responsabilidades diferentes. ``Segurança cibernética é responsabilidade do fabricante''
+        é uma frase falsa em qualquer um dos três casos;
+  \item \textbf{zonas e condutos}: a instalação é dividida em zonas --- agrupamentos de ativos com
+        requisitos de segurança comuns --- e os condutos são os caminhos de comunicação autorizados
+        entre zonas. É o conceito que substitui a ideia de ``rede plana'', em que tudo fala com tudo;
+  \item \textbf{níveis de segurança (SL 0 a 4)}: indicam a resistência exigida contra classes
+        distintas de atacante. Na definição da série, o nível 0 dispensa proteção; o nível 1 protege
+        contra uso indevido não intencional; o nível 2, contra uso indevido intencional por meios
+        simples e poucos recursos; o nível 3, contra meios sofisticados e recursos moderados; e o
+        nível 4, contra meios sofisticados com recursos extensos. A avaliação é feita requisito por
+        requisito, e não como ``nota'' do produto;
+  \item \textbf{níveis de maturidade (1 a 4)}: avaliam o processo de quem \emph{desenvolve} o produto
+        ou o serviço, do trabalho informal até a melhoria contínua medida.
+\end{itemize}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.98\linewidth]{22-zonas-condutos.pdf}
+  \caption{Zonas com requisitos distintos e os condutos que autorizam a comunicação entre elas.}
+  \label{fig:zonas-condutos}
+\end{figure}
+
+A série é revisada continuamente e publicada em partes. Para citar uma parte é preciso citar a edição
+e o ano, e conferir a versão vigente na fonte --- por exemplo, entre as partes publicadas estão
+IEC 62443-3-3 (requisitos de segurança de sistema, 2013), IEC 62443-4-1 (ciclo de vida de
+desenvolvimento seguro, 2018), IEC 62443-4-2 (requisitos técnicos de componentes, 2019),
+IEC 62443-3-2 (avaliação de risco para projeto de sistema, 2020) e IEC 62443-2-1 (programa de
+segurança do sistema de automação, 2024). Como a série evolui, o ano citado aqui corresponde à
+publicação consultada, não a uma promessa de permanência.
+
+Para o lado corporativo e de gestão, dois documentos complementam o quadro:
+
+\begin{itemize}
+  \item \textbf{ISO/IEC 27001:2022} (terceira edição, com emenda de 2024): requisitos para um sistema
+        de gestão de segurança da informação. Cobre a empresa inteira, inclusive a parte
+        administrativa; não substitui a IEC 62443 no que é específico de controle industrial;
+  \item \textbf{NIST Cybersecurity Framework, versão 2.0}: referência de programa, organizada em
+        funções de governança, identificação, proteção, detecção, resposta e recuperação. Serve como
+        roteiro de maturidade, não como especificação técnica.
+\end{itemize}
+
+\index{IEC 62443}\index{zonas e condutos}\index{ISO/IEC 27001}
+
+\section{A superfície de ataque do controlador}
+
+Um controlador industrial não é um computador comum, mas compartilha com ele uma característica:
+possui vários pontos de entrada. A Tabela~\ref{tab:superficie-ataque} lista os que aparecem com mais
+frequência e a contramedida correspondente.
+
+\begin{table}[H]
+  \centering
+  \caption{Pontos de entrada de um sistema de automação e contramedidas usuais.}
+  \label{tab:superficie-ataque}
+  \begin{tabular}{p{3.5cm} p{5.3cm} p{5.5cm}}
+    \toprule
+    Ponto de entrada & Como o problema aparece & Contramedida \\
+    \midrule
+    Ambiente de engenharia
+      & Estação de programação com acesso à rede de controle e à internet
+      & Estação dedicada, sem navegação, em zona própria; acesso apenas pelo conduto autorizado \\
+    \addlinespace
+    Serviços de rede expostos
+      & Servidor web do controlador, FTP, telnet ou diagnóstico abertos
+      & Desabilitar o que não é usado; inventariar portas e serviços por equipamento \\
+    \addlinespace
+    Credenciais padrão
+      & Senha de fábrica mantida em painel, IHM ou gateway
+      & Trocar antes do comissionamento; conta por pessoa, não compartilhada \\
+    \addlinespace
+    Mídia removível
+      & Pen drive para levar o programa até a máquina
+      & Política de mídia controlada e dedicada; verificação antes do uso \\
+    \addlinespace
+    \emph{Firmware} e atualização
+      & Versão antiga, sem correção, ou atualização sem controle
+      & Inventário de versões e janela de atualização planejada \\
+    \addlinespace
+    Rede plana
+      & Rede de controle no mesmo domínio da rede administrativa
+      & Segmentação em zonas, com conduto intermediado por \emph{firewall} industrial \\
+    \addlinespace
+    Acesso remoto
+      & Acesso direto para suporte do fornecedor, sem registro
+      & Acesso por VPN com autenticação, sessão registrada e autorizada por chamado \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Casos públicos que vale conhecer}
+
+Estudar incidentes reais é mais eficiente que decorar taxonomia. Três exemplos são públicos,
+documentados e suficientes para fixar o problema --- e nenhum deles precisa ser detalhado em termos de
+exploração:
+
+\begin{itemize}
+  \item \textbf{Stuxnet (2010)}. Programa malicioso que atingiu sistemas de controle industrial e
+        demonstrou publicamente que uma instalação física pode ser alvo de manipulação de lógica. É o
+        caso que tirou a segurança cibernética industrial da pauta teórica;
+  \item \textbf{vulnerabilidade de credencial em controladores Logix (2021, CVE-2021-22681)}. O
+        ambiente de engenharia e as versões de \emph{firmware} correspondentes usavam uma chave para
+        verificar se quem se comunica com o controlador é o software de programação legítimo. Um
+        atacante não autenticado poderia burlar essa verificação e autenticar-se no controlador. A
+        severidade é crítica (base 9,8 na escala CVSS 3.1 do NVD) e o caso consta do catálogo de
+        vulnerabilidades exploradas conhecidas da agência norte-americana CISA;
+  \item \textbf{injeção de código pelo ambiente de engenharia (2022, CVE-2022-1159)}. Um atacante que
+        obtivesse acesso de administrador na estação de trabalho com o software de programação poderia
+        inserir código no controlador de forma indetectável ao usuário. Severidade alta (base 7,2 no
+        NVD e 7,7 na avaliação do ICS-CERT). O caso mostra que o ponto fraco não é o controlador, é a
+        \textbf{estação de engenharia}.
+\end{itemize}
+
+\begin{atencao}
+O padrão dos três casos é o mesmo: o alvo preferido não é a lógica de controle, é o \emph{caminho}
+até ela --- a estação de engenharia, a credencial, o serviço aberto. Investir em proteção do
+controlador e deixar a estação de programação navegando na internet no mesmo segmento de rede é
+proteger a porta e deixar a janela aberta.
+\end{atencao}
+
+\section{Contramedidas, do projeto à operação}
+
+A ordem abaixo segue o princípio de que arquitetura vale mais que produto: nenhum equipamento resolve
+o que a segmentação resolve.
+
+\begin{enumerate}
+  \item \textbf{segmentar em zonas e definir os condutos}, como na Figura~\ref{fig:zonas-condutos}. É a
+        decisão de maior efeito e a mais barata quando tomada no projeto;
+  \item \textbf{intermediar todo tráfego entre zonas} por \emph{firewall} industrial, com regras
+        explícitas por endereço, porta e direção. Sem regra escrita, não há conduto;
+  \item \textbf{controlar o acesso remoto}: VPN com autenticação individual, sessão registrada e
+        autorização por chamado. Acesso de fornecedor é acesso privilegiado e deve ser tratado como
+        tal;
+  \item \textbf{eliminar credenciais padrão} e individualizar contas. Nenhum sistema de automação
+        deve ter usuário ``admin'' compartilhado por quatro pessoas;
+  \item \textbf{desabilitar serviços não utilizados}: o servidor web do controlador que ninguém usa é
+        superfície de ataque sem contrapartida;
+  \item \textbf{controlar mídia removível}, com mídia da empresa, verificada e destinada a esse uso;
+  \item \textbf{fazer \emph{hardening} de IHM e dos computadores industriais}: sistema atualizado,
+        serviços mínimos, sem navegação e sem \emph{e-mail};
+  \item \textbf{registrar e fazer backup}: registro de eventos do controlador, da rede e dos acessos;
+        backup do projeto, guardado fora do equipamento e testado. Backu\emph{p} que nunca foi
+        restaurado não é backup, é expectativa;
+  \item \textbf{gerenciar atualização com janela planejada}. Em automação, a correção de segurança
+        compete com a parada de produção: a decisão é de risco, tomada com inventário de versões em
+        mãos;
+  \item \textbf{treinar quem opera}. A maior parte dos incidentes começa em uma ação humana ---
+        conexão indevida, mídia desconhecida, senha anotada.
+\end{enumerate}
+
+\section{Resposta a incidente}
+
+Ter plano de resposta não impede o incidente; impede o improviso durante ele. O plano precisa caber
+em uma página e responder a cinco perguntas:
+
+\begin{enumerate}
+  \item \textbf{quem decide} desligar ou isolar um trecho da planta, e quem é o substituto;
+  \item \textbf{qual é o modo seguro} para a planta operar sem o sistema comprometido --- operação
+        manual, com supervisão local, ou parada programada;
+  \item \textbf{de onde se restaura}: qual é a última versão confiável do programa e da configuração,
+        e onde ela está guardada;
+  \item \textbf{como se registra a evidência}: anotar horário, telas, registro de eventos e o que foi
+        alterado, antes de mexer --- inclusive para permitir análise posterior;
+  \item \textbf{como se volta à produção}: retorno gradual, com conferência de lógica, intertravamento
+        e teste dos casos críticos, como no Capítulo~\ref{cap:simulacao}.
+\end{enumerate}
+
+Duas armadilhas comuns nessa hora: restaurar um backup que já contém o código alterado pelo atacante
+--- daí a importância de guardar versões fora da rede --- e reiniciar o equipamento ``para ver se
+resolve'', o que apaga evidência sem resolver a causa.
+
+\section{Segurança é processo, não projeto}
+
+Um sistema de automação é seguro por decisões mantidas ao longo do tempo: inventário atualizado,
+zonas respeitadas, acessos revisados, versões acompanhadas e equipe treinada. A parte técnica é a
+menor parte do trabalho; a maior é disciplina.
+
+No contexto do curso técnico, isso se traduz em três hábitos que valem desde a bancada:
+
+\begin{itemize}
+  \item \textbf{proteger desde o primeiro teste}: trocar senha padrão, não deixar o laboratório em
+        rede aberta e não usar pen drive de origem desconhecida;
+  \item \textbf{documentar o que foi conectado}: qualquer equipamento novo em rede, com endereço,
+        porta e finalidade (Capítulo~\ref{cap:documentacao});
+  \item \textbf{tratar o acesso como privilégio}: quem programa altera o comportamento físico de uma
+        máquina. Esse poder não deve estar disponível em qualquer computador.
+\end{itemize}
+
+\begin{pratica}
+Desenhe as zonas e os condutos de uma planta que você conheça, no formato da
+Figura~\ref{fig:zonas-condutos}, e depois:
+(a) atribua o nível de segurança que você julgar adequado a cada zona, justificando;
+(b) liste os serviços que estão abertos hoje e diga quais poderiam ser desabilitados;
+(c) escreva as três primeiras regras de \emph{firewall} entre as zonas;
+(d) redija o plano de resposta a incidente em uma página, respondendo às cinco perguntas da seção
+anterior.
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Explique a diferença entre \emph{safety} e \emph{security} usando um exemplo de cada.
+  \item Por que um incidente cibernético pode anular a proteção funcional de uma máquina?
+  \item Descreva o conceito de zona e o de conduto, e diga por que ele substitui a ideia de ``rede
+        plana''.
+  \item Explique os níveis de segurança 1 a 4 da série IEC 62443, com suas próprias palavras.
+  \item Qual é a diferença entre nível de segurança e nível de maturidade? A quem cada um se aplica?
+  \item Cite três papéis definidos pela série IEC 62443 e diga uma responsabilidade de cada um.
+  \item Um gerente afirma: ``segurança cibernética da planta é responsabilidade do fabricante do
+        controlador''. Responda com base nos papéis definidos pela norma.
+  \item Escolha quatro linhas da Tabela~\ref{tab:superficie-ataque} e descreva a contramedida
+        correspondente em uma frase cada.
+  \item O que os casos CVE-2021-22681 e CVE-2022-1159 têm em comum quanto ao ponto de entrada?
+  \item Por que a estação de engenharia costuma ser o alvo preferido? Cite duas medidas práticas de
+        proteção.
+  \item Explique por que ``backup que nunca foi restaurado não é backup''.
+  \item Escreva as cinco perguntas que o plano de resposta a incidente precisa responder.
+  \item Por que restaurar um backup antigo pode não resolver um incidente, e como evitar esse
+        problema?
+  \item Escolha uma medida da seção de contramedidas que dependa de disciplina, e não de produto, e
+        explique como você garantiria que ela seja mantida na rotina da planta.
+\end{enumerate}
+\end{exercicios}

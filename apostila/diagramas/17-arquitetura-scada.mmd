@@ -1,0 +1,9 @@
+flowchart LR
+  P["Processo industrial"] --> CLP["CLP ou remota de E/S"]
+  CLP -->|"driver ou servidor de comunicação"| SRV["Servidor de dados"]
+  SRV --> IHM["IHM e telas de operação"]
+  SRV --> HIS["Histórico (historian)"]
+  SRV --> AL["Gerenciador de alarmes e eventos"]
+  HIS --> REL["Relatórios e indicadores"]
+  AL --> IHM
+  SRV --> MES["Nível gerencial: MES e PIMS"]

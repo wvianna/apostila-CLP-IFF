@@ -1,0 +1,13 @@
+flowchart LR
+  subgraph Z1["Zona 1: campo e controle"]
+    S["Sensores e atuadores"] --> C["CLP"]
+  end
+  subgraph Z2["Zona 2: supervisão"]
+    H["IHM e servidor SCADA"] --> R["Histórico"]
+  end
+  subgraph Z3["Zona 3: corporativa"]
+    E["ERP e rede administrativa"]
+  end
+  Z1 -->|"conduto 1: firewall industrial"| Z2
+  Z2 -->|"conduto 2: firewall, VPN e proxy"| Z3
+  REM["Acesso remoto de manutenção"] -.->|"VPN com autenticação"| Z2

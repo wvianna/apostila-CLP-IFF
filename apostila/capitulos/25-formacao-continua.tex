@@ -1,0 +1,280 @@
+\chapter{Formação contínua e certificações}
+\label{cap:formacao}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item situar sua formação atual em uma trilha de estudo coerente;
+  \item distinguir certificação de produto, de competência e de treinamento pontual;
+  \item escolher recursos de estudo por critério, e não por propaganda;
+  \item montar uma bancada de prática com custo controlado e segurança;
+  \item executar um plano de 90 dias com entrega verificável ao final de cada etapa.
+\end{itemize}
+\end{objetivos}
+
+\section{Por que a formação não termina no curso}
+
+O controlador mudou três vezes em vinte anos: passou de ilha de lógica a nó de rede, de rede a
+sistema com camada de informação, e agora convive com visão computacional, borda e modelos de
+linguagem (Capítulo~\ref{cap:ti-to}). O profissional que parou em ``programa em Ladder'' fica preso a
+uma geração de equipamento.
+
+Duas consequências práticas para quem está se formando:
+
+\begin{enumerate}
+  \item \textbf{a base não envelhece}: eletricidade, comandos, lógica, instrumentação e a norma
+        IEC 61131-3 --- com suas edições --- sustentam qualquer marca. É onde vale investir primeiro;
+  \item \textbf{o entorno muda}: protocolos, ferramentas e plataformas de dados se renovam. Aqui o
+        esforço é de atualização contínua, em dose pequena e frequente, e não de recomeço.
+\end{enumerate}
+
+\index{formação continuada}
+
+\section{A trilha}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.41\linewidth]{25-trilha-formacao.pdf}
+  \caption{Trilha sugerida de estudo, da base elétrica à integração de sistemas.}
+  \label{fig:trilha-formacao}
+\end{figure}
+
+A Figura~\ref{fig:trilha-formacao} apresenta a sequência; a Tabela~\ref{tab:trilha} detalha cada
+etapa e a entrega que comprova o domínio.
+
+\begin{table}[H]
+  \centering
+  \caption{Etapas da trilha, o que se aprende e como provar que aprendeu.}
+  \label{tab:trilha}
+  \begin{tabular}{p{3.4cm} p{5.2cm} p{5.7cm}}
+    \toprule
+    Etapa & Conteúdo & Evidência de domínio \\
+    \midrule
+    1. Eletricidade e comandos elétricos
+      & Leitura de diagrama, contator, relé, selo, botoeira, proteção de circuito
+      & Montar um comando de partida e parada com selo em bancada, e explicar cada contato \\
+    \addlinespace
+    2. Lógica digital e instrumentação
+      & Tabela-verdade, álgebra booleana, sinal $4$--$20\,$mA, escalas, precisão
+      & Converter um sinal de $4$--$20\,$mA em grandeza de engenharia e justificar a resolução obtida
+        (Capítulo~\ref{cap:es}) \\
+    \addlinespace
+    3. CLP conforme IEC 61131-3
+      & Modelo de software, tipos de dados, LD, FBD, ST e SFC, tarefas
+      & Escrever o mesmo controle em LD e em ST, com tipos declarados, e documentar a diferença \\
+    \addlinespace
+    4. Redes industriais
+      & Modbus RTU e TCP, protocolos industriais, arquiteturas de rede
+      & Ligar dois equipamentos por Modbus e construir a tabela de registros usados
+        (Capítulo~\ref{cap:redes-scada}) \\
+    \addlinespace
+    5. Supervisão e SCADA
+      & Telas, tags, histórico, alarmes e eventos
+      & Montar uma tela com histórico e um alarme classificado corretamente
+        (Capítulo~\ref{cap:redes-scada}) \\
+    \addlinespace
+    6. Integração, dados e segurança
+      & OPC UA, MQTT, indicadores, zonas e condutos
+      & Publicar uma variável por protocolo aberto, calcular um indicador e desenhar as zonas da
+        bancada (Capítulos~\ref{cap:iiot} e~\ref{cap:seguranca}) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+O erro mais comum na trilha é começar pela etapa 5, porque a tela é a parte visível. Sem a etapa 3,
+a tela mostra dado que ninguém sabe se está certo, como a Tabela~\ref{tab:trilha} deixa explícito ao
+exigir a entrega de cada etapa antes de seguir.
+
+\section{Certificações, treinamentos e o que eles valem}
+
+Vale separar três coisas que costumam aparecer misturadas em conversa:
+
+\begin{itemize}
+  \item \textbf{treinamento de fabricante}: curso sobre uma família de produtos. Ensina profundamente
+        o equipamento e é o que o mercado de manutenção procura. Programas de treinamento existem em
+        fabricantes de peso no país, como Siemens (SITRAIN), Rockwell Automation, Schneider Electric,
+        WEG, Novus, Mitsubishi Electric, Omron e Beckhoff. O conteúdo, a duração e a validade mudam
+        com o tempo --- confirme sempre na fonte, no site oficial do fabricante;
+  \item \textbf{certificação de competência profissional}: avalia o profissional, não o produto.
+        Existem programas internacionais com esse perfil, como os da ISA (\emph{International Society
+        of Automation}) voltados a automação e a sistemas de controle. Exigem experiência comprovada
+        e são mantidos por recertificação periódica;
+  \item \textbf{certificação de produto ou de ferramenta}: atesta que um produto ou ambiente de
+        programação atende a requisitos de uma norma ou de uma biblioteca padronizada. É o caso das
+        certificações ligadas à PLCopen para ambientes de programação (Capítulo~\ref{cap:familia-iec}).
+        \emph{Ela não certifica pessoas} --- não confunda com certificação profissional.
+\end{itemize}
+
+\begin{atencao}
+Preço, carga horária, pré-requisitos e prazo de validade de certificações mudam com frequência e
+variam por país. Nenhuma informação deste capítulo deve ser usada como referência de custo ou de
+validade: consulte sempre a entidade emissora antes de se inscrever ou de anunciar um título no
+currículo.
+\end{atencao}
+
+Três critérios para escolher onde investir tempo e dinheiro:
+
+\begin{enumerate}
+  \item \textbf{a instituição tem laboratório?} Curso de automação sem bancada é curso de leitura;
+  \item \textbf{o conteúdo ensina norma ou só uma marca?} Um bom curso diz, em cada instrução, se ela
+        é normatizada ou proprietária --- é a distinção que o Capítulo~\ref{cap:iec-versus-legado}
+        ensina;
+  \item \textbf{existe avaliação prática?} Certificado que se obtém apenas respondendo a um
+        questionário prova menos.
+\end{enumerate}
+
+\section{Recursos de estudo}
+
+A Tabela~\ref{tab:recursos-estudo} reúne o que costuma ser útil e o cuidado correspondente a cada
+recurso.
+
+\begin{table}[H]
+  \centering
+  \caption{Recursos úteis e o cuidado correspondente.}
+  \label{tab:recursos-estudo}
+  \begin{tabular}{p{3.6cm} p{5.2cm} p{5.5cm}}
+    \toprule
+    Recurso & Para que serve & Cuidado \\
+    \midrule
+    Ambientes de programação em versão de avaliação ou de uso educacional
+      & Praticar a linguagem e a estrutura de POUs sem comprar licença
+      & Nem todo recurso fica disponível na versão gratuita; verifique os limites antes de investir
+        tempo em material didático de terceiros \\
+    \addlinespace
+    Ambientes de desenvolvimento conforme a norma, com versão de uso livre
+      & Aprender o modelo de software da norma, independente de fabricante
+      & Verifique em qual edição da norma o ambiente se declara conforme \\
+    \addlinespace
+    Simuladores de processo
+      & Testar lógica sem hardware, inclusive casos de falha
+      & Simulação não substitui bancada para aprender elétrica, aterramento e ruído \\
+    \addlinespace
+    Plataformas abertas de controlador (por exemplo, projetos abertos de CLP executando em Linux)
+      & Entender o que há dentro de um controlador: varredura, memória, E/S
+      & Não são substitutos de controlador industrial certificado em aplicação real \\
+    \addlinespace
+    Documentação técnica do fabricante
+      & A fonte primária: manual de instruções, de comunicação e de diagnóstico
+      & É a referência a citar; fórum é apoio, não fonte \\
+    \addlinespace
+    Normas
+      & A definição correta de conceito, linguagem e tipo de dado
+      & São documentos pagos, obtidos junto aos organismos de normalização. No Brasil, a ABNT publica
+        adoções de normas IEC com a designação NBR IEC --- confira no catálogo quais partes existem e
+        em que edição. Nunca use cópia não autorizada \\
+    \addlinespace
+    Comunidades técnicas e fóruns
+      & Resolver problema concreto e ver como outros resolvem
+      & Verifique a resposta na documentação; a resposta com mais votos não é necessariamente a
+        correta \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Nunca reproduza trechos de norma, figura de catálogo ou manual de fabricante em trabalho publicado
+sem autorização. Cite a referência: obra, fabricante, título, versão e data.
+
+\index{normas!ABNT NBR IEC}
+
+\section{Bancada própria}
+
+Uma bancada simples cobre quase todo o conteúdo deste material e cabe em uma mesa:
+
+\begin{itemize}
+  \item um controlador compacto, mesmo de porte pequeno, com entrada digital, saída a relé e uma
+        entrada analógica;
+  \item fonte de alimentação, disjuntor e proteção na entrada --- e a bancada \emph{não} deve ser
+        ligada à rede elétrica sem supervisão de quem conhece o risco;
+  \item botoeiras, chaves seletoras, sinaleiros, fim de curso e um relé como carga;
+  \item um sensor qualquer para a entrada analógica: potenciômetro para simular, transmissor para
+        aprender escala;
+  \item um computador com o ambiente de programação e a planilha de documentação;
+  \item itens de segurança: protetor de bancada, destino claro para os cabos e \textbf{regra escrita
+        de que não se monta nem se mede circuito energizado}.
+\end{itemize}
+
+Duas adições baratas aumentam muito o valor didático: um módulo de entrada/saída remota acessível por
+Modbus, para praticar rede, e uma tela de supervisão simples, para praticar tag, alarme e histórico.
+
+\section{Plano de 90 dias}
+
+O plano da Tabela~\ref{tab:plano-90-dias} é uma sugestão de sequência para quem já fez o básico de
+eletricidade. O que importa
+não é o prazo, é a regra: \textbf{toda etapa termina com algo que outra pessoa pode ver} --- e não
+com horas de vídeo assistido.
+
+\begin{table}[H]
+  \centering
+  \caption{Plano de estudo de 90 dias, com entrega verificável por etapa.}
+  \label{tab:plano-90-dias}
+  \begin{tabular}{p{1.8cm} p{4.2cm} p{3.8cm} p{4.5cm}}
+    \toprule
+    Período & Foco & Prática & Entrega \\
+    \midrule
+    Semanas 1--2
+      & Tipos de dados, endereçamento e leitura de diagrama de comando
+      & Montar um comando de partida e parada com selo em bancada
+      & Diagrama desenhado, lista dos pontos usados e vídeo curto do funcionamento \\
+    \addlinespace
+    Semanas 3--4
+      & Ladder e texto estruturado conforme a norma
+      & Escrever o mesmo controle nas duas linguagens, com tipos declarados
+      & Os dois programas versionados, com comentário explicando a diferença \\
+    \addlinespace
+    Semanas 5--6
+      & Temporização, contagem, borda e retenção
+      & Implementar uma sequência com etapas, intertravamento e retomada após falta de energia
+      & Lista de casos de teste preenchida, com resultado observado \\
+    \addlinespace
+    Semanas 7--8
+      & Rede industrial e supervisão
+      & Ligar remota por Modbus, criar tags e montar tela com histórico e alarme
+      & Tabela de registros, tela funcionando e alarme classificado \\
+    \addlinespace
+    Semanas 9--10
+      & Documentação e boas práticas
+      & Documentar o projeto das semanas anteriores como entrega de engenharia
+      & Descritivo, lista de E/S, tabela de tags e rotina de backup preenchida \\
+    \addlinespace
+    Semanas 11--12
+      & Integração e dados
+      & Publicar uma variável por OPC UA ou MQTT e calcular um indicador
+      & Diagrama da arquitetura, indicador calculado e desenho das zonas da bancada \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Ao final do plano, o conjunto das entregas forma um \textbf{portfólio}. Em processo seletivo, ele vale
+mais que uma lista de cursos: mostra o que a pessoa sabe fazer, como documenta e como testa.
+
+\begin{pratica}
+Monte o seu plano de 90 dias:
+(a) escreva as seis etapas adaptadas à sua realidade, com o tempo que você tem por semana;
+(b) defina, para cada etapa, a entrega verificável;
+(c) liste o que falta comprar ou conseguir emprestado na bancada, com prioridade;
+(d) agende a revisão da etapa 1 para uma data específica --- com alguém que possa assistir à
+demonstração.
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Explique por que a base da trilha (etapas 1 a 3) não envelhece, e o que muda nas etapas 4 a 6.
+  \item Por que começar pela supervisão é um erro comum, e o que ele produz?
+  \item Diferencie treinamento de fabricante, certificação de competência e certificação de produto.
+  \item Por que a certificação de um ambiente de programação \emph{não} certifica o profissional?
+  \item Cite três critérios para escolher um curso de automação e explique cada um.
+  \item Escolha uma das etapas da Tabela~\ref{tab:trilha} e descreva uma entrega sua, real, que sirva
+        como evidência de domínio dela.
+  \item Por que simulação não substitui bancada no aprendizado de elétrica?
+  \item Que cuidado se deve ter ao usar resposta de fórum como referência técnica?
+  \item Liste cinco itens mínimos de uma bancada de estudo e um item de segurança obrigatório.
+  \item Por que a bancada deve ter regra escrita sobre trabalho em circuito energizado?
+  \item Cite duas adições baratas à bancada e diga o que cada uma ensina.
+  \item Explique a regra ``toda etapa termina com algo que outra pessoa pode ver'' e por que ela
+        reduz o risco de estudo sem prática.
+  \item Monte a entrega da semana 5--6 do plano de 90 dias para um processo simples, no formato da
+        Tabela~\ref{tab:roteiro-teste}.
+  \item Por que um portfólio de entregas pode valer mais que uma lista de cursos em um processo
+        seletivo?
+\end{enumerate}
+\end{exercicios}

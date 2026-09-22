@@ -1,0 +1,30 @@
+Crie uma skill para reformatação e atualização de uma apostila de Controlador lógico programável (CLP). A skill deve ser capaz de:
+1. Analisar o conteúdo da apostila existente, identificando seções desatualizadas ou informações que precisam ser revisadas.
+2. Sugerir melhorias na estrutura do conteúdo, como reorganização de capítulos, inclusão de exemplos práticos e exercícios.
+3. Atualizar o conteúdo com base nas últimas tendências e tecnologias relacionadas a CLP, garantindo que as informações estejam corretas e relevantes.
+4. Gerar um arquivo final da apostila reformulada, mantendo a formatação adequada e garantindo que o material seja de fácil leitura e compreensão.
+5. O arquivo final deve ser exportado em formatos populares, como PDF e DOCX, para facilitar o acesso e a distribuição.
+6. Incluir um índice interativo.
+7. Incluir formatação dos tópicos de forma clara e consistente, com títulos, subtítulos e listas numeradas ou com marcadores.
+8. Garantir que todas as imagens, diagramas e tabelas estejam atualizados e corretamente referenciados no texto.
+9. Gerar, sempre que necessário, imagens ou diagramas adicionais para ilustrar conceitos complexos, utilizando ferramentas de design gráfico.
+10. Diferencie de forma clara os CLPS que estão de acordo com a norma IEC61131 e os legados.
+11. Crie um tópico específico sobre as melhores práticas de programação e manutenção de CLPs, incluindo dicas de segurança e eficiência.
+12. Crie um tópico sobre a integração de CLPs com outras tecnologias, como IoT e sistemas SCADA, destacando as vantagens e desafios dessa integração.
+13. Crie um tópico sobre a importância da documentação adequada dos programas de CLP, incluindo exemplos de boas práticas e modelos de documentação.
+14. Crie um tópico sobre a evolução dos CLPs ao longo do tempo, destacando as principais mudanças e melhorias nas versões mais recentes.
+15. Crie um tópico sobre a importância da formação contínua para profissionais que trabalham com CLPs, incluindo sugestões de cursos, certificações e recursos de aprendizado.
+16. Crie um tópico sobre a importância da segurança cibernética em sistemas de automação industrial, abordando medidas preventivas e protocolos de segurança aplicáveis a CLPs.
+17. Crie um tópico sobre a importância da manutenção preventiva e corretiva de CLPs, incluindo dicas para identificar problemas comuns e soluções eficazes.
+18. Crie um tópico sobre a importância da padronização de códigos e práticas de programação em CLPs, destacando os benefícios de seguir normas e padrões reconhecidos na indústria.
+19. Crie um tópico sobre a importância da interoperabilidade entre diferentes marcas e modelos de CLPs, abordando estratégias para garantir compatibilidade e integração eficiente.
+20. Crie um tópico sobre a importância da análise de dados e monitoramento em tempo real em sistemas de automação industrial, destacando como os CLPs podem ser utilizados para coletar e processar informações relevantes para a tomada de decisões.
+21. Crie um tópico sobre a importância da sustentabilidade e eficiência energética em sistemas de automação industrial, abordando como os CLPs podem contribuir para a redução do consumo de energia e otimização de processos.
+22. Crie um tópico sobre a importância da simulação e teste de programas de CLP antes da implementação em sistemas reais, destacando as melhores práticas e ferramentas disponíveis para realizar esses testes de forma eficaz.
+23. Crie um tópico sobre a importância da documentação adequada dos programas de CLP, incluindo exemplos de boas práticas e modelos de documentação.
+Skill: Reformatação e Atualização de Apostila de CLP
+24. Crie um tópico sobre a convergência das tecnologia TI e TO para o CLP. Inclua informações sobre visão computacional e processamento de imagem, SLM em CLPs, inclusão de plugins, execução do node-red, código matlab, distribuições linux utilizadas em sistemas embarcados e especificamente CLPs.
+25. O documento final deve ser ilustrado com diagramas mermaid, circuito e outros elementos didáticos que possam auxiliar no entendimento
+26. Crie o documento em formato latex na pasta apostila com versão final compilada
+27. Inclua como autores: M.Sc. Leonardo de Oliveira Tavares, D.Sc. William da Silva Vianna e M.Sc. Natália Nogueira Monteiro 
+28. Instituto Federal Fluminense

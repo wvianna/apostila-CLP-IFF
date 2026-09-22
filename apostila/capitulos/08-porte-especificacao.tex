@@ -1,0 +1,206 @@
+\chapter{Porte, redundância e especificação para compra}
+\label{cap:porte}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item identificar os quatro critérios que definem o porte de um controlador;
+  \item classificar um controlador pela quantidade de pontos de E/S;
+  \item diferenciar redundância por hardware de redundância por software;
+  \item conduzir um procedimento de especificação, com folga e critério de desempenho;
+  \item avaliar fornecedor, produto e contrato antes de fechar a compra.
+\end{itemize}
+\end{objetivos}
+
+\section{O que define o porte}
+
+Os controladores são classificados em micro, pequeno, médio e grande porte. O porte não é definido
+por uma única característica, mas por quatro, diretamente proporcionais entre si:
+
+\begin{enumerate}
+  \item \textbf{velocidade de processamento};
+  \item \textbf{memória};
+  \item \textbf{quantidade de pontos de E/S};
+  \item \textbf{capacidade de redundância}.
+\end{enumerate}
+
+Cada fabricante define seus modelos dentro dessas faixas, e é o tipo de processo que determina qual
+porte serve. Controladores de micro e pequeno porte atendem automação predial, residencial e
+pequenos processos industriais, com menor custo e menos recursos. Os de médio e grande porte existem
+para processos complexos, com muitos pontos de E/S e requisitos de disponibilidade.
+
+\index{porte de CLP}\index{especificação de compra}
+
+\section{Classificação por quantidade de pontos}
+
+Uma classificação corrente de mercado (de origem americana) usa a quantidade de pontos de E/S:
+
+\begin{table}[H]
+  \centering
+  \caption{Classificação por quantidade de pontos de E/S.}
+  \label{tab:classificacao-porte}
+  \begin{tabular}{l l}
+    \toprule
+    Porte & Pontos de E/S \\
+    \midrule
+    Micro & até 64 \\
+    Pequeno & até 256 \\
+    Médio & até 1.024 \\
+    Grande & até 4.096 \\
+    Muito grande & acima de 4.096 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{atencao}
+Essa tabela é uma convenção de mercado, não uma norma. Como cada fabricante agrupa seus modelos de
+forma própria, a quantidade de pontos serve para \emph{orientar} a conversa com o fornecedor --- nunca
+para escolher o equipamento. Quem define a especificação é a lista de I/O mais os requisitos de
+desempenho e de disponibilidade.
+\end{atencao}
+
+\section{Velocidade de processamento}
+
+É a capacidade de processar certa quantidade de instruções em determinado tempo --- por exemplo,
+1\,K de instruções a cada 1\,ms. O valor importa porque define o tempo de varredura
+(Capítulo~\ref{cap:funcionamento}): processo com exigência de resposta rápida precisa de CPU veloz
+tanto quanto de programa enxuto.
+
+\section{Memória}
+
+A quantidade de memória está relacionada ao tamanho do programa e, portanto, à quantidade de
+instruções e de variáveis internas e externas. Dimensionar memória pelo programa atual é erro
+comum; o critério deve ser o programa previsto com as ampliações já mapeadas no plano da planta.
+
+\section{Formas de E/S e o efeito no porte}
+
+As três formas de E/S --- embutida, modular e distribuída --- foram apresentadas na
+Seção anterior (Tabela~\ref{tab:arranjos-es}). Para a especificação, o que importa é o efeito de
+cada uma:
+
+\begin{itemize}
+  \item \textbf{embutida}: limita o crescimento; ampliar significa trocar de controlador;
+  \item \textbf{modular}: cresce por cartões, mas exige rack, fonte e espaço de painel previstos;
+  \item \textbf{distribuída}: troca cabo por rede --- economia grande quando a instrumentação está
+        espalhada, custo adicional quando os pontos estão todos no mesmo painel.
+\end{itemize}
+
+Hoje é comum o mesmo controlador reunir as três possibilidades: E/S embutida, expansão por cartões
+modulares e operação com E/S distribuída em \emph{fieldbus}.
+
+\section{Redundância}
+
+Em qualquer processo de automação industrial deseja-se máxima disponibilidade, porque uma falha do
+sistema de controle pode interromper o processo ou gerar dano. As falhas vêm de software e de
+hardware: erro de programação, falha de rede, erro de fluxo de dados, cabeamento e degradação
+física. Redundância é o uso de um segundo recurso, físico ou lógico, apto a assumir o controle
+quando o primário falha --- é o meio mais simples de obter alta disponibilidade.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.78\linewidth]{08-redundancia.pdf}
+  \caption{Arquitetura de redundância com CPU principal e CPU em espera.}
+  \label{fig:redundancia}
+\end{figure}
+
+\begin{table}[H]
+  \centering
+  \caption{Redundância por hardware e por software.}
+  \label{tab:redundancia}
+  \begin{tabular}{p{3.0cm} p{5.8cm} p{5.8cm}}
+    \toprule
+    Aspecto & Redundância por hardware & Redundância por software \\
+    \midrule
+    Como é feita
+      & Duplicação de componentes físicos, com cartão específico que monitora e sincroniza os mapas de
+memória
+      & Dois controladores distintos, em geral idênticos, interligados por rede de comunicação
+\\
+    Onde vive a lógica de comutação
+      & No cartão de redundância, sem código adicional do usuário
+      & No programa do usuário, com instruções específicas configuradas no desenvolvimento \\
+    Robustez
+      & Maior: o programa está nas duas CPUs e o estado é mantido atualizado
+      & Menor: depende do acerto da lógica escrita pelo usuário \\
+    Custo e complexidade
+      & Maior custo de hardware & Menor custo de hardware, maior custo de projeto e de testes \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Na arquitetura redundante, em condições normais a CPU principal lê as entradas, executa o programa e
+escreve as saídas. A cada ciclo, ela transfere continuamente o estado atual do processo para a CPU em
+espera, de modo que esta acompanhe tudo sem atuar nas saídas. Se a principal falha, a reserva assume
+com o estado já atualizado, e o processo não reinicia do zero.
+
+\begin{atencao}
+Redundância não substitui o projeto de segurança nem corrige programa mal escrito: uma lógica
+incorreta é executada de forma redundante. Antes de especificar redundância, verifique se o ganho de
+disponibilidade justifica o custo --- e se o orçamento já cobre backup, condicionamento de energia e
+manutenção preventiva, que atacam outras causas de parada.
+\end{atencao}
+
+\section{Procedimento de especificação}
+
+\begin{enumerate}
+  \item \textbf{Definir a configuração mínima} que atenda a todas as necessidades de operação e de
+        processo. Pergunta inicial: uma CPU simples basta, ou é necessária configuração redundante
+        (\emph{hot-standby}) e troca de cartões com o sistema energizado (\emph{hot-swap})?
+  \item \textbf{Acrescentar folga}: mesmo com a contagem de E/S fechada, prever no mínimo 10\,\% de
+        reserva sobre a configuração prevista.
+  \item \textbf{Analisar alternativas}: se o porte é grande, avaliar arquitetura distribuída ---
+        controladores menores em rede podem atender melhor e custar menos.
+  \item \textbf{Definir os índices mínimos de desempenho}: considerar o \emph{scan} total
+        (processamento mais atualização de E/S) e os retardos entre sinal lógico e sinal físico, ou
+        seja, o intervalo entre o CLP perceber uma entrada e a saída virar ação em campo.
+  \item \textbf{Dimensionar a memória} para o programa, os dados, os operandos auxiliares e os
+        valores de contagem e temporização.
+  \item \textbf{Verificar as funções especiais} exigidas pelo processo: módulos inteligentes (PID),
+        comunicação em rede, rotinas periódicas, rotinas com frequência de execução diferente do
+        ciclo normal, procedimentos de emergência em alarme.
+\end{enumerate}
+
+\section{Avaliação do fornecedor, do produto e do contrato}
+
+\paragraph{Fornecedor.} Verificar se tem instalações semelhantes à estudada, se mantém equipe
+capacitada para suporte pré e pós-venda e se tem condições de manter a continuidade do produto no
+mercado ao longo da vida da planta.
+
+\paragraph{Produto.} Evitar equipamento com menos de um ano de mercado e sem instalação industrial em
+operação comprovada por esse período; exigir modularidade, ou seja, capacidade de ampliação; suportar
+rede de comunicação mesmo que não se use agora, prevendo integração futura com outras áreas
+(Capítulo~\ref{cap:redes-scada}); e empregar a tecnologia mais avançada disponível no momento da
+compra.
+
+\paragraph{Contrato.} Acordar visitas de inspeção e procedimentos de teste elétrico e funcional;
+exigir suporte ao equipamento por pelo menos a vida útil da instalação; se a data de entrega é crítica
+no cronograma, defini-la com cláusula de multa por atraso; e ter cuidado com alterações de
+arquitetura depois do pedido, porque adendos podem custar mais caro que o equipamento original.
+
+\paragraph{Preço.} Depois de dois ou mais fornecedores atenderem a todos os aspectos anteriores, o
+preço é o critério de desempate --- não o critério inicial.
+
+\begin{pratica}
+Monte a especificação de um controlador para uma máquina com a lista de I/O da
+Tabela~\ref{tab:lista-io} ampliada para 40 pontos digitais e 8 analógicos. Defina:
+(a) o porte justificado pela Tabela~\ref{tab:classificacao-porte};
+(b) a quantidade de cartões necessários, com folga de 10\,\%;
+(c) o tempo de varredura máximo aceitável para um ciclo de máquina de 200\,ms;
+(d) se há justificativa técnica para redundância --- e o custo aproximado disso.
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Cite os quatro critérios de porte e explique qual deles costuma definir o custo final.
+  \item Um processo tem 300 pontos de E/S. Em que classificação de mercado ele cai? Isso basta para
+        definir o controlador? Justifique.
+  \item Explique por que a redundância por software é considerada menos robusta que a por hardware.
+  \item O que a CPU em espera faz durante a operação normal, e por que isso é necessário?
+  \item Por que a folga mínima de 10\,\% sobre a contagem de pontos existe? Dê um exemplo real de
+        ampliação que a justifique.
+  \item Um fornecedor oferece um modelo lançado há três meses, com preço 20\,\% menor. Quais
+        perguntas técnicas e contratuais você faz antes de aceitar?
+  \item Explique a diferença entre decidir pelo preço no início e decidir pelo preço no final do
+        processo de especificação.
+\end{enumerate}
+\end{exercicios}

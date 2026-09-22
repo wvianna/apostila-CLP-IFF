@@ -1,0 +1,241 @@
+\chapter{Glossário}
+\label{apC}
+
+\begin{objetivos}
+Ao final deste apêndice você deve ser capaz de:
+\begin{itemize}
+  \item usar o termo técnico correto para cada conceito da automação industrial;
+  \item distinguir o termo que a norma padroniza do uso corrente de mercado;
+  \item reconhecer termos que, confundidos, produzem erro de projeto;
+  \item aplicar a regra ``um conceito, um termo'' na documentação do seu próprio projeto.
+\end{itemize}
+\end{objetivos}
+
+\section{Como usar}
+
+A terceira coluna traz observações curtas e, quando existir, o capítulo em que o termo é
+desenvolvido. Onde a IEC 61131-3 padroniza um termo, a coluna em inglês registra a denominação
+normatizada; onde não padroniza, registra o uso corrente no mercado.
+
+Uma obra escrita por muitas mãos acumula sinônimos. A regra que este glossário defende é a do
+Capítulo~\ref{cap:boas-praticas}: \textbf{um conceito, um termo}. ``Ciclo de varredura'' é sempre ciclo
+de varredura, e não ``tempo de scan'', ``varredura'' e ``ciclo'' alternados no mesmo texto.
+
+\index{glossário}
+
+\begin{longtable}{p{3.3cm} p{3.3cm} p{8.4cm}}
+  \caption{Termos técnicos em português, o correspondente em inglês e a observação de uso.}
+  \label{tab:glossario} \\
+  \toprule
+  Termo em português & Em inglês & Observação \\
+  \midrule
+  \endfirsthead
+
+  \multicolumn{3}{l}{\small\itshape Continuação da Tabela~\ref{tab:glossario}.} \\
+  \toprule
+  Termo em português & Em inglês & Observação \\
+  \midrule
+  \endhead
+
+  \midrule
+  \multicolumn{3}{r}{\small\itshape Continua na página seguinte.} \\
+  \endfoot
+
+  \bottomrule
+  \endlastfoot
+
+  Ação de controle & control action & Saída do controlador aplicada ao processo
+    (Capítulo~\ref{cap:funcionamento}). \\
+  Acionamento por variador de frequência & variable frequency drive (VFD) & Controle da rotação do
+    motor em regime; único modo de partida que atua no ponto de operação
+    (Capítulo~\ref{cap:eficiencia}). \\
+  Alarme & alarm & Aviso ao operador. \emph{Não} é proteção: proteção é intertravamento
+    (Capítulo~\ref{cap:redes-scada}). \\
+  Arquitetura de automação & automation architecture & Organização dos níveis, dos equipamentos e das
+    redes (Capítulo~\ref{cap:estrutura}). \\
+  Atuador & actuator & Dispositivo que executa a ação sobre o processo. \\
+  Backup do projeto & project backup & Cópia versionada do projeto-fonte, guardada fora do
+    equipamento (Capítulo~\ref{cap:documentacao}). \\
+  Barramento de campo & fieldbus & Rede que interliga remotas de E/S e dispositivos de campo
+    (Capítulo~\ref{cap:redes-scada}). \\
+  Bit de status & status bit & Indicador exposto por uma instrução legada (\texttt{.EN}, \texttt{.DN});
+    não existe na norma (Apêndice~\ref{apB}). \\
+  Bloco de função & function block (FB) & POU com \textbf{estado interno} que persiste entre
+    execuções. \\
+  Bobina & coil & Elemento do Ladder que aciona o seu endereço; a norma distingue bobina simples,
+    de retenção e de desretenção. \\
+  Cartão de entrada e saída & I/O module & Módulo que adapta o sinal de campo ao barramento interno
+    (Capítulo~\ref{cap:es}). \\
+  Ciclo de varredura & scan cycle & Leitura das entradas, execução do programa e atualização das
+    saídas; o tempo de ciclo é critério de escolha do controlador
+    (Capítulo~\ref{cap:funcionamento}). \\
+  Cliente & client & Elemento que solicita dados ou serviços em uma comunicação. \\
+  Comissionamento & commissioning & Conjunto de testes e ajustes que coloca o sistema em operação
+    (Capítulo~\ref{cap:simulacao}). \\
+  Conduto & conduit & Canal de comunicação autorizado entre duas zonas, conforme a série IEC 62443
+    (Capítulo~\ref{cap:seguranca}). \\
+  Configuração & configuration & Elemento de software da norma que reúne recursos e programas
+    (Capítulo~\ref{cap:iec-modelo}). \\
+  Contador & counter & Bloco que acumula eventos; exige reinício explícito quando é retentivo. \\
+  Contato & contact & Elemento do Ladder que conduz conforme o estado do endereço que identifica;
+    pode ser normalmente aberto ou fechado. \\
+  Controlador de segurança & safety controller & Controlador dedicado à função de segurança, distinto
+    do controlador de processo (Capítulo~\ref{cap:seguranca}). \\
+  Controlador lógico programável & programmable logic controller (PLC) & Equipamento que lê entradas,
+    executa lógica em memória e escreve saídas em tempo previsível
+    (Capítulo~\ref{cap:definicoes}). \\
+  Deslocamento de bits & bit shift & Operação sobre palavra; o registrador com comprimento variável do
+    legado não tem equivalente direto (Apêndice~\ref{apB}). \\
+  Detecção de borda & edge detection & Identifica a \emph{transição} de uma variável, não o seu
+    nível; indispensável em contagem de eventos. \\
+  Diagrama de blocos de função & function block diagram (FBD) & Linguagem gráfica padronizada. \\
+  Diagrama de contatos & ladder diagram (LD) & Linguagem gráfica padronizada; a mais próxima do
+    comando elétrico. \\
+  Endereçamento de E/S & I/O addressing & Ligação entre variável e ponto físico. \textbf{Não} é
+    padronizado pela norma (Capítulo~\ref{cap:iec-versus-legado}). \\
+  Entrada analógica & analog input & Recebe grandeza contínua; a resolução obtida depende do cartão e
+    da faixa (Capítulo~\ref{cap:es}). \\
+  Entrada digital & digital input & Recebe sinal de dois estados; exige atenção ao tipo de ligação
+    (\emph{sourcing} ou \emph{sinking}). \\
+  Escala de sinal & scaling & Conversão do valor bruto em grandeza de engenharia. \\
+  Estado de operação & operating state & Condição do controlador (parado, executando, em falha)
+    (Capítulo~\ref{cap:funcionamento}). \\
+  Evento & event & Registro de algo que aconteceu, sem exigir ação imediata. \\
+  Exatidão & accuracy & Proximidade entre o valor medido e o valor verdadeiro; distinta de resolução,
+    que é o menor passo representável. \\
+  Falha segura & fail-safe & Condição em que a perda de sinal leva o processo ao estado mais seguro
+    (Capítulo~\ref{cap:linguagens}). \\
+  Firmware & firmware & Software gravado no equipamento; a versão faz parte da identificação do
+    sistema. \\
+  Força & forcing & Sobreposição manual do valor de um ponto pelo ambiente de programação; proibida
+    em máquina em produção (Capítulo~\ref{cap:manutencao}). \\
+  Gatilho & trigger & Condição que dispara a execução de uma tarefa
+    (Capítulo~\ref{cap:iec-modelo}). \\
+  Histórico (banco de dados) & historian & Armazenamento de longo prazo das variáveis, com carimbo de
+    tempo (Capítulo~\ref{cap:redes-scada}). \\
+  Histerese & hysteresis & Faixa entre o valor de acionamento e o de desligamento de um alarme; evita
+    oscilação (Apêndice~\ref{apA}). \\
+  Interface homem-máquina & human-machine interface (HMI) & Dispositivo e software de operação
+    local. \\
+  Intertravamento & interlock & Condição que impede um estado inseguro. \emph{Executado pelo
+    controle}, nunca pela supervisão. \\
+  Linguagem de programação & programming language & A norma define a forma de LD, FBD, ST e SFC; IL
+    foi depreciada em 2013 e removida na 4ª edição. \\
+  Lista de instruções & instruction list (IL) & Linguagem textual depreciada; não deve ser ensinada
+    como linguagem de partida (Capítulo~\ref{cap:linguagens}). \\
+  Lista de tags & tag list & Relação de variáveis com tipo, unidade, faixa e descrição; parte da
+    entrega técnica. \\
+  Malha de controle & control loop & Conjunto sensor, controlador e atuador que mantém uma grandeza.
+    \\
+  Manutenção corretiva & corrective maintenance & Intervenção depois da falha. \\
+  Manutenção preditiva & predictive maintenance & Intervenção guiada por degradação medida e
+    acompanhada (Capítulo~\ref{cap:manutencao}). \\
+  Manutenção preventiva & preventive maintenance & Intervenção em intervalo programado. \\
+  Mapa de memória & memory map & Organização das áreas de memória do controlador
+    (Capítulo~\ref{cap:memoria}). \\
+  Memória retentiva & retentive memory & Preserva o conteúdo após a queda de energia; depende de
+    bateria ou de memória não volátil. \\
+  Nível de maturidade & maturity level & Avalia o \emph{processo} de quem desenvolve ou integra,
+    conforme a série IEC 62443. \\
+  Nível de segurança & security level (SL) & Resistência exigida de uma zona contra classes de
+    atacante, conforme a série IEC 62443. \\
+  OEE & overall equipment effectiveness & Eficiência global do equipamento: disponibilidade $\times$
+    desempenho $\times$ qualidade (Capítulo~\ref{cap:dados}). \\
+  OPC UA & OPC Unified Architecture & Camada de informação e comunicação com modelo de dados e sessão
+    segura (Capítulo~\ref{cap:iiot}). \\
+  Parada de emergência & emergency stop & Função de proteção; deve ser independente da lógica de
+    processo comum. \\
+  Partida direta & direct-on-line starting & Partida com corrente elevada; adequada a motores
+    pequenos e partidas pouco frequentes. \\
+  Partida suave & soft starter & Reduz a corrente e o esforço de partida sem controlar a rotação em
+    regime. \\
+  Pirâmide da automação & automation pyramid & Representação dos níveis hierárquicos do campo à
+    gestão (Capítulo~\ref{cap:estrutura}). \\
+  Portabilidade & portability & Capacidade de o mesmo programa rodar em outro ambiente com esforço
+    previsível (Capítulo~\ref{cap:interoperabilidade}). \\
+  Protocolo de comunicação & communication protocol & Regras de troca de dados entre equipamentos. \\
+  Publicação e assinatura & publish/subscribe & Modelo em que o produtor publica e o consumidor
+    assina, desacoplados por um intermediário (Capítulo~\ref{cap:iiot}). \\
+  POU & program organization unit & Unidade de organização de programa: programa, bloco de função ou
+    função (Capítulo~\ref{cap:iec-modelo}). \\
+  Rede industrial & industrial network & Rede de campo, de controle ou de supervisão, com requisitos
+    próprios. \\
+  Redundância & redundancy & Duplicação de elemento crítico para manter a operação em caso de
+    falha (Capítulo~\ref{cap:porte}). \\
+  Redundância em espera & hot standby & Unidade reserva pronta para assumir, mantida em espera
+    energizada. \\
+  Registro de eventos & event log & Sequência com data e hora do que ocorreu; base da análise de
+    causa. \\
+  Resolução & resolution & Menor variação representável; não se confunde com exatidão. \\
+  Retenção de saída & output latch & Saída que permanece no estado após o fim da condição; exige
+    comando explícito de desretenção. \\
+  Segurança cibernética & cybersecurity (\emph{security}) & Proteção contra ação humana intencional
+    (Capítulo~\ref{cap:seguranca}). \\
+  Segurança funcional & functional safety (\emph{safety}) & Proteção contra falha do sistema que cause
+    dano. \\
+  Servidor & server & Elemento que disponibiliza dados ou serviços em uma comunicação. \\
+  Sistema de controle distribuído & distributed control system (DCS) & Arquitetura de controle
+    distribuído por malhas, típica de processo contínuo. \\
+  Sistema SCADA & supervisory control and data acquisition & Supervisão e aquisição de dados de
+    processo (Capítulo~\ref{cap:redes-scada}). \\
+  Sinal discreto & discrete signal & Sinal de dois estados, também chamado digital. \\
+  \emph{Soft-PLC} & soft PLC & Controlador implementado em software sobre hardware de propósito
+    geral (Capítulo~\ref{cap:ti-to}). \\
+  Sobressalente & spare part & Componente em estoque; a falta dele transforma falha simples em parada
+    longa. \\
+  Tarefa & task & Elemento que define \emph{quando} uma parte do programa é executada
+    (Capítulo~\ref{cap:iec-modelo}). \\
+  Telemetria & telemetry & Transmissão de medidas a distância (Capítulo~\ref{cap:dados}). \\
+  Temporizador & timer & Bloco que mede tempo; a norma distingue comportamentos na energização, na
+    desenergização e por pulso. \\
+  Tipo de dado & data type & Define faixa e operações válidas sobre uma variável. \\
+  Tipo de dado derivado & derived data type & Construído a partir de tipos elementares: arranjo e
+    estrutura (Capítulo~\ref{cap:memoria}). \\
+  Tipo de dado elementar & elementary data type & Booleano, inteiro, real, tempo, cadeia de
+    caracteres. \\
+  Transição & transition & Condição que habilita a passagem de um passo a outro em SFC. \\
+  Variável global & global variable & Declarada em nível de configuração ou recurso; aceita em todo o
+    escopo. \\
+  Variável local & local variable & Declarada na POU; visível apenas dentro dela. \\
+  Variável retentiva & retentive variable & Preserva o valor após queda de energia. \\
+  Visão computacional & machine vision & Inspeção por imagem; roda em \emph{hardware} externo ao
+    controlador (Capítulo~\ref{cap:ti-to}). \\
+  Zona & zone & Agrupamento de ativos com requisitos de segurança comuns, conforme a série
+    IEC 62443. \\
+\end{longtable}
+
+\begin{atencao}
+``Conforme a norma'' e ``compatível'' não são sinônimos, e o glossário não os trata como tal. Sempre
+que uma afirmação de conformidade aparecer, ela precisa vir acompanhada da \textbf{edição e do ano} da
+norma --- como no Capítulo~\ref{cap:familia-iec}.
+\end{atencao}
+
+\begin{pratica}
+Monte o glossário do \emph{seu} projeto. Pegue a lista de tags e a documentação que você produziu nas
+práticas do Apêndice~\ref{apA} e:
+
+(a) liste os termos que aparecem com mais de um nome no mesmo documento;
+(b) escolha o termo padronizado para cada um e registre o porquê;
+(c) verifique se o termo escolhido é o que a IEC 61131-3 usa, quando existir;
+(d) aplique a substituição na documentação e na lista de tags;
+(e) escreva três linhas sobre o efeito da padronização na leitura do projeto por outra pessoa.
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Explique a diferença entre \emph{exatidão} e \emph{resolução}, com um exemplo numérico.
+  \item Por que \emph{safety} e \emph{security} recebem termos distintos em inglês e um único termo
+        em português? Que confusão prática isso pode causar?
+  \item Cite três termos deste glossário cuja confusão produz erro de projeto, e explique cada um.
+  \item Por que ``endereçamento de E/S'' aparece como não padronizado, enquanto ``bobina'' aparece como
+        elemento da norma?
+  \item Escolha cinco termos e escreva, para cada um, a frase em que ele seria usado incorretamente por
+        um iniciante.
+  \item O glossário registra que IL foi depreciada e removida. Por que manter o termo em um glossário
+        de uma apostila atual?
+  \item Explique a diferença entre \emph{intertravamento} e \emph{alarme}, e diga qual dos dois pode
+        residir no sistema de supervisão.
+  \item Por que o termo ``redundância'' precisa vir acompanhado da arquitetura (em espera, ativa,
+        dupla) para significar algo?
+\end{enumerate}
+\end{exercicios}

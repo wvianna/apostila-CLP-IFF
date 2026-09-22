@@ -1,0 +1,390 @@
+\chapter{Convergência TI/TO}
+\label{cap:ti-to}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item explicar por que as práticas de TI e de tecnologia de operação (TO) divergem;
+  \item dizer o que roda dentro do controlador, o que roda na borda e o que roda fora da fábrica;
+  \item avaliar o uso de visão computacional, de modelos de linguagem pequenos, de plugins, de
+        Node-RED, de código gerado a partir de modelos e de Linux embarcado;
+  \item reconhecer, em cada tecnologia, o ganho, a perda e a exigência que ela traz.
+\end{itemize}
+\end{objetivos}
+
+\section{Duas culturas, um mesmo sistema}
+
+O chão de fábrica e o data center passaram a compartilhar rede, dados e até hardware. As práticas,
+porém, continuam diferentes --- e é essa diferença que explica a maior parte dos atritos de projeto.
+
+\begin{table}[H]
+  \centering
+  \caption{Tecnologia da informação (TI) e tecnologia de operação (TO), lado a lado.}
+  \label{tab:ti-versus-to}
+  \begin{tabular}{p{3.0cm} p{5.4cm} p{5.8cm}}
+    \toprule
+    Aspecto & TI & TO \\
+    \midrule
+    Prioridade
+      & Confidencialidade e integridade do dado
+      & Disponibilidade e segurança física do processo \\
+    \addlinespace
+    Tempo
+      & Melhor esforço; a resposta pode variar
+      & Prazo garantido, em milissegundos, para as funções de controle \\
+    \addlinespace
+    Ciclo de vida
+      & Atualização frequente, reinício aceitável
+      & Equipamento em operação por muitos anos; reinício é parada de produção \\
+    \addlinespace
+    Mudança
+      & Implantação contínua, versão nova a cada semana
+      & Mudança planejada, com janela, teste e aprovação \\
+    \addlinespace
+    Quem opera
+      & Equipe de infraestrutura, à distância
+      & Equipe de automação e manutenção, no local \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Convergência TI/TO não é escolher uma das colunas da Tabela~\ref{tab:ti-versus-to}. É decidir, item
+por item, onde cada prática vale
+--- e reconhecer que ``atualizar tudo automaticamente'' e ``prazo garantido de 2\,ms'' são
+requisitos incompatíveis no mesmo componente.
+
+\index{TI/TO}\index{tecnologia de operação}
+
+\section{Quem roda onde}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.54\linewidth]{21-ti-to.pdf}
+  \caption{Onde cada tecnologia se encaixa, do laço de controle à nuvem.}
+  \label{fig:ti-to}
+\end{figure}
+
+A Figura~\ref{fig:ti-to} organiza o capítulo inteiro. A regra que ela representa:
+
+\begin{itemize}
+  \item no \textbf{controlador} fica o que é determinístico e o que protege a máquina. Só entra ali
+        o que tem prazo previsível e comportamento verificável;
+  \item na \textbf{borda} --- um computador industrial, um gateway ou um módulo de processamento no
+        painel --- ficam as funções que precisam de mais poder de cálculo e admitem latência maior:
+        imagem, integração de protocolos, inferência leve;
+  \item \textbf{fora da fábrica} ficam o acúmulo de longo prazo e a análise pesada, que não participam
+        de nenhum laço de controle.
+\end{itemize}
+
+O retorno de informação da borda para o controlador existe, mas passa por um filtro: chega o
+\emph{resultado} (uma referência, um valor de correção, um indicador), nunca o modelo nem o
+julgamento automático de uma função não determinística.
+
+\section{Visão computacional e processamento de imagem}
+
+Inspeção por imagem deixou de ser exclusividade de grandes linhas. Um conjunto moderno tem quatro
+partes: a \textbf{câmera} industrial (padrões de interface como GigE Vision e USB3 Vision existem
+justamente para desacoplar câmera de software), a \textbf{iluminação}, a \textbf{óptica} e o
+\textbf{processamento}.
+
+Os usos típicos são de verificação, não de medição de precisão:
+
+\begin{itemize}
+  \item presença e ausência de componente, tampa, rótulo ou parafuso;
+  \item posição e orientação de peça antes do manuseio;
+  \item leitura de código de barras e de código bidimensional, com conferência contra a ordem de
+        produção;
+  \item verificação de cor e de aspecto superficial, com limite de aceitação definido.
+\end{itemize}
+
+Para o processamento, a biblioteca aberta OpenCV é a base mais difundida; softwares de inspeção
+comerciais montam sobre ela ou sobre bibliotecas próprias.
+
+O ponto de integração com o CLP é mais simples do que parece: o resultado da inspeção é um
+\textbf{sinal discreto} --- passa, não passa, peça presente --- entregue por uma saída do sistema de
+visão para uma entrada do controlador, ou por variável publicada em OPC UA
+(Capítulo~\ref{cap:iiot}). O CLP decide o que fazer com o resultado; não processa a imagem.
+
+\begin{atencao}
+Em visão computacional, o resultado depende mais de \emph{iluminação e fixação} do que do algoritmo.
+Uma câmera excelente com iluminação instável produz reprovação intermitente, e o operador aprende a
+desligar a inspeção. Antes de escolher biblioteca, resolva o gabarito mecânico e a luz --- e defina o
+que o sistema deve fazer quando não consegue decidir.
+\end{atencao}
+
+\section{Modelos de linguagem pequenos no ambiente de controle}
+
+Modelos de linguagem de pequeno porte (\emph{small language models}, SLM) são modelos compactos, que
+podem ser executados localmente, sem depender de serviço externo. É a forma mais realista de levar
+capacidade de linguagem para perto do processo, porque mantém o dado dentro da planta.
+
+\paragraph{O que é viável hoje.} Funções de apoio, com o resultado passando por confirmação humana:
+
+\begin{itemize}
+  \item \textbf{ajuda ao operador}: responder, em linguagem natural, sobre procedimento, alarme ou
+        significado de uma variável, a partir de documentação e do histórico da própria planta;
+  \item \textbf{diagnóstico assistido}: receber o conjunto de alarmes e estados no momento da falha e
+        sugerir causas prováveis, com base em casos anteriores registrados;
+  \item \textbf{geração de relatório}: transformar dados de turno em texto de ocorrência, para revisão
+        e assinatura;
+  \item \textbf{apoio à engenharia}: explicar um trecho de código, sugerir nome de variável, resumir
+        diferenças entre duas revisões de programa.
+\end{itemize}
+
+\paragraph{O que é irrealista.} Inferência de modelo dentro do ciclo de varredura. Um modelo, mesmo
+pequeno, responde em frações de segundo a alguns segundos e ocupa memória na casa de centenas de
+megabytes a alguns gigabytes --- uma a três ordens de grandeza acima do que o ciclo de controle
+admite (Capítulo~\ref{cap:funcionamento}). Além do tempo, faltam as propriedades que o controle
+exige: comportamento determinístico, resultado reproduzível e verificável, e rastreabilidade da
+decisão.
+
+\begin{atencao}
+Nenhuma função de segurança, intertravamento ou proteção de máquina pode depender de modelo de
+linguagem. Um modelo pode errar com fluência: produz respostas plausíveis e incorretas, sem sinalizar
+dúvida. Colocar isso dentro do laço de controle significa aceitar que a máquina tome decisões
+imprevisíveis --- e que ninguém consiga explicar depois por que ela tomou. Se a IA vai ajudar, que
+ajude \emph{o operador} e \emph{o engenheiro}, com o resultado registrado, conferido e assinado por
+gente.
+\end{atencao}
+
+Duas questões de governança precisam ser respondidas antes de instalar qualquer assistente:
+
+\begin{enumerate}
+  \item \textbf{quem valida a resposta} e como o erro é detectado, antes que vire ação;
+  \item \textbf{o que sai da planta}. Enviar dados de processo, receitas e parâmetros para um serviço
+        externo é decisão de segurança da informação, não de engenharia de automação
+        (Capítulo~\ref{cap:seguranca}).
+\end{enumerate}
+
+\section{Plugins e extensões no ambiente de engenharia}
+
+Ambientes de programação aceitam extensões: bibliotecas de blocos, verificadores de padronização,
+geradores de documentação e integrações com ferramentas de versionamento. O efeito prático é grande
+--- por exemplo, um verificador que aplica automaticamente o checklist do
+Capítulo~\ref{cap:boas-praticas} encontra problemas antes da revisão humana.
+
+O que se ganha e o que se perde:
+
+\begin{itemize}
+  \item \textbf{ganha}: produtividade, padronização e geração de documentação a partir do próprio
+        projeto;
+  \item \textbf{perde}: portabilidade. O plugin é do ambiente, não da norma; um projeto que depende
+        de extensão proprietária não migra nem para outra versão, em alguns casos;
+  \item \textbf{exige}: política de versão. Qual versão do plugin foi usada para gerar aquele
+        programa? Sem essa informação, o projeto deixa de ser reconstruível. É o mesmo problema de
+        reprodutibilidade que existe em qualquer \emph{build} de software, com a diferença de que
+        aqui o artefato controla uma máquina.
+\end{itemize}
+
+Há ainda a dimensão de segurança: um plugin executa código dentro do ambiente que fala diretamente
+com o controlador. Ele deve ser tratado como software de terceiro em rede industrial --- origem
+conhecida, versão controlada e instalado com aprovação.
+
+\index{plugin}\index{ambiente de programação!extensões}
+
+\section{Node-RED}
+
+Node-RED é uma ferramenta de programação visual de fluxos, construída sobre Node.js, muito usada em
+borda industrial. Cada nó faz uma coisa --- ler um protocolo, transformar um valor, publicar em um
+tópico, enviar um aviso --- e o programador liga os nós.
+
+Os usos em que ela se destaca:
+
+\begin{itemize}
+  \item \textbf{prototipagem rápida} de integração, para provar que o dado chega e tem o significado
+        esperado;
+  \item \textbf{gateway de protocolo}, traduzindo entre Modbus, OPC UA e MQTT
+        (Capítulos~\ref{cap:redes-scada} e~\ref{cap:iiot});
+  \item \textbf{orquestração de avisos}: consolidar condições e notificar a manutenção;
+  \item \textbf{painéis simples} de acompanhamento.
+\end{itemize}
+
+E os limites, que precisam estar claros antes de a ferramenta virar infraestrutura crítica:
+
+\begin{enumerate}
+  \item \textbf{não é ambiente determinístico}. Roda sobre um sistema de propósito geral, com
+        \emph{garbage collector} e rede compartilhada; o tempo de resposta varia;
+  \item \textbf{não substitui lógica de segurança}. Nenhum intertravamento pode morar em um fluxo
+        Node-RED, ainda que funcione perfeitamente em teste;
+  \item \textbf{exige disciplina de manutenção}. Fluxo visual sem versionamento, sem teste e sem
+        comentário vira ``caixa preta'' que ninguém se atreve a alterar --- o mesmo problema que a
+        documentação do Capítulo~\ref{cap:documentacao} procura evitar;
+  \item \textbf{herda os riscos do ambiente}. Portas abertas, credenciais padrão e módulos de
+        terceiros desatualizados são o caminho mais comum para um incidente.
+\end{enumerate}
+
+A forma segura é tratar Node-RED como parte da camada de \emph{informação}: ele lê, transforma e
+publica. Ele não comanda proteção.
+
+\section{Geração de código a partir de modelagem e simulação}
+
+Ambientes de modelagem e simulação --- MATLAB/Simulink é o exemplo mais difundido --- permitem
+descrever o comportamento do sistema, simular antes de embarcar e gerar código para o controlador.
+O uso típico no curso técnico e na indústria é:
+
+\begin{enumerate}
+  \item modelar a planta e o controlador;
+  \item testar o algoritmo em simulação, com cenários difíceis, sem risco;
+  \item gerar código (texto estruturado ou linguagem de mais baixo nível, conforme o ambiente);
+  \item embarcar, testar em bancada e depois em campo.
+\end{enumerate}
+
+O ganho é real: algoritmos de controle que seriam penosos de escrever à mão --- filtros, controle
+preditivo, escalonamento de ganhos --- passam a ser testáveis antes de tocar a máquina.
+
+Os limites também são reais:
+
+\begin{itemize}
+  \item \textbf{código gerado precisa ser revisto}. Ele é correto em relação ao modelo, e o modelo
+        pode estar errado em relação à planta;
+  \item \textbf{rastreabilidade}: é preciso guardar o modelo, a versão do gerador e o código
+        resultante. Alterar o código à mão e perder o vínculo com o modelo é caminho sem volta;
+  \item \textbf{nem todo ambiente aceita} o código gerado, ou o aceita com restrições de desempenho
+        e de uso de memória;
+  \item \textbf{uso em função de segurança} exige processo próprio de verificação, com a norma de
+        segurança funcional aplicável (Capítulo~\ref{cap:seguranca}) --- a geração automática não
+        substitui a validação.
+\end{itemize}
+
+\section{Linux em sistemas embarcados e controladores}
+\index{Linux embarcado}
+
+Distribuições Linux viraram base de computadores industriais, gateways de borda, IHMs avançadas e de
+controladores que executam \emph{soft-PLC} --- o controlador implementado em software sobre hardware
+de propósito geral. As razões são práticas: ecossistema amplo, isolamento por contêineres,
+virtualização, atualização gerenciada e integração natural com ferramentas de TI.
+
+O que se encontra no equipamento, porém, raramente é a distribuição de um computador pessoal. O
+usual é uma \textbf{imagem sob medida}, gerada pelo fabricante com apenas os componentes
+necessários. A ferramenta mais difundida para isso é o \emph{Yocto Project}\index{Yocto}, com a
+camada de metadados OpenEmbedded: em vez de instalar um sistema completo e retirar o que sobra,
+descrevem-se \emph{receitas} e o resultado é uma imagem mínima, reprodutível e versionada. É o
+caminho adotado por vários fabricantes de controladores --- os controladores PLCnext da Phoenix
+Contact, por exemplo, executam uma distribuição Linux gerada com o Yocto, conforme a documentação do
+fabricante.
+
+A diferença não é só de vocabulário. Uma imagem sob medida chega a campo sem gerenciador de pacotes
+aberto ao usuário, sem serviços que ninguém pediu e com uma lista de componentes que se pode
+auditar: é menos superfície exposta (Capítulo~\ref{cap:seguranca}) e menos coisa para quebrar numa
+atualização. Em troca, acrescentar um \emph{driver} ou um programa novo deixa de ser um comando e
+passa a depender da cadeia de compilação cruzada do fabricante --- negocia-se escopo, versão e
+prazo, e não se resolve na madrugada anterior à partida. Vale saber sobre que base roda o seu
+controlador antes de prometer uma integração que exija pacote de terceiro.
+
+O ponto que interessa à automação é o \textbf{determinismo}. Linux comum prioriza aproveitamento e
+não prazo: a resposta pode variar conforme a carga. Núcleos com preempção de tempo real reduzem
+bastante essa variabilidade e são adequados a muitas tarefas de controle. Ainda assim, o pior caso
+de um sistema de propósito geral com \emph{soft-PLC} não é o mesmo de um controlador dedicado com
+sistema operacional de tempo real, e a diferença está justamente no que a norma de segurança
+funcional exige demonstrar.
+
+\begin{table}[H]
+  \centering
+  \caption{Usos de Linux na automação e o cuidado correspondente.}
+  \label{tab:linux-uso}
+  \begin{tabular}{p{4.6cm} p{4.2cm} p{5.5cm}}
+    \toprule
+    Uso & É adequado? & Cuidado \\
+    \midrule
+    Gateway de borda, integração e histórico local
+      & Sim, é o uso mais comum
+      & Manter atualizado e sem serviços desnecessários expostos \\
+    \addlinespace
+    IHM e supervisão em computador industrial
+      & Sim
+      & Isolar de outras funções; não acumular servidor de arquivos e supervisão na mesma máquina \\
+    \addlinespace
+    \emph{Soft-PLC} em controle de máquina
+      & Depende do requisito de prazo
+      & Medir o pior caso e verificar contra o requisito do processo, não contra a média \\
+    \addlinespace
+    Função de segurança
+      & Só com hardware e sistema dedicados e certificados
+      & Não usar computador de propósito geral como elemento de segurança \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{O balanço: o que ganha, o que perde, o que exige}
+
+\begin{table}[H]
+  \centering
+  \caption{Balanço de cada tecnologia de TI trazida para a operação.}
+  \label{tab:balanco-ti-to}
+  \begin{tabular}{p{2.9cm} p{3.9cm} p{3.4cm} p{4.1cm}}
+    \toprule
+    Tecnologia & O que ganha & O que perde & O que exige \\
+    \midrule
+    Visão computacional
+      & Inspeção automática de características difíceis de medir por sensor
+      & Determinismo do resultado, se a iluminação ou a peça variar
+      & Gabarito mecânico, iluminação estável e critério de decisão escrito \\
+    \addlinespace
+    SLM na instalação
+      & Apoio ao operador e ao engenheiro; dado não sai da planta
+      & Confiabilidade da resposta; nenhuma garantia de prazo
+      & Ficar fora do laço de controle, com resultado conferido e registrado \\
+    \addlinespace
+    Plugin no IDE
+      & Produtividade, padronização e documentação automática
+      & Portabilidade do projeto
+      & Política de versão e aprovação de software de terceiro \\
+    \addlinespace
+    Node-RED
+      & Integração rápida entre protocolos e prototipagem
+      & Determinismo e rastreabilidade
+      & Versionar os fluxos e nunca usá-lo para proteção \\
+    \addlinespace
+    Código gerado por modelo
+      & Algoritmo complexo testado em simulação antes de embarcar
+      & Vínculo com o modelo, se o código for editado à mão
+      & Rastreabilidade entre modelo, gerador e código embarcado \\
+    \addlinespace
+    Linux embarcado
+      & Flexibilidade, atualização e integração com TI
+      & Pior caso de tempo, frente a um controlador dedicado
+      & Medir o pior caso e mantê-lo atualizado \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Nenhuma linha da Tabela~\ref{tab:balanco-ti-to} é gratuita: cada tecnologia se paga em um contexto e
+cobra em outro, e a decisão depende do que a máquina precisa garantir --- prazo, segurança ou
+simplesmente sair do papel.
+
+\begin{pratica}
+Escolha uma das tecnologias da Tabela~\ref{tab:balanco-ti-to} e prepare uma proposta de uso em uma
+máquina real, respondendo:
+(a) qual problema concreto ela resolve, medido em indicador?
+(b) em qual camada da Figura~\ref{fig:ti-to} ela vai rodar, e por quê?
+(c) qual é o pior caso de tempo aceitável, e como você o mediria?
+(d) o que acontece com a máquina se essa tecnologia falhar ou parar de responder?
+(e) quem mantém isso depois de você sair?
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Explique, em três linhas, por que atualização automática e prazo garantido são requisitos
+        incompatíveis no mesmo componente.
+  \item Localize na Figura~\ref{fig:ti-to} onde roda um verificador de padrões de código e onde roda
+        um modelo de linguagem que resume alarmes.
+  \item Cite quatro usos típicos de visão computacional em linha de montagem e diga qual deles é o
+        mais fácil de implantar.
+  \item Por que, em visão computacional, iluminação e fixação importam mais que o algoritmo?
+  \item Como o resultado de uma inspeção por imagem chega ao CLP? Descreva dois caminhos.
+  \item Liste três usos viáveis de SLM em uma planta e explique, para cada um, onde entra a
+        confirmação humana.
+  \item Explique por que a inferência de modelo não cabe no ciclo de varredura, citando tempo e
+        memória.
+  \item Um integrador propõe usar um assistente de IA para decidir o bloqueio de uma prensa.
+        Escreva a recusa técnica, com dois argumentos.
+  \item Cite dois ganhos e duas perdas de adotar plugin de terceiro no ambiente de engenharia.
+  \item Por que Node-RED não pode executar intertravamento, mesmo que o teste tenha funcionado?
+  \item Descreva o problema de rastreabilidade criado quando alguém edita à mão um código gerado
+        automaticamente.
+  \item Aplique a Tabela~\ref{tab:linux-uso} a um computador industrial que já executa supervisão e
+        passa a executar também \emph{soft-PLC} de uma máquina. Justifique sua decisão.
+  \item Escolha uma linha da Tabela~\ref{tab:balanco-ti-to} e escreva a exigência técnica que o
+        ``o que exige'' representa, em forma de cláusula de especificação.
+\end{enumerate}
+\end{exercicios}

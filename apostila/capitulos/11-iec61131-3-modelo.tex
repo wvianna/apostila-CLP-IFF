@@ -1,0 +1,259 @@
+\chapter{IEC 61131-3 em profundidade: POUs, tipagem e tarefas}
+\label{cap:iec-modelo}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item descrever o modelo de software da norma, da configuração ao POU;
+  \item diferenciar função, bloco de função e programa;
+  \item configurar tarefas contínua, periódica e por evento, e explicar o papel do \emph{watchdog};
+  \item classificar variáveis quanto ao escopo e à ligação com o hardware;
+  \item usar os atributos de variável, em especial a retenção;
+  \item dizer o que a norma \emph{não} padroniza --- e por que isso é a origem dos problemas de
+        portabilidade.
+\end{itemize}
+\end{objetivos}
+
+\section{O modelo de software}
+
+A norma não padroniza apenas a forma das linguagens: padroniza também como o software se organiza.
+Essa organização é hierárquica e é o que permite que um programa grande seja dividido em partes
+gerenciáveis.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.80\linewidth]{11-modelo-software.pdf}
+  \caption{Modelo de software da norma: configuração, recursos, tarefas e POUs.}
+  \label{fig:modelo-software}
+\end{figure}
+
+\paragraph{Configuração.} Corresponde ao software necessário a um controlador ou a um conjunto de
+controladores para cumprir suas funções. Define os elementos que interagem entre si, com suas
+configurações individuais, e a configuração total resultante.
+
+\paragraph{Recursos.} Qualquer elemento com capacidade de processamento dentro da configuração,
+capaz de executar programas. Pode ser físico --- a CPU do processador, uma interface de operação, um
+\emph{gateway} de comunicação --- ou virtual, quando há compartilhamento de memória de processamento
+por softwares distintos.
+
+\paragraph{Tarefas.} Controlam a execução dos programas, de forma periódica ou por disparo de evento.
+É a tarefa que define \emph{quando} cada parte do programa roda (Seção~\ref{sec:tarefas}).
+
+\paragraph{POUs.} A \emph{unidade de organização de programa} é a forma definida pela norma para
+implementar o software: associação de variáveis e instruções, em qualquer das linguagens. O software
+aplicativo do controlador consiste na criação e associação de POUs entre si --- POUs podem ser
+formadas a partir de outras POUs, o que permite estruturar o programa e reutilizar código.
+
+\index{modelo de software}\index{POU}
+
+\section{Função, bloco de função e programa}
+
+\begin{table}[H]
+  \centering
+  \caption{As três unidades de organização de programa.}
+  \label{tab:pous}
+  \begin{tabular}{p{2.6cm} p{2.4cm} p{2.4cm} p{7.0cm}}
+    \toprule
+    POU & Memória interna & Saídas & Exemplos e uso \\
+    \midrule
+    Função (FUN)
+      & Não tem: gera o resultado a cada execução, a partir das entradas
+      & Um único valor
+      & \texttt{ADD}, \texttt{SQRT}, \texttt{SIN}, \texttt{COS}, \texttt{GT}, \texttt{MIN},
+        \texttt{MAX}, \texttt{AND}, \texttt{OR}; também funções definidas pelo usuário.
+        Uso geral e sem estado \\
+    Bloco de função (FB)
+      & Tem: os dados persistem entre execuções --- é isso que o diferencia da função
+      & Um ou mais valores
+      & PID, temporizadores, contadores e blocos criados para funções específicas, como controle de
+        motores. Podem compor blocos mais complexos \\
+    Programa (PRG)
+      & Tem estado próprio
+      & ---
+      & Construído a partir de funções e blocos de função, em qualquer linguagem da norma; pode
+        acessar diretamente entradas e saídas e comunicar-se com outros programas. Suas partes podem
+        ser controladas por tarefas diferentes \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+A distinção função \emph{versus} bloco de função é a que mais causa erro em prova e em projeto: a
+função é um cálculo; o bloco de função é um \emph{estado que evolui}. Um temporizador precisa
+lembrar quanto tempo já acumulou --- por isso é bloco de função, e não função.
+
+\begin{atencao}
+Se você declarar o mesmo bloco de função em dois pontos do programa esperando compartilhar o estado,
+o resultado não será o esperado: cada \emph{instância} tem seu próprio estado. Compartilhar estado se
+faz por uma única instância declarada e usada em todo o programa. Este é um dos defeitos mais difíceis
+de localizar em lógica de temporização.
+\end{atencao}
+
+\section{Tarefas}
+\label{sec:tarefas}
+
+\begin{table}[H]
+  \centering
+  \caption{Tipos de tarefa e consequência no comportamento do programa.}
+  \label{tab:tipos-tarefa}
+  \begin{tabular}{p{3.0cm} p{11.6cm}}
+    \toprule
+    Tarefa & Como se comporta \\
+    \midrule
+    Contínua
+      & Executa em segundo plano, com menor prioridade: todo tempo de CPU não alocado a outras
+        operações (comunicação, tarefas periódicas) é usado por ela. Ao terminar um ciclo de
+        varredura, recomeça imediatamente. Um projeto não exige tarefa contínua; se houver, só pode
+        existir uma \\
+    Periódica
+      & Executa em intervalos regulares de tempo. Quando o período se renova, interrompe qualquer
+        tarefa de prioridade mais baixa e, ao terminar, devolve o controle ao ponto em que a tarefa
+        anterior foi interrompida \\
+    Por evento
+      & Executa apenas quando ocorre o disparo configurado. Ao ocorrer, interrompe todas as tarefas
+        de prioridade mais baixa, executa uma vez e devolve o controle ao ponto onde a anterior
+        parou \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Cada tarefa tem um controle de tempo de execução configurável, o \emph{watchdog} (WDT). Ao estourar
+o tempo de ciclo da CPU, o processamento para em condição de falha e o evento é sinalizado ao
+operador de forma visual e, às vezes, sonora.
+
+Separar o programa em tarefas é o principal instrumento de engenharia para conciliar exigências
+diferentes no mesmo controlador: uma malha de controle que precisa rodar a cada 10\,ms não deve
+esperar a rotina de comunicação, e um laço de diagnóstico lento não deve consumir o tempo do
+controle.
+
+\index{tarefa}\index{watchdog}
+
+\section{Variáveis}
+
+\subsection{Escopo}
+
+\begin{itemize}
+  \item \textbf{globais} --- declaradas acima de todos os programas; podem ser usadas pelo programa
+        principal e por todas as rotinas e sub-rotinas;
+  \item \textbf{locais} --- declaradas no início de uma rotina e visíveis apenas por ela.
+\end{itemize}
+
+A norma admite que uma variável global seja acessada por outra configuração ou mesmo por outro
+controlador, desde que devidamente declarada em cada um.
+
+\subsection{Ligação com o hardware}
+
+\begin{itemize}
+  \item \textbf{internas} --- sem vínculo direto com o hardware de E/S. Servem para resultados
+        intermediários de cálculo, comparações e variáveis auxiliares. Não fazem parte da memória
+        imagem de E/S;
+  \item \textbf{externas} --- com vínculo direto com o hardware: são as variáveis de pontos de
+        entrada e saída físicos, que recebem ou enviam valores para dispositivos do campo.
+\end{itemize}
+
+Confundir as duas é a origem de uma pergunta frequente em manutenção: ``por que este bit não aparece
+no diagnóstico de E/S?''. Se ele não é externo, não tem ponto físico correspondente.
+
+\subsection{Atributos de variável}
+
+\begin{table}[H]
+  \centering
+  \caption{Atributos de variável previstos pela norma.}
+  \label{tab:atributos-variavel}
+  \begin{tabular}{p{2.4cm} p{12.2cm}}
+    \toprule
+    Atributo & Efeito \\
+    \midrule
+    \texttt{RETAIN}
+      & Preserva o valor após o desligamento: é a variável retentiva do
+        Capítulo~\ref{cap:memoria}. Use para contagens de turno, estados de processo que devem
+        sobreviver à falta de energia \\
+    \texttt{CONSTANT}
+      & Valor fixo, não pode ser alterado em tempo de execução. Use para limites de projeto e
+        parâmetros de calibração \\
+    \texttt{AT}
+      & Liga a variável a um endereço físico direto de E/S, dispensando o mapeamento por imagem.
+        Recurso poderoso e traiçoeiro: o valor \emph{não} passa pela memória imagem \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+E ainda os tipos de variável: global, direta (local), de mapeamento de E/S (entrada, saída, entrada
+e saída), externa e temporária.
+
+\begin{atencao}
+Variável com \texttt{AT} não passa pela memória imagem: ela lê ou escreve o ponto físico no momento
+do acesso, e não no início ou no fim do ciclo. Isso quebra o determinismo do programa e, em lógica
+de segurança, é inaceitável. Use \texttt{AT} apenas com justificativa registrada.
+\end{atencao}
+
+\subsection{Tipagem e alocação}
+
+Os tipos elementares e derivados foram apresentados no Capítulo~\ref{cap:memoria}. Além deles, a
+norma permite criar novos tipos: dados estruturados que reúnem variáveis de tipos diferentes, tipos
+derivados de um tipo já existente, tipos enumerados, subfaixas de valor com limites e arranjos.
+
+Quanto à memória, os controladores atuais fazem \emph{alocação dinâmica} das variáveis: elas são
+criadas com o tipo definido na declaração e não precisam ter tamanho fixo nem ocupar posições
+sequenciais. Isso muda a pergunta de projeto: em vez de calcular endereços, declara-se a variável
+com o tipo adequado e o ambiente resolve a alocação.
+
+\section{Estruturação, modularização e reutilização}
+
+O modelo de software é uma combinação de conceitos que dá estrutura aos projetos. Três princípios o
+sustentam:
+
+\begin{enumerate}
+  \item \textbf{modularização} --- dividir o problema em partes com responsabilidade definida;
+  \item \textbf{estruturação} --- organizar essas partes em hierarquia, com interfaces claras;
+  \item \textbf{reutilização} --- escrever uma vez e usar em vários pontos, por instanciação de
+        blocos de função.
+\end{enumerate}
+
+Trocando em miúdos: o programa deixa de ser uma sequência longa de linhas e passa a ser um conjunto
+de blocos nomeados, cada um testável isoladamente. É o que torna possível dividir o trabalho entre
+programadores e, depois, entregar a manutenção a outra equipe.
+
+\section{O que a norma não define}
+
+Este ponto é decisivo para o capítulo seguinte. A norma \emph{não} define:
+
+\begin{itemize}
+  \item o endereçamento físico das entradas e saídas (\texttt{\%I0.0}, \texttt{I:1/0},
+        \texttt{DI1}\ldots);
+  \item o ambiente de programação, sua interface e seu formato de arquivo;
+  \item os protocolos de rede usados para programar e para comunicar;
+  \item a implementação dos blocos de sistema e de comunicação específicos do fabricante.
+\end{itemize}
+
+Portanto, ``conforme IEC 61131-3'' descreve um conjunto de garantias sobre \emph{software aplicativo}
+--- e nada além disso. Todo o resto continua sendo decisão do fabricante, e é exatamente aí que a
+portabilidade se perde.
+
+\begin{pratica}
+Em um controlador com ambiente de programação disponível:
+(a) crie uma função que converta uma leitura de 4 a 20\,mA em unidade de engenharia;
+(b) crie um bloco de função que acumule o tempo em que uma entrada permanece acionada, com
+\texttt{RETAIN};
+(c) instancie o bloco em dois pontos do programa e verifique se os estados são independentes;
+(d) crie duas tarefas --- uma periódica de 20\,ms para o controle e uma lenta para diagnóstico --- e
+observe a diferença no comportamento do programa.
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Desenhe a hierarquia do modelo de software e explique o papel de cada nível.
+  \item Por que o temporizador é bloco de função e não função? Responda em termos de memória.
+  \item Explique a diferença entre tarefa contínua, periódica e por evento, dando um uso real para
+        cada uma.
+  \item O que o \emph{watchdog} de uma tarefa protege, e o que o operador deve fazer quando ele
+        dispara?
+  \item Classifique como interna ou externa: (a) contador de peças do turno; (b) estado do
+        pressostato de linha; (c) resultado intermediário de um cálculo de vazão; (d) comando da
+        válvula de saída.
+  \item Um técnico precisa que a contagem de ciclos não se perca na falta de energia. Que atributo de
+        variável usar, e onde mais o mesmo atributo é necessário no sistema?
+  \item Explique por que \texttt{AT} quebra o determinismo do ciclo de varredura.
+  \item Liste três itens que a norma \emph{não} padroniza e explique como cada um deles pode impedir
+        a troca de fabricante.
+\end{enumerate}
+\end{exercicios}

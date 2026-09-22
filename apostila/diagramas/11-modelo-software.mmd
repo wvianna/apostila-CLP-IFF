@@ -1,0 +1,9 @@
+flowchart TB
+  C["Configuração<br/>um ou mais controladores do projeto"]
+  C --> R["Recursos<br/>capacidade de processamento: CPUs,<br/>interfaces, gateways (físicos ou virtuais)"]
+  R --> TK["Tarefas<br/>contínua, periódica ou por evento"]
+  TK --> P["Programas<br/>acessam E/S e chamam outros POUs"]
+  P --> FB["Blocos de função<br/>com memória: temporizador, PID, motor"]
+  P --> FN["Funções<br/>sem memória: ADD, SQRT, MIN, MAX"]
+  FB --> V["Variáveis: globais e locais,<br/>internas e externas, retentivas"]
+  FN --> V

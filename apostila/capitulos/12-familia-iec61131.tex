@@ -1,0 +1,168 @@
+\chapter{Família IEC 61131 e o entorno}
+\label{cap:familia-iec}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item identificar o assunto de cada parte da família IEC 61131;
+  \item situar as quatro edições da parte 3 e o que mudou em cada uma;
+  \item reconhecer as lacunas de cobertura do material antigo;
+  \item explicar o papel da PLCopen, da IEC 61499 e do OPC UA;
+  \item avaliar uma declaração de conformidade com a norma.
+\end{itemize}
+\end{objetivos}
+
+\section{Como a norma está organizada}
+
+A IEC 61131 é uma norma de controladores programáveis dividida em partes, preparadas e mantidas por
+um grupo de trabalho específico (WG~7, sistemas de controle programáveis, do SC~65B do TC~65 da
+IEC). Ela se chamava IEC 1131 antes da mudança de numeração da IEC.
+
+\begin{table}[H]
+  \centering
+  \caption{Partes da família IEC 61131 e o assunto de cada uma.}
+  \label{tab:partes-iec61131}
+  \begin{tabular}{p{1.6cm} p{13.0cm}}
+    \toprule
+    Parte & Assunto \\
+    \midrule
+    1 & Informações gerais: definições de termos usados nas demais partes e as principais
+        propriedades funcionais e características dos controladores \\
+    2 & Requisitos de equipamento e testes: condições normais de serviço, requisitos construtivos,
+        ensaios de tipo e compatibilidade eletromagnética \\
+    3 & Linguagens de programação: arquitetura básica de software e linguagens do programa de
+        controle \\
+    4 & Orientações para o usuário: especificação, instalação, comissionamento e certificação \\
+    5 & Comunicações: módulo de comunicação, blocos de função e mecanismos de conexão entre
+        controladores e outros dispositivos \\
+    6 & \textbf{Segurança funcional} \\
+    7 & Programação de controle \emph{fuzzy} (FCL) \\
+    8 & Orientações para aplicação e implementação das linguagens de programação \\
+    9 & Interface de comunicação digital de ponto único para sensores e atuadores pequenos (SDCI,
+        comercializada como IO-Link) \\
+    10 & Formato de intercâmbio XML para exportação e importação de projetos IEC 61131-3 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{atencao}
+Três partes acima merecem atenção de quem aprendeu pela apostila antiga. A \textbf{parte 6}
+(segurança funcional) e as partes \textbf{9} e \textbf{10} não existiam quando o material de
+referência foi escrito. Um texto que apresenta ``a família IEC 61131'' cobrindo apenas as partes 1 a
+5, 7 e 8 está desatualizado, e a ausência da parte 6 é a mais grave: é ela que trata de controlador
+em função de segurança.
+\end{atencao}
+
+\section{As edições da parte 3}
+
+A parte 3 é a que interessa diretamente à programação, e ela evoluiu:
+
+\begin{table}[H]
+  \centering
+  \caption{Edições da IEC 61131-3 e o que cada uma trouxe.}
+  \label{tab:edicoes-61131-3}
+  \begin{tabular}{p{2.4cm} p{12.2cm}}
+    \toprule
+    Edição & Marco \\
+    \midrule
+    1ª, 1993
+      & Primeira publicação da padronização das linguagens de programação \\
+    2ª, 2003
+      & Edição usada como referência pelo material didático das apostilas de origem: define as cinco
+        linguagens (LD, FBD, IL, ST e SFC) \\
+    3ª, 2013
+      & Descreve como implementar \textbf{programação orientada a objetos} no software aplicativo;
+        \textbf{deprecia a Lista de Instruções (IL)} \\
+    4ª, maio de 2025
+      & Edição vigente: define três linguagens gráficas (LD, FBD, SFC) e uma textual (ST); a
+        \textbf{Lista de Instruções foi removida} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Duas consequências práticas para quem escreve material didático:
+
+\begin{enumerate}
+  \item dizer apenas ``conforme IEC 61131-3'' é insuficiente --- a edição precisa ser declarada;
+  \item a IL deve aparecer como linguagem histórica e para leitura de código legado, nunca como
+        recomendação de escrita (Capítulo~\ref{cap:linguagens}).
+\end{enumerate}
+
+\index{IEC 61131-3!edições}
+
+\section{O entorno da norma}
+
+A norma não vive sozinha. Três iniciativas completam o que ela não cobre:
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\linewidth]{12-ecossistema-norma.pdf}
+  \caption{A norma e as iniciativas que a complementam.}
+  \label{fig:ecossistema-norma}
+\end{figure}
+
+\paragraph{PLCopen.} Organização sem fins lucrativos que apoia e estende a norma. É dela a
+biblioteca padronizada de blocos de função, o programa de certificação de ambientes de programação e
+os esquemas XML de intercâmbio de projetos --- este último incorporado à família como parte 10 da
+IEC 61131. Para o usuário, a PLCopen responde a uma pergunta prática: ``este programa roda no
+controlador de outro fabricante se ambos forem conformes?'' --- e a resposta depende de quais
+bibliotecas foram usadas.
+
+\paragraph{IEC 61499.} Norma de blocos de função para \emph{controle distribuído}. Enquanto a IEC
+61131-3 organiza o programa dentro de um controlador, a IEC 61499 organiza a aplicação espalhada por
+vários dispositivos. É assunto de arquiteturas distribuídas, não substitui a 61131-3 no dia a dia da
+máquina.
+
+\paragraph{OPC UA.} Não é norma de programação, e sim camada de \emph{informação e comunicação}:
+modelo de dados padronizado, independente de fabricante, com sessão segura. É o que permite que um
+sistema supervisório ou um ERP leia dados de controladores de marcas diferentes sem escrever um
+\emph{driver} para cada um. Detalhes no Capítulo~\ref{cap:iiot}.
+
+\section{Como avaliar uma declaração de conformidade}
+
+\begin{table}[H]
+  \centering
+  \caption{Perguntas para uma declaração de conformidade.}
+  \label{tab:conformidade}
+  \begin{tabular}{p{4.6cm} p{10.0cm}}
+    \toprule
+    Pergunta & Por que ela importa \\
+    \midrule
+    Qual edição da norma? & Há diferença relevante entre 2ª, 3ª e 4ª edições, inclusive sobre
+      linguagens disponíveis \\
+    Quais linguagens são suportadas? & ``Conforme'' não significa ``todas as linguagens'': o
+      ambiente pode implementar apenas um subconjunto \\
+    Há certificação de terceira parte? & Programa de certificação existe e é verificável; declaração
+      do próprio fabricante não é o mesmo \\
+    Os blocos usados são padronizados? & Blocos proprietários são o principal fator de dependência
+      na migração \\
+    Como é o endereçamento de E/S? & Endereçamento é justamente o que a norma não padroniza
+      (Capítulo~\ref{cap:iec-versus-legado}) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{pratica}
+Escolha um controlador e busque a declaração de conformidade à IEC 61131-3 disponível do fabricante.
+Responda, com o documento em mãos:
+(a) qual edição é citada?
+(b) quais linguagens são efetivamente suportadas?
+(c) existe certificação de terceira parte?
+(d) quais blocos de função padronizados estão disponíveis?
+Registre as respostas e as que ficaram sem resposta --- este último item é o mais informativo.
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Qual parte da família trata de segurança funcional, e por que a ausência dela em um material
+        de CLP é uma lacuna grave?
+  \item Em que edição a Lista de Instruções foi depreciada e em qual foi removida?
+  \item Explique a diferença de escopo entre IEC 61131-3 e IEC 61499.
+  \item O que a PLCopen oferece que a norma não oferece diretamente?
+  \item Um fornecedor apresenta um controlador ``conforme IEC 61131-3'' que implementa apenas Ladder.
+        A afirmação é falsa? Justifique.
+  \item Por que o formato de intercâmbio XML importa para quem precisa migrar de fabricante?
+  \item Se uma planta tem controladores de três marcas diferentes, o OPC UA resolve o problema de
+        portabilidade do \emph{programa}? Explique o que ele resolve e o que não resolve.
+\end{enumerate}
+\end{exercicios}

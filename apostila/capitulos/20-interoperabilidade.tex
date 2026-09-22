@@ -1,0 +1,217 @@
+\chapter{Interoperabilidade entre marcas e modelos}
+\label{cap:interoperabilidade}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item distinguir compatibilidade declarada, interoperabilidade e portabilidade;
+  \item aplicar as estratégias que realmente reduzem dependência de fabricante;
+  \item localizar, no projeto, os pontos em que a migração quebra;
+  \item classificar o risco de uma migração antes de orçá-la;
+  \item escrever exigências contratuais que preservem a liberdade futura da planta.
+\end{itemize}
+\end{objetivos}
+
+\section{Três palavras que não são sinônimos}
+
+No material de fornecedor, as três aparecem trocadas:
+
+\begin{itemize}
+  \item \textbf{compatibilidade declarada}: o fabricante afirma que o produto atende a uma norma. É
+        uma declaração, não uma verificação independente --- e cabe perguntar a qual edição da norma
+        ela se refere (Capítulo~\ref{cap:familia-iec});
+  \item \textbf{interoperabilidade}: equipamentos diferentes conseguem trocar dados em operação.
+        Depende de protocolo e de perfil de informação, não de linguagem de programação;
+  \item \textbf{portabilidade}: o mesmo \emph{programa} roda em outro ambiente com esforço
+        previsível. É a propriedade mais difícil das três, porque depende de tudo o que a norma
+        \emph{não} padroniza.
+\end{itemize}
+
+Interoperabilidade resolve o problema de \emph{conversar}. Portabilidade resolve o problema de
+\emph{migrar}. São problemas distintos e frequentemente confundidos em conversa de especificação.
+
+\index{interoperabilidade}\index{portabilidade}
+
+\section{A escada da portabilidade}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.50\linewidth]{20-portabilidade.pdf}
+  \caption{O que é portável e o que cada ambiente acrescenta por conta própria.}
+  \label{fig:portabilidade}
+\end{figure}
+
+A Figura~\ref{fig:portabilidade} mostra que a portabilidade não é uma propriedade binária: ela
+diminui à medida que se desce na pilha. No topo, linguagens, POUs e tipos de dados são padronizados e
+viajam bem. Nos degraus seguintes, cada ambiente acrescenta o seu --- e é aí que o custo aparece.
+
+O Capítulo~\ref{cap:iec-versus-legado} já separou os problemas de linguagem dos problemas de
+estrutura e mostrou que os primeiros são mecânicos e os segundos não. Este capítulo trata os
+segundos.
+
+\section{Estratégias que funcionam}
+
+\begin{enumerate}
+  \item \textbf{escrever conforme a norma, sempre que houver equivalente padronizado}. É a decisão de
+        maior efeito e de menor custo, tomada no dia da escrita --- não no dia da migração
+        (Tabela~\ref{tab:recomendacoes-portabilidade});
+  \item \textbf{usar biblioteca padronizada}, e não blocos proprietários, para as funções que existem
+        em versão normatizada. Bibliotecas setoriais de blocos de função existem justamente para
+        isso (Capítulo~\ref{cap:familia-iec});
+  \item \textbf{isolar o que é específico}: endereçamento, diagnóstico de rack, comunicação e
+        qualquer função de sistema devem ficar concentrados em poucos blocos, com nome e comentário
+        explícitos;
+  \item \textbf{preferir texto estruturado} para lógica complexa. Ladder é excelente para lógica
+        combinacional e para quem lê em campo, mas algoritmos longos ficam mais legíveis e mais
+        facilmente transportáveis em ST;
+  \item \textbf{usar protocolo aberto como ponte} quando o código não é portável. Nem sempre vale
+        reescrever o programa: muitas vezes a integração se resolve mantendo os dois controladores e
+        ligando-os por OPC UA
+        (Capítulo~\ref{cap:iiot}) ou Modbus TCP (Capítulo~\ref{cap:redes-scada});
+  \item \textbf{usar o formato de intercâmbio} previsto na família da norma para exportar e importar
+        projetos entre ambientes, quando ambos o implementarem. Ele transporta a estrutura, não as
+        bibliotecas proprietárias.
+\end{enumerate}
+
+\begin{atencao}
+As estratégias 1 a 4 custam quase nada se aplicadas desde o início e custam muito quando aplicadas
+depois. Reescrita de programa em operação consome parada de produção, teste e revalidação,
+comissionamento e risco de introduzir defeito em código que já funcionava. Quem decide sobre
+arquitetura de software conversa com quem decide sobre orçamento de manutenção --- e raramente são a
+mesma pessoa.
+\end{atencao}
+
+\section{Onde a migração realmente quebra}
+
+\begin{table}[H]
+  \centering
+  \caption{Pontos de ruptura em uma migração de fabricante e o que fazer com cada um.}
+  \label{tab:rupturas-migracao}
+  \begin{tabular}{p{3.4cm} p{5.2cm} p{5.7cm}}
+    \toprule
+    Ponto de ruptura & Por que quebra & O que reduz o impacto \\
+    \midrule
+    Endereçamento físico de E/S
+      & Cada família organiza e nomeia os pontos de um jeito. A norma não padroniza endereçamento
+      & Nomear variáveis pelo processo, nunca pelo endereço; manter tabela de alocação
+        (Capítulo~\ref{cap:documentacao}) \\
+    \addlinespace
+    Blocos de sistema
+      & Leitura de estado do módulo, diagnóstico de rack e tratamento de falha são próprios de cada
+        ambiente
+      & Concentrar em um bloco de adaptação, documentado; testar esse bloco primeiro na migração \\
+    \addlinespace
+    Temporização e contagem
+      & Parâmetros, base de tempo e comportamento de acumulação variam entre ambientes
+      & Declarar explicitamente base de tempo e comportamento esperado; testar com cronômetro, não
+        por leitura de código \\
+    \addlinespace
+    Comunicação entre controladores
+      & Blocos de troca de dados proprietários não têm equivalente direto
+      & Padronizar em protocolo aberto desde o projeto, ou em camada de gateway \\
+    \addlinespace
+    HMI e SCADA
+      & Telas, animações e \emph{scripts} ficam presos ao produto e à versão
+      & Separar o endereçamento da tela do endereço físico, com camada de tags intermediária \\
+    \addlinespace
+    Formato de projeto e bibliotecas
+      & Arquivo, versionamento e bibliotecas são do fabricante
+      & Exigir entrega do projeto-fonte e exportação em formato aberto; manter o fonte em versionamento
+        próprio \\
+    \addlinespace
+    Peças e ciclo de vida
+      & Migração forçada por falta de reposição é a mais cara de todas
+      & Acompanhar avisos de descontinuação; planejar substituição antes de a parada ser obrigatória \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Classificando o risco da migração}
+
+Nem toda migração é igual. A Tabela~\ref{tab:risco-migracao} dá uma escala de trabalho que ajuda a
+dimensionar esforço antes de orçar.
+
+\begin{table}[H]
+  \centering
+  \caption{Cenários de migração e esforço típico.}
+  \label{tab:risco-migracao}
+  \begin{tabular}{p{5.0cm} p{2.4cm} p{6.8cm}}
+    \toprule
+    Cenário & Risco & Por quê \\
+    \midrule
+    Troca de modelo dentro da mesma família, com o mesmo ambiente de programação
+      & Baixo
+      & Endereçamento, blocos e formato de projeto permanecem; o esforço é de conferência e teste
+        de compatibilidade de \emph{firmware} \\
+    \addlinespace
+    Troca de família com o mesmo fabricante e o mesmo ambiente
+      & Médio
+      & A estrutura de projeto e a biblioteca mudam; a linguagem, em geral, não \\
+    \addlinespace
+    Troca de fabricante, mantendo o projeto funcional e a arquitetura de rede
+      & Alto
+      & Reescrever aplicativo, refazer endereçamento, revalidar comunicação e reescrever a interface
+        com a supervisão \\
+    \addlinespace
+    Troca de fabricante com substituição de HMI, supervisão e rede de campo
+      & Muito alto
+      & É um projeto novo, com comissionamento novo; deve ser orçado como tal, e não como
+        ``atualização de controlador'' \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Não existe, nesta tabela, promessa de compatibilidade entre marcas. Existe uma escala de esforço
+verificável no campo: quanto mais camadas mudam ao mesmo tempo, mais caro fica --- e é justamente por
+isso que quem migra ganha ao migrar por partes.
+
+\index{migração de controlador}
+
+\section{O que exigir na especificação e no contrato}
+
+Toda liberdade futura da planta é decidida no momento da compra. Do que foi discutido até aqui,
+quatro exigências resolvem a maior parte do problema (ver também o Capítulo~\ref{cap:porte}):
+
+\begin{enumerate}
+  \item \textbf{entrega do projeto-fonte}, não apenas do arquivo executável carregado no controlador,
+        com a versão do ambiente de programação identificada;
+  \item \textbf{declaração de conformidade com edição e ano} da norma, e a informação de quais
+        linguagens e bibliotecas foram efetivamente usadas;
+  \item \textbf{lista de blocos proprietários} utilizados no aplicativo, com o que cada um faz ---
+        essa lista é o orçamento da migração futura;
+  \item \textbf{exportação em formato de intercâmbio} sempre que o ambiente oferecer, e a tabela de
+        tags em formato aberto (planilha ou texto), nunca apenas dentro do projeto.
+\end{enumerate}
+
+\begin{pratica}
+Escolha um sistema real com pelo menos um controlador, uma IHM e uma rede de campo. Produza um
+relatório de portabilidade com:
+(a) a lista de blocos proprietários usados no programa, com a função de cada um;
+(b) a classificação do cenário de migração na Tabela~\ref{tab:risco-migracao};
+(c) os três pontos de ruptura da Tabela~\ref{tab:rupturas-migracao} que exigiriam mais trabalho no
+seu caso, justificando;
+(d) as exigências contratuais que faltaram na compra original.
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Explique a diferença entre interoperabilidade e portabilidade com um exemplo de cada.
+  \item Por que a portabilidade diminui à medida que se desce na Figura~\ref{fig:portabilidade}?
+  \item Um projeto usa apenas LD e blocos \texttt{TON} padronizados, mas lê o estado dos módulos por
+        bloco proprietário. Classifique o risco de migração e justifique.
+  \item Cite dois casos em que manter dois controladores ligados por protocolo aberto é mais
+        vantajoso que reescrever o programa.
+  \item Por que nomear variáveis pelo processo, e não pelo endereço, sobrevive à migração?
+  \item Explique o risco de temporização e diga por que a conferência precisa ser feita com
+        cronômetro.
+  \item Classifique na Tabela~\ref{tab:risco-migracao}: (i) troca de um controlador por outro do mesmo
+        modelo, por fim de vida; (ii) substituição completa de um painel, com controlador, IHM e rede
+        nova; (iii) troca de fabricante mantendo a IHM existente.
+  \item Justifique, com base na Tabela~\ref{tab:rupturas-migracao}, por que a migração forçada por
+        falta de peça é a mais cara.
+  \item Escreva três cláusulas de especificação para a compra de um controlador, cada uma ligada a um
+        ponto de ruptura.
+  \item Um fornecedor afirma: ``nosso controlador é conforme IEC 61131-3, então seu programa roda em
+        qualquer marca''. Escreva a resposta técnica em cinco linhas.
+\end{enumerate}
+\end{exercicios}

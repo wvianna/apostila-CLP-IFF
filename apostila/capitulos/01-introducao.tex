@@ -1,0 +1,131 @@
+\chapter{Introdução e importância da automação}
+\label{cap:introducao}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item explicar o que é automação industrial e por que ela existe;
+  \item relacionar os objetivos da automação com os indicadores que ela melhora;
+  \item situar o Controlador Lógico Programável (CLP) dentro do sistema de automação;
+  \item distinguir, na prática, o que é definido por norma do que é definido por fabricante.
+\end{itemize}
+\end{objetivos}
+
+\section{O que é automação industrial}
+
+Automação industrial é o uso de equipamentos e programas para operar um processo produtivo com
+pouca ou nenhuma intervenção humana direta. Ela não substitui apenas a força física: substitui
+sobretudo a \emph{decisão repetitiva} --- ligar, desligar, medir, comparar com um valor desejado e
+corrigir.
+
+Essa decisão repetitiva foi, por décadas, responsabilidade de painéis de relés, temporizadores de
+came e sequenciadores. A lógica estava \emph{fiada}, literalmente: mudar a sequência de uma máquina
+significava refazer o painel elétrico, parar a produção e refazer a documentação. Foi essa rigidez
+que criou a necessidade que dá origem ao CLP (Capítulo~\ref{cap:evolucao}).
+
+\index{automação industrial}\index{automação industrial!objetivos}
+
+\section{Por que automatizar}
+
+Automatizar não é um fim em si. As razões aparecem em cinco frentes, e cada uma tem uma forma de
+ser medida --- o que importa quando é preciso justificar um investimento
+(Figura~\ref{fig:objetivos-automacao}).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\linewidth]{01-objetivos-automacao.pdf}
+  \caption{Pressões que levam à automação e ganhos que ela entrega.}
+  \label{fig:objetivos-automacao}
+\end{figure}
+
+\begin{table}[H]
+  \centering
+  \caption{Frentes de ganho da automação e como observá-las.}
+  \label{tab:frentes-automacao}
+  \begin{tabular}{p{3.4cm} p{6.2cm} p{4.6cm}}
+    \toprule
+    Frente & O que muda na prática & Como se observa \\
+    \midrule
+    Produtividade
+      & Menos tempo parado, ciclo mais estável e maior volume no mesmo tempo
+      & Disponibilidade, tempo de ciclo, peças por hora \\
+    Qualidade
+      & Repetibilidade da sequência: a máquina executa igual a cada ciclo
+      & Refugo, retrabalho, variação da característica \\
+    Segurança
+      & Eliminação do homem na zona de risco e intertravamento confiável
+      & Incidentes, intervenções em área de risco \\
+    Energia e insumo
+      & Desligamento automático, ponto de operação otimizado, fim do funcionamento a vazio
+      & Consumo específico (kWh por unidade), desperdício de matéria-prima \\
+    Informação
+      & O processo passa a produzir dados de produção, falha e consumo
+      & Existência de histórico, rastreabilidade, indicadores por turno \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Onde o CLP é aplicado}
+
+Praticamente não há ramo industrial sem aplicação de controladores programáveis. Os casos mais
+frequentes:
+
+\begin{itemize}
+  \item \textbf{Máquinas industriais} --- usinagem, injetoras de plástico, têxteis, calçados;
+  \item \textbf{Processos contínuos e de batelada} --- siderurgia, papel e celulose, petroquímica,
+        química, alimentos, mineração;
+  \item \textbf{Energia} --- controle de demanda e de fator de carga;
+  \item \textbf{Supervisão e aquisição de dados} --- fábricas, prédios inteligentes, utilidades;
+  \item \textbf{Ensaios e bancadas} --- teste automático de componentes, laboratórios;
+  \item \textbf{Sistemas embarcados e móveis} --- máquinas agrícolas e de construção,
+        equipamentos de transporte.
+\end{itemize}
+
+\section{O CLP no centro do sistema}
+
+O CLP é o equipamento que executa a lógica de controle de forma \emph{cíclica e determinística}:
+ele lê as entradas, processa o programa e escreve as saídas, repetidamente, em intervalos de
+alguns milissegundos. É essa característica que o diferencia de um computador comum e que dá
+previsibilidade ao processo (Capítulo~\ref{cap:funcionamento}).
+
+Ao redor dele ficam os instrumentos de campo, os módulos de entrada e saída, o terminal de
+programação e as redes de comunicação que o ligam à supervisão e à gestão
+(Capítulo~\ref{cap:estrutura}).
+
+\begin{atencao}
+Nada nesta apostila autoriza intervir em painel energizado. Antes de qualquer medição, troca de
+módulo ou edição de programa em máquina em produção, aplique o procedimento de bloqueio e
+sinalização da sua instituição. CLP não é equipamento de aprendizagem em máquina viva.
+\end{atencao}
+
+\section{Como ler esta apostila}
+
+Esta obra foi organizada em cinco partes: fundamentos e projeto, hardware e funcionamento,
+programação e normas, integração e sistemas, operação e carreira. Cada capítulo fecha com
+exercícios e, quando aplicável, uma caixa \emph{Na prática}.
+
+Uma convenção vale para todo o texto: \textbf{sempre que uma linguagem, instrução ou endereçamento
+for apresentado, ficará claro se aquilo é definido por norma ou se é proprietário de um
+fabricante}. Essa distinção é o assunto do Capítulo~\ref{cap:iec-versus-legado} e aparece marcada
+em cada tópico de programação.
+
+\index{CLP}\index{programação de CLP}\index{norma!IEC 61131-3}
+
+\begin{pratica}
+Escolha uma máquina da sua escola ou do seu trabalho e responda por escrito:
+(a) quais decisões hoje são feitas por relés, botoeiras ou operador;
+(b) quais dessas decisões poderiam ser automatizadas;
+(c) qual indicador da Tabela~\ref{tab:frentes-automacao} melhoraria e como você mediria isso hoje,
+sem instalar nada novo.
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Explique, com suas palavras, por que ``lógica fiada'' dificulta a mudança de um processo.
+  \item Cite dois ganhos da automação que não sejam de produtividade e justifique sua escolha.
+  \item Um gestor afirma que automatizar sempre reduz o custo por peça. Aponte uma situação em que
+        isso não se verifica e explique o motivo.
+  \item Dê um exemplo de decisão que \emph{não} deve ser confiada apenas ao programa do CLP, e diga
+        quem ou o que deveria assumi-la.
+\end{enumerate}
+\end{exercicios}

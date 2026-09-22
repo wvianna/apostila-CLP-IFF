@@ -1,0 +1,493 @@
+\chapter{Guia de conversão: legado para IEC 61131-3}
+\label{apB}
+
+\begin{objetivos}
+Ao final deste apêndice você deve ser capaz de:
+\begin{itemize}
+  \item ler um trecho de programa escrito em dialeto de fabricante e dizer o que ele faz;
+  \item reescrevê-lo em elementos padronizados pela IEC 61131-3, em Ladder e em texto estruturado;
+  \item reconhecer os pontos em que a conversão \textbf{não} é mecânica;
+  \item seguir um roteiro de conversão e registrar o que ficou pendente.
+\end{itemize}
+\end{objetivos}
+
+\section{Para que serve e para que não serve}
+
+Este apêndice existe por um motivo prático: existe muito programa em operação escrito em dialeto de
+fabricante, e quem entra na manutenção precisa entendê-lo. O guia faz três coisas:
+
+\begin{enumerate}
+  \item mostra a correspondência entre os mnemônicos do legado e os elementos que a
+        IEC 61131-3 padroniza;
+  \item apresenta o \textbf{mesmo trecho nas duas formas}, lado a lado, para leitura comparada;
+  \item lista o que \textbf{não} se converte automaticamente, para que ninguém prometa migração
+        mecânica.
+\end{enumerate}
+
+Ele não serve para justificar escrever código novo em dialeto, e não substitui o estudo da norma: a
+correspondência apresentada é de \emph{função}, e não garante equivalência em todos os casos de
+borda. A comparação completa está no Capítulo~\ref{cap:iec-versus-legado}; aqui o foco é o código.
+
+\index{conversão de código}\index{legado (código)}
+
+\section{Os bits de status e os parâmetros do legado}
+
+Antes dos exemplos, é preciso nomear o que aparece no código antigo. As instruções legadas expõem
+\emph{bits de status} e \emph{parâmetros} próprios, que a norma substitui por entradas e saídas
+declaradas dos blocos padronizados --- a Tabela~\ref{tab:bits-status} faz essa correspondência.
+
+\begin{table}[H]
+  \centering
+  \caption{Bits de status e parâmetros do legado e o equivalente normatizado.}
+  \label{tab:bits-status}
+  \begin{tabular}{p{2.5cm} p{5.0cm} p{6.8cm}}
+    \toprule
+    Legado & O que é & Equivalente normatizado \\
+    \midrule
+    \texttt{.EN} & instrução habilitada & entrada de habilitação do bloco (\texttt{IN} ou
+      \texttt{EN}) \\
+    \addlinespace
+    \texttt{.DN} & instrução concluída & saída de conclusão (\texttt{Q}, \texttt{ENO}) \\
+    \addlinespace
+    \texttt{.TT} & temporizador em contagem & tempo decorrido \texttt{ET} maior que zero, ou estado do
+      bloco \\
+    \addlinespace
+    \texttt{.ACC} & tempo acumulado, em milissegundos & \texttt{ET}: tempo decorrido, tipado como
+      duração \\
+    \addlinespace
+    \texttt{.PRE} & valor de referência do tempo & \texttt{PT}: tempo de referência, tipado como
+      duração \\
+    \addlinespace
+    \texttt{.POS} e \texttt{.DN} do contador & acumulado e estado de conclusão & \texttt{CV} e
+      \texttt{Q} \\
+    \addlinespace
+    \texttt{.UL} & bit que ``saiu'' do registrador de deslocamento & \textbf{não existe} no bloco
+      normatizado: precisa ser lido antes de deslocar \\
+    \addlinespace
+    \texttt{storage bit} & endereço de armazenamento escolhido pelo programador, usado na detecção de
+      borda & \textbf{não existe}: o estado fica dentro da instância do bloco de borda \\
+    \addlinespace
+    \texttt{RES} & instrução que zera temporizador, contador ou palavra & entrada de reinício do bloco
+      (\texttt{RESET}) ou atribuição de valor inicial \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Como ler os exemplos}
+
+Cada caso traz três blocos:
+
+\begin{itemize}
+  \item \textbf{legado} --- na forma de mnemônicos, como o ambiente antigo exibe;
+  \item \textbf{Ladder IEC} --- os mesmos elementos gráficos, com os contatos, as bobinas e os blocos
+        que a norma define;
+  \item \textbf{texto estruturado} --- a mesma lógica em linguagem textual, que costuma ser o destino
+        mais útil da conversão.
+\end{itemize}
+
+Em Ladder, a convenção usada nos desenhos é: \texttt{] [} para contato normalmente aberto,
+\texttt{]/[} para contato normalmente fechado, \texttt{( )} para bobina simples, \texttt{(S)} para
+bobina de retenção e \texttt{(R)} para bobina de desretenção.
+
+\section{Casos de conversão}
+
+\subsection{Contato instantâneo, contato invertido e bobina}
+
+\begin{lstlisting}[language=, numbers=none, caption={Legado: mnemônicos de contato e bobina.}, label={lst:conv-contatos-legado}]
+; leitura da chave e acionamento da lampada
+XIC  chave1     ; contato NA: conduz se a entrada estiver energizada
+XIO  chave2     ; contato NF: conduz se a entrada estiver desenergizada
+OTE  lampada1   ; bobina simples
+\end{lstlisting}
+
+\begin{lstlisting}[language=, numbers=none, caption={Ladder conforme a norma: mesmos elementos, sem mnemônico proprietário.}, label={lst:conv-contatos-iec}]
+   chave1           chave2                 lampada1
+|----] [------+-------]/[---------------------( )-----|
+|  lampada1   |
+|----] [------+
+\end{lstlisting}
+
+\begin{lstlisting}[language=, caption={O mesmo trecho em texto estruturado.}, label={lst:conv-contatos-st}]
+(* Leitura: a bobina vale enquanto a condicao for verdadeira *)
+lampada1 := (chave1 OR lampada1) AND NOT chave2;
+\end{lstlisting}
+
+\paragraph{Observação.} Aqui a diferença é de nomenclatura, não de lógica. O contato NA, o contato NF
+e as bobinas são elementos da norma; o que o legado acrescenta são nomes de instrução para eles. O que
+muda de fato é a \emph{origem} do operando: no legado é um endereço de área de memória; na norma, um
+nome declarado pelo programador (Capítulo~\ref{cap:iec-versus-legado}).
+
+\subsection{Série e paralelo}
+
+\begin{lstlisting}[language=, numbers=none, caption={Legado: associação em série (E) e em paralelo (OU).}, label={lst:conv-serie-legado}]
+; serie = E logico: todos os contatos devem conduzir
+XIC chave1   XIC chave2   XIO chave3        OTE lampada1
+; paralelo = OU logico: basta um contato conduzir
+XIC chave1
+XIC chave2                                  OTE lampada2
+\end{lstlisting}
+
+\begin{lstlisting}[language=, caption={Os dois casos em texto estruturado.}, label={lst:conv-serie-st}]
+lampada1 := chave1 AND chave2 AND NOT chave3;
+lampada2 := chave1 OR chave2;
+\end{lstlisting}
+
+\paragraph{Observação.} Conversão direta. Vale registrar que a associação em Ladder e a expressão
+booleana em texto estruturado são a mesma coisa escrita de duas formas --- e que a expressão é mais
+fácil de revisar quando a condição cresce (Capítulo~\ref{cap:boas-praticas}).
+
+\subsection{Retenção de saída}
+
+\begin{lstlisting}[language=, numbers=none, caption={Legado: travamento e destravamento de saída.}, label={lst:conv-retencao-legado}]
+XIC  bt_liga        OTL lampada1     ; OTL energiza com retencao
+XIC  bt_desliga     OTU lampada1     ; OTU desenergiza com retencao
+\end{lstlisting}
+
+\begin{lstlisting}[language=, numbers=none, caption={Ladder conforme a norma: bobinas de retenção e de desretenção.}, label={lst:conv-retencao-iec}]
+   bt_liga                    lampada1
+|----] [----------------------(S)------|
+   bt_desliga                 lampada1
+|----] [----------------------(R)------|
+\end{lstlisting}
+
+\begin{lstlisting}[language=, caption={Retenção em texto estruturado, com ordem explícita.}, label={lst:conv-retencao-st}]
+IF bt_liga THEN
+    lampada1 := TRUE;
+END_IF;
+IF bt_desliga THEN
+    lampada1 := FALSE;
+END_IF;
+\end{lstlisting}
+
+\paragraph{Observação --- e este é o caso mais delicado do apêndice.} Se as duas condições forem
+verdadeiras na \emph{mesma} varredura, o resultado depende da \textbf{ordem} em que as instruções
+aparecem no programa. A norma define blocos de retenção com precedência declarada (\texttt{SR} e
+\texttt{RS}), justamente para eliminar essa ambiguidade. Ao converter, portanto, não basta trocar
+\texttt{OTL}/\texttt{OTU} por \texttt{S}/\texttt{R}: é preciso garantir que as condições sejam
+mutuamente exclusivas ou documentar, de forma explícita, qual delas deve vencer.
+
+\subsection{Detecção de borda e pulso único}
+
+\begin{lstlisting}[language=, numbers=none, caption={Legado: pulso único na subida e na descida.}, label={lst:conv-borda-legado}]
+XIC limit_switch_1  ONS storage_1      ; um pulso por subida
+XIC storage_1       ADD contador 1     ; incrementa uma unica vez
+XIC limit_switch_1  OSR output_bit_1  ; pulso na subida
+XIC limit_switch_1  OSF output_bit_2  ; pulso na descida
+\end{lstlisting}
+
+\begin{lstlisting}[language=, caption={Blocos de detecção de borda em texto estruturado.}, label={lst:conv-borda-st}]
+(* R_TRIG: borda de subida; F_TRIG: borda de descida *)
+trig_subida(CLK := limit_switch_1);
+IF trig_subida.Q THEN
+    contador := contador + 1;
+END_IF;
+
+trig_descida(CLK := limit_switch_1);
+pulso_descida := trig_descida.Q;
+\end{lstlisting}
+
+\paragraph{Observação.} No legado, o programador escolhe um endereço de armazenamento --- e reaproveitar
+esse endereço em duas linhas diferentes é uma fonte clássica de defeito difícil de achar. Na norma, o
+estado da borda vive dentro da instância do bloco, e cada uso tem a sua instância. Esta é uma conversão
+que \textbf{melhora} o programa original.
+
+\subsection{Temporização}
+
+\begin{lstlisting}[language=, numbers=none, caption={Legado: temporizador na energização e leitura dos bits de status.}, label={lst:conv-timer-legado}]
+XIC limit_switch_1   TON timer_1, 180   ; base em ms
+XIC timer_1.dn       OTE light_2        ; apos 180 ms
+XIC timer_1.tt       OTE light_3        ; enquanto cronometra
+XIC timer_1.acc      MOV N7:0           ; acumulado para N7:0
+\end{lstlisting}
+
+\begin{lstlisting}[language=, caption={Bloco de temporização padronizado, em texto estruturado.}, label={lst:conv-timer-st}]
+(* PT e ET sao duracoes tipadas; nada de base implicita *)
+temporizador(IN := limit_switch_1, PT := T#180ms);
+light_2 := temporizador.Q;
+light_3 := NOT temporizador.Q;
+tempo_acumulado := temporizador.ET;
+\end{lstlisting}
+
+\paragraph{Observação.} Três armadilhas:
+
+\begin{enumerate}
+  \item \textbf{base de tempo} --- no legado, o valor \texttt{180} vale o que a base daquele
+        temporizador disser; na norma, \texttt{T\#180ms} diz o tempo por extenso e não admite
+        ambiguidade. Converter o número sem conferir a base é o erro mais comum;
+  \item \textbf{retenção} --- temporizadores não retentivos perdem o acumulado quando a entrada
+        desliga; o padrão define blocos distintos para esse comportamento, e a escolha precisa ser
+        consciente;
+  \item \textbf{comparar tempo} --- ao comparar o tempo decorrido, use a mesma unidade nos dois lados
+        da expressão.
+\end{enumerate}
+
+\subsection{Contagem}
+
+\begin{lstlisting}[language=, numbers=none, caption={Legado: contador crescente, reinício e leitura do bit de conclusão.}, label={lst:conv-contador-legado}]
+XIC limit_switch_1   CTU conter_1, 10   ; valor de referencia 10
+XIC limit_switch_2   RES conter_1       ; zera o acumulado
+XIC conter_1.dn      OTE light_1        ; referencia atingida
+\end{lstlisting}
+
+\begin{lstlisting}[language=, caption={Contador padronizado, em texto estruturado.}, label={lst:conv-contador-st}]
+contador(CU := limit_switch_1, RESET := limit_switch_2, PV := 10);
+light_1 := contador.Q;
+valor_atual := contador.CV;
+\end{lstlisting}
+
+\paragraph{Observação.} No legado, o acumulado continua incrementando \emph{depois} de atingir o valor
+de referência, e o bit de conclusão permanece energizado até o reinício --- comportamento que vários
+programas antigos usam de propósito. Ao converter, confirme no ambiente de destino o que acontece com
+o valor acumulado após a referência ser atingida e depois do reinício; não presuma.
+
+\subsection{Comparação}
+
+\begin{lstlisting}[language=, numbers=none, caption={Legado: instruções de comparação.}, label={lst:conv-comparacao-legado}]
+EQU  valor_1  valor_2        OTE luz_a     ; igual
+NEQ  valor_1  valor_2        OTE luz_4     ; diferente
+LES  valor_1  valor_2        OTE luz_3     ; menor que
+GRT  valor_1  valor_2        OTE luz_1     ; maior que
+LEQ  valor_1  valor_2        OTE luz_2     ; menor ou igual
+GEQ  valor_1  valor_2        OTE luz_b     ; maior ou igual
+CMP  (valor_1*valor_2)-valor_3<valor_4    OTE luz_c   ; expressao
+\end{lstlisting}
+
+\begin{lstlisting}[language=, caption={As mesmas comparações como expressões.}, label={lst:conv-comparacao-st}]
+luz_a := (valor_1 =  valor_2);
+luz_4 := (valor_1 <> valor_2);
+luz_3 := (valor_1 <  valor_2);
+luz_1 := (valor_1 >  valor_2);
+luz_2 := (valor_1 <= valor_2);
+luz_b := (valor_1 >= valor_2);
+luz_c := ((valor_1 * valor_2) - valor_3) < valor_4;
+\end{lstlisting}
+
+\paragraph{Observação.} A instrução de expressão do legado desaparece na conversão: o mesmo resultado se
+obtém escrevendo a expressão diretamente, com parênteses. É uma das conversões em que o código de
+destino fica mais curto que o original.
+
+\subsection{Aritmética e funções}
+
+\begin{lstlisting}[language=, numbers=none, caption={Legado: instruções aritméticas com destino explícito.}, label={lst:conv-aritmetica-legado}]
+XIC condicao  ADD valor_1 valor_2 resultado
+XIC condicao  SUB valor_1 valor_2 resultado
+XIC condicao  MUL valor_1 valor_2 resultado
+XIC condicao  DIV valor_1 valor_2 resultado
+XIC condicao  MOD 10 3            resto
+XIC condicao  SQR valor_1         raiz
+XIC condicao  NEG valor_1         valor_negado
+XIC condicao  ABS valor_1         valor_absoluto
+XIC condicao  CPT (valor_1+valor_2)/2  media
+\end{lstlisting}
+
+\begin{lstlisting}[language=, caption={As mesmas operações como funções e expressões padronizadas.}, label={lst:conv-aritmetica-st}]
+(* Um comando por instrucao legada vira uma atribuicao *)
+resultado      := valor_1 + valor_2;
+resto          := 10 MOD 3;
+raiz           := SQRT(valor_1);
+valor_negado   := NEG(valor_1);
+valor_absoluto := ABS(valor_1);
+media          := (valor_1 + valor_2) / 2;
+\end{lstlisting}
+
+\paragraph{Observação.} Aqui aparece uma diferença que o legado esconde: \textbf{tipagem}. Em texto
+estruturado, o tipo de cada variável é declarado, e a divisão entre inteiros trunca o resultado. Se o
+projeto precisa de parte fracionária, a variável de destino tem de ser de tipo real e a conversão
+precisa ser explícita (Capítulo~\ref{cap:memoria}).
+
+\subsection{Operações bit a bit, cópia e zeragem}
+
+\begin{lstlisting}[language=, numbers=none, caption={Legado: lógica em palavra, cópia e zeragem.}, label={lst:conv-bits-legado}]
+XIC c   AND valor_1 valor_2 resultado
+XIC c   OR  valor_1 valor_2 resultado
+XIC c   XOR valor_1 valor_2 resultado
+XIC c   NOT valor_1         resultado
+XIC c   MOV valor_1         N7:0
+XIC c   CLR N7:0
+\end{lstlisting}
+
+\begin{lstlisting}[language=, caption={As mesmas operações, com os operadores da norma.}, label={lst:conv-bits-st}]
+(* Operadores bit a bit sobre bit strings *)
+resultado := valor_1 AND valor_2;
+resultado := valor_1 OR  valor_2;
+resultado := valor_1 XOR valor_2;
+resultado := NOT valor_1;
+
+(* Copia e zeragem viram atribuicao *)
+copia := valor_1;
+palavra := 0;          (* equivale a CLR *)
+\end{lstlisting}
+
+\paragraph{Observação.} Atenção ao duplo sentido dos operadores: \texttt{AND} e \texttt{OR} aplicados a
+variáveis booleanas são operadores lógicos; aplicados a palavras, são operações bit a bit. O símbolo é
+o mesmo; o tipo dos operandos é que decide. Programas legados frequentemente dependem disso sem
+documentar.
+
+\subsection{Deslocamento de bits}
+
+\begin{lstlisting}[language=, numbers=none, caption={Legado: deslocamento de registrador com comprimento e bit de saída.}, label={lst:conv-deslocamento-legado}]
+XIC c   BSL array_dint[0] input_1 10      ; desloca 10 bits a esquerda
+; array_dint[0].ul recebe o bit que saiu
+XIC c   BSR array_dint[0] input_1 10      ; desloca 10 bits a direita
+\end{lstlisting}
+
+\begin{lstlisting}[language=, caption={Deslocamento com os operadores da norma.}, label={lst:conv-deslocamento-st}]
+(* Leia o bit que vai sair ANTES de deslocar *)
+bit_saida := extrair_bit(array_dint, comprimento);
+
+(* Deslocamento sobre bit string *)
+deslocado := SHL(palavra, 1);
+deslocado := SHR(palavra, 1);
+\end{lstlisting}
+
+\paragraph{Observação.} Os operadores padronizados deslocam \emph{uma palavra}, com número de posições
+declarado; não existe parâmetro de comprimento nem bit de saída automático. Quando o projeto precisa
+do comportamento de registrador de deslocamento com comprimento variável --- o caso do ``bit que sai''
+---, ele tem de ser montado: extrair o bit antes de deslocar e descartar o que passa do comprimento.
+Esta é uma conversão que \textbf{não} é um para um.
+
+\subsection{Chamada de rotina}
+
+\begin{lstlisting}[language=, numbers=none, caption={Legado: salto para sub-rotina.}, label={lst:conv-chamada-legado}]
+XIC condicao    JSR rotina_2     ; executa a rotina e retorna
+\end{lstlisting}
+
+\begin{lstlisting}[language=, caption={Chamadas de POU conforme a norma.}, label={lst:conv-chamada-st}]
+(* Chamada de bloco de funcao, com interface declarada *)
+controlador_pid(SP := referencia, PV := medida, KP := 2.0, KI := 0.5);
+
+(* Chamada de funcao: devolve valor, sem estado interno *)
+media := MEDIA(valor_1, valor_2);
+
+(* Alternativa em Ladder: o nome da POU entra na propria linha *)
+(*   condicao ----[ ROTINA_B ]----                                 *)
+\end{lstlisting}
+
+\paragraph{Observação.} A sub-rotina do legado não tem interface declarada: ela recebe e devolve dados
+por variáveis compartilhadas, o que torna impossível saber, olhando a chamada, de que ela depende. A POU
+normatizada declara as suas entradas e saídas --- e é isso que permite reutilizá-la em outro programa
+(Seção~\ref{sec:tarefas} e Capítulo~\ref{cap:iec-versus-legado}).
+
+\section{O que não se converte mecanicamente}
+
+A Tabela~\ref{tab:nao-converte} reúne os pontos em que a conversão exige decisão de projeto. Ela é o
+orçamento real de uma migração.
+
+\begin{table}[H]
+  \centering
+  \caption{Pontos que exigem decisão na conversão, e o que verificar.}
+  \label{tab:nao-converte}
+  \begin{tabular}{p{3.4cm} p{5.4cm} p{5.5cm}}
+    \toprule
+    Ponto & Por que não converte sozinho & O que verificar \\
+    \midrule
+    Base de tempo dos temporizadores
+      & O valor numérico do legado depende de uma base implícita
+      & Conferir cada temporizador e escrever o tempo por extenso, com unidade \\
+    \addlinespace
+    Comportamento do contador após a referência
+      & O legado continua contando e mantém o bit de conclusão ativo
+      & Confirmar no ambiente de destino o que ocorre com o acumulado e com a saída de conclusão \\
+    \addlinespace
+    Detecção de borda com bit de armazenamento
+      & O bit é um endereço compartilhado, escolhido pelo programador
+      & Criar uma instância de bloco por uso e eliminar o endereço compartilhado \\
+    \addlinespace
+    Precedência entre retenção e desretenção
+      & Depende da ordem das instruções na varredura
+      & Garantir exclusividade mútua ou usar bloco com precedência declarada \\
+    \addlinespace
+    Deslocamento com comprimento e bit de saída
+      & Não há equivalente direto nos operadores padronizados
+      & Montar a função de registro de deslocamento de forma explícita e testá-la \\
+    \addlinespace
+    Endereçamento físico
+      & A norma não padroniza endereçamento de E/S
+      & Refazer a ligação entre cada variável e o ponto físico, ponto por ponto \\
+    \addlinespace
+    Blocos de sistema e de comunicação
+      & São próprios de cada ambiente
+      & Isolar em bloco de adaptação e testar antes de migrar o restante \\
+    \addlinespace
+    Tipos e conversões
+      & O legado converte implicitamente em vários casos; a norma pede tipo declarado
+      & Declarar tipos e tornar explícitas as conversões \\
+    \addlinespace
+    Primeira varredura e retomada
+      & Lógica que depende de inicialização pode não ter equivalente óbvio
+      & Tratar explicitamente a primeira varredura e a retomada após queda de energia
+        (Capítulo~\ref{cap:boas-praticas}) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Roteiro de conversão}
+
+A sequência abaixo evita o erro de começar pelo código:
+
+\begin{enumerate}
+  \item \textbf{inventarie} o que existe: quais programas, quais rotinas, quais blocos proprietários e
+        onde cada um é usado;
+  \item \textbf{identifique os blocos proprietários} e classifique-os em: tem equivalente
+        padronizado, precisa ser montado, ou é específico de sistema e não tem equivalente;
+  \item \textbf{documente o comportamento antes de mudar o código}: para cada rotina, escreva em texto
+        o que ela faz, com as condições de acionamento e de parada;
+  \item \textbf{reescreva em POU}, uma responsabilidade por unidade, com nome de processo;
+  \item \textbf{declare os tipos} e torne explícitas as conversões;
+  \item \textbf{teste em simulação} e depois em bancada, com o roteiro do
+        Capítulo~\ref{cap:simulacao}, antes de tocar a máquina;
+  \item \textbf{compare o comportamento} observado com o documentado no passo 3 --- diferença
+        encontrada aqui é conversão mal feita, não ``melhoria'';
+  \item \textbf{registre o que ficou pendente}, com o motivo, e guarde o mapa de conversão junto do
+        projeto.
+\end{enumerate}
+
+\begin{atencao}
+Conversão de programa em operação \textbf{não} é oportunidade de melhorar a lógica sem controle. Se o
+objetivo é migrar, o alvo é reproduzir o comportamento atual; qualquer melhoria entra depois, como
+alteração identificada, testada e registrada. Misturar as duas coisas produz um sistema que ninguém
+consegue comparar com o original.
+\end{atencao}
+
+\begin{pratica}
+Escolha um trecho de programa em dialeto de fabricante --- pode ser o do Capítulo~\ref{cap:iec-versus-legado}
+ou um da sua escola --- e execute o roteiro do capítulo:
+
+(a) documente em texto o que o trecho faz, antes de reescrever;
+(b) classifique cada instrução segundo a Tabela~\ref{tab:conversao} do Capítulo~\ref{cap:iec-versus-legado};
+(c) reescreva em Ladder conforme a norma e em texto estruturado;
+(d) preencha a Tabela~\ref{tab:nao-converte} apenas com os pontos que apareceram no seu trecho;
+(e) escreva um parágrafo de avaliação: quanto do trecho foi conversão mecânica e quanto exigiu
+decisão.
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Explique o que significa cada um destes itens no código legado: \texttt{.EN}, \texttt{.DN},
+        \texttt{.TT}, \texttt{.ACC}, \texttt{.PRE}, \texttt{.UL}.
+  \item Por que o bit de armazenamento da detecção de borda legada é uma fonte de defeito, e como a
+        norma elimina esse problema?
+  \item Reescreva em texto estruturado: \texttt{XIC chave1} em série com \texttt{XIO chave2},
+        acionando \texttt{OTE lampada1}.
+  \item Explique por que trocar \texttt{OTL}/\texttt{OTU} por bobinas \texttt{S}/\texttt{R} não é
+        suficiente em todos os casos.
+  \item Um temporizador legado está configurado com o valor \texttt{50} e base de 100\,ms. Quanto
+        tempo isso representa, e como se escreve esse tempo na forma padronizada?
+  \item O que pode acontecer com o acumulado de um contador convertido, se o comportamento após
+        atingir a referência não for conferido?
+  \item Descreva a conversão de \texttt{CMP} com a expressão \texttt{(valor\_1*valor\_2)-valor\_3 <
+        valor\_4}.
+  \item Por que a conversão do deslocamento de bits com comprimento e bit de saída não é um para um, e
+        o que é preciso montar?
+  \item Cite duas diferenças entre a sub-rotina do legado, chamada por \texttt{JSR}, e a POU
+        normatizada.
+  \item Escolha três linhas da Tabela~\ref{tab:nao-converte} e explique, para cada uma, que tipo de
+        teste detectaria o erro de conversão.
+  \item Por que a etapa de documentar o comportamento, no roteiro, vem \emph{antes} de reescrever o
+        código?
+  \item Um colega converteu o programa e aproveitou para ``corrigir'' um temporizador que considerou
+        longo demais. Explique por que essa decisão é um problema e como deveria ter sido tratada.
+  \item Escreva, em cinco linhas, a diferença entre o que este apêndice ensina e o que ele
+        deliberadamente não ensina.
+\end{enumerate}
+\end{exercicios}

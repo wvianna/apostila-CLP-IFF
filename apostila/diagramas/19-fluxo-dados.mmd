@@ -1,0 +1,7 @@
+flowchart TB
+  S["Sensor e atuador"] --> CLP["CLP: leitura rápida<br/>e intertravamento"]
+  CLP -->|"dado bruto"| EDGE["Borda: filtro, acumulação<br/>e contexto"]
+  EDGE --> SRV["Histórico e supervisão"]
+  SRV --> IND["Indicadores: OEE,<br/>disponibilidade e consumo"]
+  IND --> DEC["Decisão: manutenção<br/>e ajuste de processo"]
+  DEC -.->|"nova referência de operação"| CLP

@@ -1,0 +1,204 @@
+\chapter{Boas práticas e padronização de código}
+\label{cap:boas-praticas}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item aplicar uma convenção de nomes de variáveis e tags;
+  \item estruturar o programa por área e por responsabilidade;
+  \item situar os requisitos de segurança antes da lógica de funcionamento;
+  \item reduzir o tempo de varredura sem sacrificar legibilidade;
+  \item revisar um programa com um checklist objetivo.
+\end{itemize}
+\end{objetivos}
+
+\section{Por que padronizar}
+
+Um programa de CLP é lido muito mais vezes do que é escrito. Ele é lido na partida, no turno,
+na manutenção corretiva e, anos depois, por quem não participou do projeto. Padronizar é reduzir o
+tempo que cada uma dessas pessoas gasta para entender o que está escrito --- e é o que separa um
+programa que funciona de um programa que \emph{continua} funcionando.
+
+\index{boas práticas de programação}
+
+\section{Convenção de nomes}
+
+Regras mínimas, que valem mais do que qualquer padrão sofisticado:
+
+\begin{enumerate}
+  \item \textbf{nome pelo significado do processo}, não pelo endereço: \texttt{Bomba\_Agua\_Liga} e
+        não \texttt{DO12};
+  \item \textbf{prefixo por tipo de ponto}: evita confundir entrada, saída, bit interno e variável
+        analógica;
+  \item \textbf{sem acento e sem caractere especial}: o nome vai circular entre sistemas, planilhas e
+        documentação;
+  \item \textbf{verbo para comando, substantivo para estado}: \texttt{Liga}, \texttt{Desliga},
+        \texttt{Em\_Operacao}, \texttt{Falha};
+  \item \textbf{um nome por conceito}: se o mesmo sinal aparece com dois nomes no programa, alguém vai
+        errar;
+  \item \textbf{prefixo de área}: em planta com várias áreas, o nome começa pela área
+        (\texttt{ENV\_} para envase, \texttt{PRE\_} para prensa).
+\end{enumerate}
+
+\begin{table}[H]
+  \centering
+  \caption{Prefixos sugeridos por tipo de ponto.}
+  \label{tab:prefixos}
+  \begin{tabular}{l l l}
+    \toprule
+    Prefixo & Tipo & Exemplo \\
+    \midrule
+    \texttt{DI\_} & entrada digital & \texttt{DI\_Porta\_Fechada} \\
+    \texttt{AI\_} & entrada analógica & \texttt{AI\_Nivel\_Tanque} \\
+    \texttt{DO\_} & saída digital & \texttt{DO\_Bomba\_Liga} \\
+    \texttt{AO\_} & saída analógica & \texttt{AO\_Valvula\_Posicao} \\
+    \texttt{B\_}  & bit interno / auxiliar & \texttt{B\_Ciclo\_Iniciado} \\
+    \texttt{T\_}  & temporizador & \texttt{T\_Partida\_Bomba} \\
+    \texttt{C\_}  & contador & \texttt{C\_Pecas\_Turno} \\
+    \texttt{V\_}  & variável de cálculo & \texttt{V\_Vazao\_Filtrada} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Requisitos antes da lógica}
+
+O desenvolvimento de qualquer sistema --- independentemente da técnica --- exige primeiro conhecer a
+tecnologia, as possibilidades de ligação e as características dos elementos. E exige reconhecer que
+equipamentos podem causar danos ao processo por defeito de peças, erro de programação ou erro de
+instalação, podendo colocar vidas em risco.
+
+Por isso, todo projeto deve ser conduzido de modo a atender, nesta ordem de prioridade:
+
+\begin{enumerate}
+  \item \textbf{segurança de pessoas};
+  \item \textbf{segurança da instalação};
+  \item \textbf{garantia de funcionamento};
+  \item \textbf{facilidade de manutenção};
+  \item \textbf{facilidade de operação};
+  \item \textbf{custo}.
+\end{enumerate}
+
+Custo é o último critério, e essa ordem não é retórica: um projeto mais barato que falha no item 1 ou
+2 não é um projeto viável.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{14-fluxo-desenvolvimento.pdf}
+  \caption{Fluxo de elaboração do programa, dos requisitos à liberação para uso.}
+  \label{fig:fluxo-desenvolvimento}
+\end{figure}
+
+Depois do ciclo básico esquematizado, entram as \emph{condições marginais} de funcionamento e
+segurança: ciclo único ou contínuo; partida e parada; manual e automático; parada de emergência e
+desbloqueio.
+
+\section{Segurança dentro da lógica --- e fora dela}
+
+A lógica programada deve implementar intertravamento, condição de falha segura e tratamento de falha.
+Mas há um limite, e ele precisa estar claro para todo aluno:
+
+\begin{table}[H]
+  \centering
+  \caption{O que pertence à lógica programada e o que não pertence.}
+  \label{tab:limite-seguranca}
+  \begin{tabular}{p{6.4cm} p{8.2cm}}
+    \toprule
+    Pode ser resolvido no programa & \textbf{Não} pode depender apenas do programa \\
+    \midrule
+    Intertravamento de processo: só abre a válvula se a pressão estiver abaixo do limite
+      & Parada de emergência de pessoa: exige circuito de segurança dedicado ou controlador de
+        segurança certificado \\
+    Sequência de partida e de parada com verificação de condições
+      & Detecção de presença em zona de risco: exige dispositivo de segurança (cortina de luz,
+        relé de segurança) \\
+    Diagnóstico, alarme e registro de falha
+      & Proteção contra falha do próprio controlador (o programa não pode detectar sua própria
+        ausência de execução) \\
+    Retomada segura após falta de energia
+      & Bloqueio de energização: exige meios externos ao software \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{atencao}
+Programa não é dispositivo de segurança. Uma lógica de emergência escrita em CLP comum, por mais
+cuidadosa que seja, não cumpre função de segurança: se o controlador travar, a lógica de emergência
+também trava. Use controlador de segurança ou circuito dedicado --- e trate isso na especificação
+(Capítulo~\ref{cap:porte}), não na programação.
+\end{atencao}
+
+\section{Eficiência do ciclo de varredura}
+
+O tempo de varredura depende do tamanho do programa e da quantidade de pontos
+(Capítulo~\ref{cap:funcionamento}). Para reduzir sem perder clareza:
+
+\begin{itemize}
+  \item \textbf{use tarefas}: o que precisa ser rápido roda em tarefa periódica curta; diagnóstico e
+        relatório ficam em tarefa lenta;
+  \item \textbf{evite laços longos} dentro do ciclo: processamento pesado deve ir para tarefa
+        própria, com período maior;
+  \item \textbf{não duplique lógica}: cada regra existe uma vez e é chamada de onde for preciso;
+  \item \textbf{cuidado com a comunicação} dentro do ciclo: troca de dados pela rede é justamente o
+        que o \emph{watchdog} vigia;
+  \item \textbf{meça, não estime}: comissione lendo o tempo de ciclo real, não o calculado.
+\end{itemize}
+
+\section{Checklist de revisão de código}
+
+Use esta lista antes de liberar qualquer programa --- inclusive o do seu trabalho de conclusão.
+
+\begin{table}[H]
+  \centering
+  \caption{Checklist de revisão.}
+  \label{tab:checklist-codigo}
+  \begin{tabular}{p{0.9cm} p{13.7cm}}
+    \toprule
+    \# & Verificação \\
+    \midrule
+    1 & Todos os nomes seguem a convenção e descrevem o processo \\
+    2 & Cada POU tem uma responsabilidade única e um cabeçalho de documentação
+        (Capítulo~\ref{cap:documentacao}) \\
+    3 & Não há lógica duplicada em pontos diferentes do programa \\
+    4 & Temporizadores e contadores têm instância única e base de tempo declarada \\
+    5 & Variáveis que devem sobreviver à falta de energia estão declaradas como retentivas \\
+    6 & Não há uso de escrita direta de E/S que contorne a memória imagem sem justificativa registrada \\
+    7 & Condições de partida e de parada estão implementadas conforme o descritivo operacional \\
+    8 & Intertravamentos e limites estão presentes e testados \\
+    9 & O programa trata a primeira varredura e a retomada após falta de energia \\
+    10 & Falha de sensor e de comunicação tem comportamento definido (e seguro) \\
+    11 & O tempo de ciclo medido atende ao requisito do processo \\
+    12 & Não há força (\emph{force}) ativa em saída \\
+    13 & O programa foi testado conforme o roteiro do Capítulo~\ref{cap:simulacao} \\
+    14 & A revisão final foi feita por alguém que não escreveu o código \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+O item 14 é o mais ignorado e o mais barato. Quem escreveu não enxerga o próprio pressuposto errado;
+outra pessoa enxerga em minutos.
+
+\begin{pratica}
+Pegue um programa de exercício seu e aplique o checklist da Tabela~\ref{tab:checklist-codigo}.
+Depois:
+(a) reescreva os nomes de todas as variáveis segundo a Tabela~\ref{tab:prefixos};
+(b) identifique qualquer lógica duplicada e transforme em bloco de função reutilizável;
+(c) registre quantos itens falharam e o que isso significa para quem herdar o programa.
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Explique, com um exemplo, por que nomear variável pelo endereço físico cria problema na
+        manutenção.
+  \item Ordene, do mais para o menos prioritário, os seis requisitos de projeto e justifique as duas
+        primeiras posições.
+  \item Dê um exemplo de intertravamento que pode ficar no programa e um que \emph{não} pode.
+        Explique a diferença.
+  \item Um programa tem tempo de varredura alto. Cite três providências de projeto que reduzem o
+        tempo sem cortar funcionalidade.
+  \item Explique por que ``força'' ativa em saída é um risco e como evitá-lo.
+  \item Escolha três itens do checklist e descreva o defeito concreto que cada um previne.
+  \item Por que a revisão por outra pessoa encontra erros que o autor não encontra?
+  \item Cite uma prática de padronização que reduz custo de migração de fabricante
+        (Capítulo~\ref{cap:iec-versus-legado}) e uma que reduz custo de manutenção.
+\end{enumerate}
+\end{exercicios}

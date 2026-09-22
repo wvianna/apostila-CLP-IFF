@@ -1,0 +1,219 @@
+\chapter{Princípio de funcionamento, ciclos e estados de operação}
+\label{cap:funcionamento}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item descrever as três etapas do ciclo de varredura;
+  \item explicar o que é tempo de varredura e quais fatores o afetam;
+  \item justificar o \emph{watchdog} e reconhecer a falha que ele sinaliza;
+  \item diferenciar processamento cíclico, por interrupção, por tempo e por evento;
+  \item interpretar o estado dos pontos nas imagens de entrada e de saída;
+  \item distinguir os estados de operação do controlador.
+\end{itemize}
+\end{objetivos}
+
+\section{O ciclo de varredura}
+
+O controlador funciona como um microcomputador dedicado, executando continuamente ciclos de varredura.
+O ciclo se divide em três etapas:
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.86\linewidth]{09-ciclo-varredura.pdf}
+  \caption{As três etapas do ciclo de varredura e a supervisão de tempo.}
+  \label{fig:ciclo-varredura}
+\end{figure}
+
+\begin{enumerate}
+  \item \textbf{Entrada} --- os dados dos sensores e transdutores são lidos e armazenados na
+        \emph{memória imagem das entradas};
+  \item \textbf{Processamento} --- o programa do usuário é executado sobre esse conteúdo;
+  \item \textbf{Saída} --- os resultados são gravados na \emph{memória imagem das saídas} e depois
+        transferidos aos cartões de saída, que acionam os atuadores.
+\end{enumerate}
+
+O ciclo completo é chamado de \emph{scan}, varredura ou \emph{loop}. O tempo para percorrê-lo é o
+\textbf{tempo de varredura} (ou tempo de \emph{scan}), e depende de dois fatores: o tamanho do
+programa do usuário e a quantidade de pontos de entrada e saída. Valores típicos são da ordem de
+poucos milissegundos; com a eletrônica embarcada atual, controladores rápidos chegam a dezenas de
+microssegundos para programas pequenos.
+
+\index{ciclo de varredura}\index{tempo de varredura}\index{memória imagem}
+
+\section{Por que o tempo de varredura importa}
+
+Se o tempo de varredura é maior que a duração de um pulso de entrada, o pulso pode ser perdido: a
+entrada vai de 0 para 1 e volta a 0 enquanto o controlador ainda está processando, e nenhum ciclo
+chega a ler esse estado. Se a informação de entrada se perde, a saída correspondente não é gerada.
+
+\paragraph{Exemplo numérico.} Um sensor de fim de curso gera um pulso de 5\,ms na passagem da peça.
+Com tempo de varredura de 20\,ms, existe chance real de o pulso cair entre duas leituras e
+simplesmente não ser visto. Duas soluções possíveis: aumentar a velocidade de processamento
+(controlador mais rápido ou programa mais enxuto) ou usar cartão de \emph{contagem rápida} ou entrada
+com interrupção, que captura o evento fora do ciclo --- o assunto da Seção seguinte.
+
+Por isso o tempo de varredura é critério de escolha do controlador (Capítulo~\ref{cap:porte}) e
+critério de revisão do programa (Capítulo~\ref{cap:boas-praticas}).
+
+\subsection{Watchdog}
+
+Para evitar comportamento indefinido quando o processamento se estende além do previsto, existe um
+temporizador de supervisão, o \emph{watchdog time}. Ele supervisiona o tempo de processamento;
+ultrapassado o valor máximo --- tipicamente algo em torno de 150\,ms, mas definido por fabricante ---
+o funcionamento da CPU é interrompido imediatamente, o controlador assume estado de erro e sinaliza a
+falha de forma visual e, às vezes, sonora.
+
+\begin{atencao}
+Um controle que reinicia no meio da produção não é um defeito misterioso: é frequentemente watchdog
+disparado. As causas mais comuns são laço de programa mal construído, temporização muito longa e
+programa grande demais para o tempo configurado. A primeira providência é ler o diagnóstico do
+controlador, não reiniciar o equipamento até o problema voltar.
+\end{atencao}
+
+\section{Rotina de inicialização}
+
+Ao ser energizado no estado de execução, o controlador cumpre uma rotina gravada em seu sistema
+operacional antes de entrar no ciclo:
+
+\begin{enumerate}
+  \item limpeza da memória imagem;
+  \item teste da memória RAM;
+  \item verificação da possibilidade de executar o programa gravado.
+\end{enumerate}
+
+Só depois disso a CPU passa a varrer as instruções em laço, indefinidamente.
+
+\section{Modos de processamento}
+
+Além do modo cíclico, existem três modos que atendem situações em que o ciclo normal não é adequado:
+
+\begin{table}[H]
+  \centering
+  \caption{Modos de processamento do programa.}
+  \label{tab:modos-processamento}
+  \begin{tabular}{p{3.2cm} p{6.2cm} p{5.2cm}}
+    \toprule
+    Modo & Como funciona & Quando é necessário \\
+    \midrule
+    Cíclico
+      & As instruções são lidas sequencialmente do início ao fim e o ciclo recomeça
+      & Modo predominante em praticamente todas as CPUs \\
+    Por interrupção
+      & Ao reconhecer uma ocorrência prioritária, a CPU interrompe o ciclo e executa uma rotina de
+interrupção; ao terminar, retoma o ponto onde parou
+      & Eventos que não podem esperar o ciclo completo, como emergência ou captura de pulso \\
+    Comandado por tempo
+      & Trechos do programa são executados em intervalos regulares de tempo, dentro do ciclo normal
+      & Controle com amostragem periódica fixa, na ordem de milissegundos \\
+    Por evento
+      & O programa reage a eventos específicos: retorno de energia, falha de bateria em controlador
+legado e estouro do tempo de supervisão do ciclo
+      & Procedimentos de inicialização, diagnósticos e resposta a falha \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+A distinção tem consequência prática: lógica de segurança ou de captura de evento rápido não deve ser
+resolvida no modo cíclico comum.
+
+\section{As imagens de entrada e de saída}
+
+Durante o ciclo, a comunicação com o campo acontece pela memória imagem. Um exemplo mostra por que
+isso é importante para ler o programa de outra pessoa.
+
+Considere um trecho de Ladder com um contato NA da entrada \texttt{IN00} em série com um contato NF da
+entrada \texttt{IN02}, acionando a saída \texttt{OUT05}. No instante analisado, \texttt{IN00} está
+acionada (nível lógico 1) e \texttt{IN02} está desativada (nível lógico 0).
+
+\begin{table}[H]
+  \centering
+  \caption{Estado dos pontos no instante analisado e resultado do processamento.}
+  \label{tab:imagem-es}
+  \begin{tabular}{l c c l}
+    \toprule
+    Ponto & Estado de campo & Bit na imagem & Efeito no programa \\
+    \midrule
+    IN00 & contato fechado & 1 & contato NA conduz \\
+    IN01 & contato aberto  & 0 & --- \\
+    IN02 & contato aberto  & 0 & contato NF conduz (lógica de negação) \\
+    \midrule
+    OUT05 & --- & 1 & saída acionada \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Em lógica combinacional, o que o programa implementa é:
+
+$$
+\texttt{OUT05} = \texttt{IN00} \cdot \overline{\texttt{IN02}}
+$$
+
+A saída é acionada quando o nível das \emph{imagens} obedece a essa relação. Note o ponto que costuma
+confundir: o bit da imagem depende de o ponto estar energizado, e não de o contato de campo ser NA ou
+NF. Um contato NF de campo energizado resulta em bit 1; a inversão que se vê no programa vem do tipo
+de contato usado na lógica, não do campo.
+
+\begin{pratica}
+Usando um simulador de CLP ou a função de simulação do \emph{software} de programação:
+(a) monte o trecho do exemplo e force \texttt{IN00} e \texttt{IN02} para reproduzir a
+Tabela~\ref{tab:imagem-es};
+(b) monte uma tabela-verdade completa com as quatro combinações de \texttt{IN00} e \texttt{IN02} e
+confira com a expressão;
+(c) troque o contato NF por um NA e explique, por escrito, em que situação a saída passa a se comportar
+de forma perigosa.
+\end{pratica}
+
+\section{Estados de operação}
+
+A UCP pode assumir um estado de erro e dois estados de programação:
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{09-estados.pdf}
+  \caption{Estados de operação do controlador e transições.}
+  \label{fig:estados}
+\end{figure}
+
+\paragraph{Programação (STOP).} O controlador não executa o programa e não assume nenhuma lógica de
+controle. Fica pronto para ser configurado, receber programa novo ou ser modificado. A programação
+feita nesse estado é chamada \emph{off-line}.
+
+\paragraph{Execução (RUN).} O controlador executa o programa do usuário. Em alguns controladores é
+possível alterar o programa com ele em execução --- programação \emph{on-line}. Quando a lógica
+modificada é enviada, o novo programa entra em operação sem que o estado mude e sem interromper o
+ciclo.
+
+\paragraph{Erro.} Estado que aponta falha de operação ou de execução do programa.
+
+\subsection{Auto-teste e proteção de dados}
+
+A cada inicialização de ciclo o controlador executa um auto-teste do circuito interno; se houver
+falha --- memória ou microprocessador, por exemplo --- um sinal de alarme é emitido. Em caso de falta
+de energia, as memórias são alimentadas automaticamente pelo sistema por baterias de reserva, para
+evitar perda de dados.
+
+\begin{atencao}
+Programação \emph{on-line} é recurso poderoso e perigoso. Alterar lógica com a máquina produzindo
+exige: autorização formal, procedimento de bloqueio quando o trecho for de segurança, e registro da
+alteração feita. Sem isso, o próximo mantenedor não saberá qual programa está efetivamente na
+memória --- exatamente o problema que o Capítulo~\ref{cap:documentacao} trata.
+\end{atencao}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Descreva as três etapas do ciclo de varredura indicando, em cada uma, onde o dado está
+        armazenado.
+  \item Um programa tem tempo de varredura de 30\,ms e precisa detectar um pulso de 8\,ms. Que
+        soluções existem, e qual delas não exige trocar o controlador?
+  \item Explique a função do \emph{watchdog} e o que o operador deve fazer quando ele dispara.
+  \item Por que o watchdog é classificado como processamento por evento?
+  \item Calcule o valor de \texttt{OUT05} para as quatro combinações de \texttt{IN00} e
+        \texttt{IN02} e monte a tabela-verdade.
+  \item Um técnico afirma: ``o contato NF de campo apareceu como bit 1, então o programa está
+        errado''. Corrija a afirmação.
+  \item Explique a diferença entre programação \emph{off-line} e \emph{on-line}, e uma consequência
+        de controle de qualidade de cada uma.
+  \item Por que o auto-teste de RAM acontece antes do ciclo, e não durante?
+\end{enumerate}
+\end{exercicios}

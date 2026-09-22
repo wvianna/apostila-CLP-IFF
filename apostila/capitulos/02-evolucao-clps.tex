@@ -1,0 +1,206 @@
+\chapter{Evolução dos CLPs}
+\label{cap:evolucao}
+
+\begin{objetivos}
+Ao final deste capítulo você deve ser capaz de:
+\begin{itemize}
+  \item descrever o problema industrial que deu origem ao CLP;
+  \item situar no tempo as gerações de controladores e o que mudou em cada uma;
+  \item diferenciar CLP, PAC, controlador de segurança e controlador virtual;
+  \item reconhecer o que permaneceu igual desde 1969 e por quê.
+\end{itemize}
+\end{objetivos}
+
+\section{Antes do CLP: a lógica fiada}
+
+O controle de máquinas nasceu eletromecânico. Relés, contatos, bobinas e temporizadores de motor
+síncrono executavam a sequência, e a lógica estava fisicamente desenhada na fiação. Funcionava
+bem --- mas cobrava um preço alto a cada mudança:
+
+\begin{itemize}
+  \item mau contato e desgaste mecânico dos contatos, com falhas intermitentes;
+  \item instalação de um número enorme de relés, com fiação ponto a ponto entre centenas de
+        terminais;
+  \item dificuldade de alterar a sequência, que exigia redesenhar e refazer o painel;
+  \item manutenção periódica obrigatória e paradas recorrentes.
+\end{itemize}
+
+Mudar a lógica de uma linha de montagem significava parar a produção e trocar os quadros
+elétricos. Era gasto de tempo e de dinheiro em uma escala que a indústria automobilística não
+podia mais aceitar.
+
+\index{relé!painel de comando}\index{lógica fiada}
+
+\section{1968--1969: a especificação da GM e o primeiro CLP}
+
+Em \textbf{1968}, a divisão \emph{Hydramatic} da General Motors --- responsável pelas transmissões
+automáticas --- publicou uma especificação para um substituto eletrônico dos painéis de relé. A
+especificação nasceu de um documento do engenheiro Edward R. Clark e refletia a insatisfação de
+muitos usuários de relés, dentro e fora da indústria automobilística. Na época, a liderança do
+grupo ficou associada ao engenheiro \textbf{Richard ``Dick'' Morley}, hoje considerado o pai do CLP.
+
+A proposta vencedora foi da \textbf{Bedford Associates}, de Bedford, Massachusetts. O equipamento
+ficou pronto em \textbf{1969} e recebeu a designação \textbf{084}, porque era o octogésimo quarto
+projeto da empresa. A Bedford criou em seguida a \textbf{Modicon}, dedicada a fabricar e vender o
+produto --- o nome vinha de \emph{modular digital controller}. Em paralelo, a Allen-Bradley
+desenvolvia sua própria linha, e o engenheiro Odo J. Struger ficou conhecido por cunhar a sigla
+\emph{PLC} para distinguir o controlador do ``PC'' (\emph{personal computer}).\footnote{Fatos
+históricos conferidos em Laughton \& Warne (2002) e Dunn (2009), reunidos em
+\url{https://en.wikipedia.org/wiki/Programmable_logic_controller} (consulta em 22/09/2026).}
+
+A Modicon criou também o \textbf{Modbus}, protocolo que se tornaria padrão aberto
+(Capítulo~\ref{cap:redes-scada}).
+
+\section{Os dez requisitos da especificação original}
+
+A especificação de 1968 é um excelente roteiro de projeto porque continua atual. O novo
+equipamento deveria:
+
+\begin{table}[H]
+  \centering
+  \caption{Requisitos da especificação original, reescritos e ainda válidos.}
+  \label{tab:requisitos-originais}
+  \begin{tabular}{p{0.9cm} p{6.0cm} p{7.4cm}}
+    \toprule
+    \# & Requisito original & Leitura atual \\
+    \midrule
+    1 & Facilidade de programar e de alterar o programa, inclusive na estação de trabalho
+      & Programação em campo, com o processo rodando, e alteração sem refazer painel \\
+    2 & Manutenção fácil, de preferência com unidades \emph{plug-in}
+      & Módulos plug-in e troca a quente \\
+    3 & Confiabilidade superior à do painel de relés
+      & É a razão de existir do CLP: ambiente industrial, imunidade a ruído, diagnóstico \\
+    4 & Mais compacto que o painel de relés
+      & Densidade de pontos por módulo e por rack \\
+    5 & Envio direto de dados à unidade central de processamento
+      & O embrião do que hoje é a integração com SCADA e IIoT (Capítulos~\ref{cap:iiot}--\ref{cap:dados}) \\
+    6 & Custo competitivo frente ao painel de relés
+      & Justificativa econômica do projeto; hoje inclui custo de ciclo de vida \\
+    7 & Aceitar entradas em 115\,V CA
+      & Compatibilidade com o sinal de campo da instalação: 24\,V CC e 4--20\,mA hoje \\
+    8 & Fornecer saídas em 115\,V CA acima de 2\,A, capazes de acionar válvulas e partidas de motor
+      & Acionamento direto de cargas com a saída discreta \\
+    9 & Permitir ampliação do sistema com o mínimo de alteração
+      & Arquitetura modular e expansão por módulos e remotas \\
+    10 & Ser programável por pessoal de manutenção, não só por especialistas
+      & Linguagem gráfica próxima do esquema elétrico: a razão do sucesso do Ladder \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Gerações: o que mudou em cada salto}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{02-linha-do-tempo.pdf}
+  \caption{Linha do tempo da evolução dos controladores industriais.}
+  \label{fig:linha-do-tempo}
+\end{figure}
+
+\begin{table}[H]
+  \centering
+  \caption{Gerações de controladores e o que mudou em cada uma.}
+  \label{tab:geracoes}
+  \begin{tabular}{p{2.1cm} p{4.1cm} p{4.1cm} p{4.3cm}}
+    \toprule
+    Período & Programação & Hardware e memória & Limitação da época \\
+    \midrule
+    1969--1975 & Terminal dedicado, lógica booleana, sem representação gráfica; depois Ladder
+      & Memória de núcleo magnético, componentes discretos; programa em fita cassete
+      & Sem padronização; pouca capacidade de documentação e impressão \\
+    1975--1985 & Ladder consolidado como linguagem de campo
+      & Microprocessador substitui a lógica discreta; memória semicondutora
+      & Redes proprietárias e fechadas; endereçamento específico de cada fabricante \\
+    1985--1995 & Primeiros softwares de programação em PC; sub-rotinas
+      & CLP modular em rack, maior densidade de pontos
+      & Programas presos ao fabricante; troca de marca exigia reescrever tudo \\
+    1995--2005 & Padronização das linguagens pela IEC 61131-3
+      & Barramentos de campo, I/O remoto, CPUs mais rápidas
+      & Portabilidade ainda parcial: endereçamento e blocos de sistema continuam proprietários \\
+    2005--2015 & Ambiente integrado de projeto, simulação e versionamento
+      & Ethernet industrial, controle distribuído, redundância
+      & Integração com a rede corporativa traz o problema de segurança cibernética \\
+    2015--2026 & Padrões de modelagem de informação (OPC UA) e integração com software livre
+      & Borda (\emph{edge}), virtualização e controladores baseados em Linux
+      & Determinismo \emph{versus} flexibilidade; certificação e atualização de software \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{CLP, PAC, controlador de segurança e controlador virtual}
+
+O termo ``CLP'' virou guarda-chuva. Vale separar as categorias
+(Tabela~\ref{tab:categorias-controladores}).
+
+\begin{table}[H]
+  \centering
+  \caption{Categorias de controlador que convivem em uma planta hoje.}
+  \label{tab:categorias-controladores}
+  \begin{tabular}{p{3.4cm} p{6.4cm} p{4.8cm}}
+    \toprule
+    Categoria & Característica central & Onde aparece \\
+    \midrule
+    CLP clássico
+      & Lógica discreta e sequencial com ciclo de varredura determinístico; Ladder como linguagem natural
+      & Máquinas, linhas de montagem, utilidades \\
+    PAC (\emph{programmable automation controller})
+      & Mesma base do CLP, com mais memória e processamento, multitarefa real, tipagem forte e forte
+        integração em rede
+      & Processos que misturam lógica, movimento e malhas PID \\
+    Controlador de segurança
+      & Adequado a funções críticas de segurança, com nível de integridade (SIL) e conjunto de
+        instruções específico para parada de emergência e cortinas de luz
+      & Zonas de risco, células robotizadas \\
+    CLP virtual ou \emph{soft PLC}
+      & Função de controlador executada em hardware de propósito geral, em máquina virtual ou
+        contêiner
+      & Simulação, ensino, controle remoto, arquiteturas em nuvem \\
+    RTU (\emph{remote terminal unit})
+      & Controlador rústico, de baixo consumo, cuja função principal é gerir o enlace de
+        comunicação, com carimbo de tempo dos eventos
+      & Sistemas a distância: saneamento, energia, dutos \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{atencao}
+Controlador de segurança não é ``um CLP mais caro''. É um equipamento certificado para uma função
+de segurança, com arquitetura e diagnóstico próprios. Lógica de segurança implementada em CLP
+comum, sem certificação, \textbf{não} cumpre função de segurança.
+\end{atencao}
+
+\section{O que não mudou}
+
+Apesar de meio século de evolução, três decisões de 1969 continuam governando o projeto de
+qualquer controlador atual:
+
+\begin{enumerate}
+  \item \textbf{o ciclo de varredura} --- ler entradas, processar, escrever saídas, repetir;
+  \item \textbf{a linguagem gráfica próxima do esquema elétrico}, que sobreviveu como Ladder
+        justamente por ser legível para quem vem do comando elétrico;
+  \item \textbf{o foco em diagnóstico} --- sinalizar estado e falha, que era o requisito 3 e segue
+        sendo o principal diferencial entre um controlador industrial e um computador comum.
+\end{enumerate}
+
+\begin{pratica}
+Compare um CLP antigo ainda em operação na sua região (ou a documentação dele) com um controlador
+atual. Monte uma tabela com três colunas: \emph{o que era}, \emph{o que é hoje} e \emph{o que
+continua igual}. Use a Tabela~\ref{tab:geracoes} como ponto de partida, mas registre o que
+encontrar de concreto.
+\end{pratica}
+
+\begin{exercicios}
+\begin{enumerate}[label=\alph*)]
+  \item Por que a indústria automobilística, e não a química ou a de energia, foi a primeira a
+        exigir o controlador programável? Relacione a resposta com a frequência de mudança do
+        processo.
+  \item Escolha três dos dez requisitos da Tabela~\ref{tab:requisitos-originais} e mostre como cada
+        um é atendido por um CLP atual.
+  \item Explique a diferença entre CLP e PAC sem usar a palavra ``potência''.
+  \item Um colega propõe usar um CLP comum, com lógica cuidadosamente escrita, para substituir um
+        relé de segurança de uma prensa. Escreva a resposta técnica, em cinco linhas, explicando
+        por que a proposta não é aceitável.
+  \item Explique o que um CLP virtual permite fazer que o hardware físico não permite, e qual
+        problema ele \emph{não} resolve.
+\end{enumerate}
+\end{exercicios}

@@ -1,0 +1,12 @@
+flowchart LR
+  subgraph E1["Do programa ao simulado"]
+    direction TB
+    A["1. Revisão de lógica<br/>leitura crítica do programa"] --> B["2. Simulação de E/S<br/>no ambiente de programação"]
+    B --> C["3. Controlador virtual<br/>programa em hardware de propósito geral"]
+  end
+  subgraph E2["Do simulado à máquina"]
+    direction TB
+    D["4. Teste com E/S simulada<br/>bancada com chaves e lâmpadas"] --> E["5. HIL: hardware-in-the-loop<br/>controlador real com planta simulada"]
+    E --> F["6. Comissionamento com dry-run<br/>máquina energizada sem produção"]
+  end
+  E1 -->|"cada degrau acrescenta realismo"| E2
