@@ -1,0 +1,170 @@
+\documentclass[border=6pt]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage[brazil]{babel}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,patterns,decorations.markings}
+
+\begin{document}
+\begin{tikzpicture}[
+  line width=0.8pt, font=\sffamily,
+  fio/.style={line width=1pt},
+  corrente/.style={red!75!black, line width=0.9pt, -{Stealth[length=2.2mm]}},
+  borne/.style={fill=gray!25, draw=black},
+  led/.style={circle, draw, minimum size=2.6mm, inner sep=0pt},
+]
+
+% ================= Trilho DIN =================
+\fill[pattern=north east lines, pattern color=gray!60] (-0.4,-0.40) rectangle (8.8,-0.12);
+\draw (-0.4,-0.40) rectangle (8.8,-0.12);
+
+% ================= Carcaça do CLP =================
+\draw[rounded corners=4pt, fill=gray!8, line width=1.2pt] (0,0) rectangle (8.4,6.0);
+\node[font=\sffamily\bfseries] at (4.2,5.72) {CLP};
+
+% ================= CPU =================
+\draw[rounded corners=2pt, fill=blue!7] (0.3,0.4) rectangle (2.5,5.4);
+\node[font=\sffamily\bfseries] at (1.4,5.05) {CPU};
+% LEDs de estado
+\node[led, fill=green!70!black] at (0.8,4.55) {};
+\node[font=\tiny, right] at (0.92,4.55) {RUN};
+\node[led, fill=red!15] at (0.8,4.15) {};
+\node[font=\tiny, right] at (0.92,4.15) {ERR};
+% microprocessador (chip com pinos)
+\draw[fill=gray!70] (0.85,2.75) rectangle (1.95,3.65);
+\foreach \y in {2.85,3.0,...,3.6} {
+  \draw (0.70,\y) -- (0.85,\y);
+  \draw (1.95,\y) -- (2.10,\y);
+}
+\node[white, font=\scriptsize\bfseries] at (1.4,3.2) {$\mu$P};
+% memória
+\draw[fill=white] (0.65,1.55) rectangle (2.15,2.35);
+\node[font=\tiny, align=center] at (1.4,1.95) {Memória\\programa};
+\draw[-{Stealth[length=1.5mm]}] (1.4,2.35) -- (1.4,2.75);
+% varredura
+\node[font=\tiny, align=center] at (1.4,0.9) {varredura\\(scan)};
+
+% ================= Barramento interno =================
+\draw[line width=2.2pt, gray!60, {Stealth[length=2.5mm]}-{Stealth[length=2.5mm]}] (2.55,2.2) -- (3.18,2.2);
+\node[font=\tiny, above] at (2.80,2.3) {bus};
+
+% ================= Módulo de saída =================
+\draw[rounded corners=2pt, fill=orange!7] (3.0,0.4) rectangle (8.1,5.4);
+\node[font=\sffamily\bfseries\small] at (5.2,5.12) {Módulo de saída a relé};
+
+% LEDs de sinalização das saídas (Q5 acesa)
+\foreach \i in {0,...,7} {
+  \pgfmathsetmacro{\xx}{3.5+0.4*\i}
+  \ifnum\i=5
+    \node[led, fill=green!70!black] at (\xx,4.75) {};
+  \else
+    \node[led, fill=white] at (\xx,4.75) {};
+  \fi
+  \node[font=\tiny] at (\xx,4.47) {\i};
+}
+
+% Isolação (optoacoplador)
+\draw[fill=white] (3.2,1.85) rectangle (4.0,2.55);
+\draw (3.35,2.05) -- (3.55,2.05) -- (3.45,2.3) -- cycle;   % LED emissor
+\draw (3.35,2.3) -- (3.55,2.3);
+\draw[-{Stealth[length=1mm]}, line width=0.5pt] (3.6,2.25) -- (3.78,2.25);
+\draw[-{Stealth[length=1mm]}, line width=0.5pt] (3.6,2.1) -- (3.78,2.1);
+\draw (3.85,1.98) -- (3.85,2.42);
+\node[font=\tiny] at (3.6,1.7) {opto};
+
+% Rail interno +V
+\draw[fio] (4.3,4.0) -- (5.0,4.0);
+\fill (5.0,4.0) circle (1.4pt);
+\node[font=\tiny, above] at (4.55,4.0) {+V int.};
+
+% Bobina K5 (símbolo IEC)
+\draw[fio] (5.0,4.0) -- (5.0,3.7);
+\draw[fill=white] (4.75,2.9) rectangle (5.25,3.7);
+\node[font=\tiny\bfseries] at (5.0,3.3) {K5};
+\draw[fio] (5.0,2.9) -- (5.0,2.55);
+\fill (5.0,2.7) circle (1.4pt);
+
+% Diodo de roda livre
+\draw[fio] (4.3,4.0) -- (4.3,3.45);
+\draw[fill=black] (4.15,3.1) -- (4.45,3.1) -- (4.3,3.4) -- cycle;
+\draw[line width=1.1pt] (4.15,3.42) -- (4.45,3.42);
+\draw[fio] (4.3,3.1) -- (4.3,2.7) -- (5.0,2.7);
+
+% Transistor NPN (driver)
+\draw (4.9,2.2) circle (0.35);
+\draw[line width=1.4pt] (4.78,1.98) -- (4.78,2.42);
+\draw[fio] (4.0,2.2) -- (4.78,2.2);
+\draw[fio] (4.78,2.32) -- (5.0,2.55);
+\draw[fio, -{Stealth[length=1.6mm]}] (4.78,2.08) -- (5.0,1.87);
+% terra interno
+\draw[fio] (5.0,1.87) -- (5.0,1.35);
+\draw (4.78,1.35) -- (5.22,1.35);
+\draw (4.86,1.23) -- (5.14,1.23);
+\draw (4.94,1.11) -- (5.06,1.11);
+\node[font=\tiny, right] at (5.2,1.23) {0 V int.};
+
+% Contato NA de K5
+\draw[fio] (7.2,3.725) -- (6.5,3.725) -- (6.5,3.3) -- (6.78,3.3);
+\draw[fio] (6.5,2.6) -- (6.85,3.22);
+\fill (6.5,2.6) circle (1.4pt);
+\draw[fio] (6.5,2.6) -- (6.5,1.025) -- (7.2,1.025);
+\node[font=\tiny\bfseries] at (6.25,2.45) {K5};
+% acoplamento mecânico bobina -> contato
+\draw[dashed, line width=0.6pt] (5.25,3.3) -- (6.2,3.3) -- (6.67,2.91);
+
+% Régua de bornes (COM + Q0..Q7)
+\draw[borne] (7.2,0.8) rectangle (8.0,1.25);
+\node[font=\tiny\bfseries] at (7.42,1.025) {C};
+\draw[fill=white] (7.75,1.025) circle (0.13);
+\draw (7.66,0.935) -- (7.84,1.115);
+\foreach \i in {0,...,7} {
+  \pgfmathsetmacro{\yb}{1.25+0.45*\i}
+  \ifnum\i=5
+    \draw[borne, fill=yellow!55] (7.2,\yb) rectangle (8.0,\yb+0.45);
+  \else
+    \draw[borne] (7.2,\yb) rectangle (8.0,\yb+0.45);
+  \fi
+  \node[font=\tiny\bfseries] at (7.42,\yb+0.225) {\i};
+  \draw[fill=white] (7.75,\yb+0.225) circle (0.13);
+  \draw (7.66,\yb+0.135) -- (7.84,\yb+0.315);
+}
+
+% ================= Circuito de campo (externo) =================
+\draw[dashed, gray!70, rounded corners=3pt] (8.7,0.35) rectangle (12.6,4.4);
+\node[font=\scriptsize, gray!50!black] at (10.65,4.2) {Campo};
+
+% Fio Q5 -> carga
+\draw[fio] (7.88,3.725) -- (10.8,3.725) -- (10.8,3.4);
+\fill (7.75,3.725) circle (1.2pt);
+\draw[corrente] (8.9,3.9) -- (9.9,3.9);
+\node[font=\scriptsize\bfseries, red!75!black] at (9.4,4.08) {I};
+
+% Carga: válvula solenoide Y1
+\draw[fill=white] (10.4,2.5) rectangle (11.2,3.4);
+\draw (10.4,2.5) -- (11.2,3.4);
+\node[font=\scriptsize\bfseries, right] at (11.25,3.1) {Y1};
+\node[font=\tiny, right, align=left] at (11.25,2.75) {válvula\\solenoide};
+\draw[fio] (10.8,2.5) -- (10.8,2.05);
+
+% Fonte externa (bateria / fonte CC)
+\draw[line width=1.1pt] (10.65,2.05) -- (10.95,2.05);    % placa curta (-)
+\draw[line width=1.1pt] (10.5,1.8) -- (11.1,1.8);       % placa longa (+)
+\draw[fio] (10.8,1.8) -- (10.8,1.025);
+\node[font=\scriptsize] at (11.25,2.12) {$-$};
+\node[font=\scriptsize] at (11.25,1.72) {$+$};
+\node[font=\tiny, right, align=left] at (11.35,1.9) {24 V c.c.};
+
+% Retorno COM com fusível F1
+\draw[fio] (7.88,1.025) -- (9.2,1.025);
+\fill (7.75,1.025) circle (1.2pt);
+\draw[fill=white] (9.2,0.9) rectangle (9.9,1.15);
+\draw (9.2,1.025) -- (9.9,1.025);
+\node[font=\tiny\bfseries] at (9.55,1.32) {F1};
+\draw[fio] (9.9,1.025) -- (10.8,1.025);
+\draw[corrente] (10.3,0.75) -- (9.0,0.75);
+\node[font=\scriptsize\bfseries, red!75!black] at (8.85,0.62) {I};
+
+\end{tikzpicture}
+\end{document}

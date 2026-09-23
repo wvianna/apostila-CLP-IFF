@@ -1,0 +1,327 @@
+% File: figuras/circuito_saida_rele_sem_legenda_v3.tex
+% Módulo de saída a relé de um CLP -- versão detalhada, sem legenda
+\documentclass[border=6pt]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage[brazil]{babel}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,patterns,decorations.pathmorphing,shadows,calc}
+
+\begin{document}
+\begin{tikzpicture}[
+  line width=0.8pt, font=\sffamily,
+  fio/.style={line width=1pt},
+  fiopos/.style={line width=1.3pt, red!80!black},
+  fioneg/.style={line width=1.3pt, blue!70!black},
+  corrente/.style={red!75!black, line width=1pt, -{Stealth[length=2.4mm]}},
+  borne/.style={fill=gray!25, draw=black},
+  led/.style={circle, draw, minimum size=2.8mm, inner sep=0pt},
+  barreira/.style={dashed, line width=0.9pt, violet!70!black},
+  rotulo/.style={font=\tiny\bfseries},
+  terra/.pic={
+    \draw (-0.2,0) -- (0.2,0);
+    \draw (-0.13,-0.09) -- (0.13,-0.09);
+    \draw (-0.06,-0.18) -- (0.06,-0.18);
+  },
+  parafuso/.pic={
+    \draw[fill=gray!10] (0,0) circle (0.13);
+    \draw[line width=0.6pt] (-0.09,-0.09) -- (0.09,0.09);
+  },
+]
+
+% =====================================================================
+% Trilho DIN (perfil 35 mm)
+% =====================================================================
+\fill[gray!45] (-0.5,-0.50) rectangle (10.9,-0.10);
+\fill[gray!25] (-0.5,-0.42) rectangle (10.9,-0.18);
+\draw (-0.5,-0.50) rectangle (10.9,-0.10);
+\foreach \x in {0.2,1.4,...,10.4}
+  \draw[fill=white, rounded corners=1pt] (\x,-0.36) rectangle (\x+0.5,-0.24);
+\node[font=\tiny, gray!40!black, anchor=west] at (-0.5,-0.68) {trilho DIN 35 mm};
+
+% =====================================================================
+% Carcaça do CLP
+% =====================================================================
+\draw[rounded corners=5pt, fill=gray!10, line width=1.3pt,
+      drop shadow={opacity=0.25}] (0,0) rectangle (10.4,6.4);
+\node[font=\sffamily\bfseries] at (5.2,6.15) {CLP};
+% aletas de ventilação
+\foreach \x in {0.6,0.8,...,2.4}   \fill[gray!45, rounded corners=0.5pt] (\x,6.02) rectangle (\x+0.08,6.28);
+\foreach \x in {7.8,8.0,...,9.8}   \fill[gray!45, rounded corners=0.5pt] (\x,6.02) rectangle (\x+0.08,6.28);
+% parafusos de fixação da carcaça
+\foreach \p in {(0.2,0.2),(10.2,0.2),(0.2,6.2),(10.2,6.2)}
+  \pic at \p {parafuso};
+
+% =====================================================================
+% CPU
+% =====================================================================
+\draw[rounded corners=2pt, fill=blue!7] (0.4,0.4) rectangle (2.7,5.8);
+\node[font=\sffamily\bfseries] at (1.55,5.5) {CPU};
+
+% LEDs de estado
+\node[led, fill=green!70!black] at (0.75,5.05) {};
+\node[led, fill=white]          at (1.30,5.05) {};
+\node[led, fill=white]          at (1.85,5.05) {};
+\node[led, fill=yellow!80!orange] at (2.40,5.05) {};
+\node[font=\tiny] at (0.75,4.78) {RUN};
+\node[font=\tiny] at (1.30,4.78) {STOP};
+\node[font=\tiny] at (1.85,4.78) {ERR};
+\node[font=\tiny] at (2.40,4.78) {COM};
+
+% chave de modo RUN/STOP
+\draw[fill=white, rounded corners=1pt] (0.6,4.22) rectangle (1.2,4.48);
+\fill[gray!65, rounded corners=1pt]    (0.62,4.24) rectangle (0.88,4.46);
+\node[font=\tiny, anchor=west] at (1.22,4.35) {RUN\,|\,STOP};
+
+% porta de comunicação (RJ45)
+\draw[fill=gray!30] (0.6,3.62) rectangle (1.2,4.02);
+\draw[fill=black]   (0.7,3.68) rectangle (1.1,3.92);
+\foreach \x in {0.74,0.80,...,1.06} \draw[yellow!80!black, line width=0.4pt] (\x,3.92) -- (\x,3.84);
+\node[font=\tiny, anchor=west] at (1.22,3.82) {Ethernet};
+
+% microprocessador
+\draw[fill=gray!75] (1.0,2.55) rectangle (2.1,3.35);
+\foreach \y in {2.63,2.77,...,3.30} {
+  \draw (0.86,\y) -- (1.0,\y);
+  \draw (2.1,\y) -- (2.24,\y);
+}
+\fill[gray!30] (1.1,3.25) circle (0.04);
+\node[white, font=\scriptsize\bfseries] at (1.55,2.95) {$\mu$P};
+
+% memórias
+\draw[fill=white] (0.55,1.85) rectangle (1.45,2.3);
+\node[font=\tiny, align=center] at (1.0,2.075) {RAM};
+\draw[fill=white] (1.65,1.85) rectangle (2.55,2.3);
+\node[font=\tiny, align=center] at (2.1,2.075) {Flash};
+\draw[{Stealth[length=1.3mm]}-{Stealth[length=1.3mm]}] (1.0,2.3) -- (1.25,2.55);
+\draw[-{Stealth[length=1.3mm]}] (2.1,2.3) -- (1.85,2.55);
+
+% tabela-imagem das saídas (Q0.7 ... Q0.0) -- bit 5 = 1
+\node[font=\tiny, align=center] at (1.55,1.62) {imagem das saídas};
+\foreach \i in {0,...,7} {
+  \pgfmathsetmacro{\xc}{0.55+0.25*(7-\i)}
+  \ifnum\i=5
+    \draw[fill=green!45] (\xc,1.1) rectangle (\xc+0.25,1.4);
+    \node[font=\tiny\bfseries] at (\xc+0.125,1.25) {1};
+  \else
+    \draw[fill=white] (\xc,1.1) rectangle (\xc+0.25,1.4);
+    \node[font=\tiny] at (\xc+0.125,1.25) {0};
+  \fi
+  \node[font=\tiny, gray!40!black] at (\xc+0.125,0.98) {\i};
+}
+
+% ciclo de varredura
+\draw[-{Stealth[length=1.4mm]}, line width=0.7pt] (0.95,0.62) arc[start angle=200, end angle=-120, radius=0.14];
+\node[font=\tiny, anchor=west] at (1.15,0.62) {varredura};
+
+% =====================================================================
+% Barramento interno (backplane)
+% =====================================================================
+\draw[line width=2.4pt, gray!55, {Stealth[length=2.6mm]}-{Stealth[length=2.6mm]}]
+  (2.72,2.95) -- (3.18,2.95);
+\node[font=\tiny, above] at (2.95,3.02) {bus};
+
+% =====================================================================
+% Módulo de saída a relé
+% =====================================================================
+\draw[rounded corners=2pt, fill=white] (3.0,0.4) rectangle (10.1,5.8);
+% zonas de potencial
+\fill[blue!6]   (3.05,0.45) rectangle (4.25,5.25);
+\fill[orange!9] (4.25,0.45) rectangle (7.30,5.25);
+\fill[green!7]  (7.30,0.45) rectangle (10.05,5.25);
+\node[font=\sffamily\bfseries\small] at (6.2,5.52) {Módulo de saída a relé (8 canais)};
+
+% LEDs de sinalização das saídas (canal 5 aceso)
+\foreach \i in {0,...,7} {
+  \pgfmathsetmacro{\xx}{3.6+0.42*\i}
+  \ifnum\i=5
+    \fill[green!60, opacity=0.35] (\xx,4.95) circle (0.2);
+    \node[led, fill=green!70!black] at (\xx,4.95) {};
+  \else
+    \node[led, fill=white] at (\xx,4.95) {};
+  \fi
+  \node[font=\tiny] at (\xx,4.68) {\i};
+}
+
+% barreiras de isolação
+\draw[barreira] (4.25,0.5) -- (4.25,4.45);
+\draw[barreira] (7.30,0.5) -- (7.30,4.45);
+\node[font=\tiny, violet!70!black, align=center, fill=blue!6, inner sep=1pt]
+  at (3.62,4.2) {isolação\\óptica};
+\node[font=\tiny, violet!70!black, align=center, fill=green!7, inner sep=1pt]
+  at (7.92,4.2) {isolação\\galvânica};
+
+% rótulos das zonas
+\node[font=\tiny, blue!50!black]   at (3.65,0.6) {lógica 5 V};
+\node[font=\tiny, orange!45!black] at (6.45,0.6) {acionamento 24 V};
+\node[font=\tiny, green!35!black]  at (8.05,0.6) {contato};
+
+% ---------- Lado lógico: R1 + LED do optoacoplador ----------
+\draw[fio] (3.18,2.95) -- (3.32,2.95) -- (3.32,2.65);
+\draw[fill=white] (3.22,2.05) rectangle (3.42,2.65);            % R1
+\node[rotulo, anchor=east] at (3.22,2.35) {R1};
+\draw[fio] (3.32,2.05) -- (3.32,1.85) -- (3.95,1.85) -- (3.95,2.05);
+\node[font=\tiny, blue!50!black, anchor=west] at (3.34,3.12) {Q0.5};
+
+% corpo do optoacoplador (atravessa a barreira)
+\draw[fill=white, rounded corners=1pt] (3.75,1.7) rectangle (4.75,3.1);
+\draw[barreira] (4.25,1.7) -- (4.25,3.1);
+\node[rotulo] at (4.25,3.25) {U1};
+% LED emissor
+\draw[fio] (3.95,2.05) -- (3.95,2.25);
+\draw[fill=red!30] (3.83,2.25) -- (4.07,2.25) -- (3.95,2.47) -- cycle;
+\draw[line width=1.1pt] (3.83,2.47) -- (4.07,2.47);
+\draw[fio] (3.95,2.47) -- (3.95,2.8) -- (3.75,2.8);
+\draw[fio] (3.42,2.8) -- (3.75,2.8);
+% R1 -> LED: fecha a malha pelo 0 V lógico
+\draw[fio] (3.32,2.05) -- (3.32,2.05);
+% raios de luz
+\draw[-{Stealth[length=1mm]}, line width=0.5pt, orange!80!black] (4.08,2.40) -- (4.36,2.52);
+\draw[-{Stealth[length=1mm]}, line width=0.5pt, orange!80!black] (4.08,2.28) -- (4.36,2.40);
+% fototransistor
+\draw[line width=1.3pt] (4.45,2.2) -- (4.45,2.7);
+\draw[fio] (4.45,2.58) -- (4.6,2.75) -- (4.6,3.1);
+\draw[fio, -{Stealth[length=1.3mm]}] (4.45,2.32) -- (4.6,2.15);
+\draw[fio] (4.6,2.15) -- (4.6,1.95) -- (4.75,1.95);
+
+% 0 V lógico
+\draw[fio] (3.42,2.8) -- (3.42,2.8);
+\draw[fio] (3.6,1.85) -- (3.6,1.35);
+\pic at (3.6,1.35) {terra};
+\node[font=\tiny, anchor=west] at (3.35,1.0) {0 V lóg.};
+
+% ---------- Lado de acionamento: rail +24 V interno ----------
+\draw[fio] (4.6,3.1) -- (4.6,4.1) -- (6.3,4.1);
+\fill (5.45,4.1) circle (1.4pt);
+\fill (6.3,4.1) circle (1.4pt);
+\node[font=\tiny, anchor=south] at (5.0,4.1) {+24 V int.};
+
+% R2 (base do transistor)
+\draw[fio] (4.75,1.95) -- (4.9,1.95);
+\draw[fill=white] (4.9,1.85) rectangle (5.45,2.05);
+\node[rotulo] at (5.17,2.22) {R2};
+\draw[fio] (5.45,1.95) -- (5.85,1.95);
+
+% Transistor NPN T1
+\draw[fill=white] (6.1,1.95) circle (0.36);
+\draw[line width=1.5pt] (5.98,1.72) -- (5.98,2.18);
+\draw[fio] (5.85,1.95) -- (5.98,1.95);
+\draw[fio] (5.98,2.07) -- (6.3,2.33);
+\draw[fio, -{Stealth[length=1.6mm]}] (5.98,1.83) -- (6.3,1.57);
+\node[rotulo, anchor=west] at (6.48,1.95) {T1};
+% emissor -> 0 V de acionamento
+\draw[fio] (6.3,1.57) -- (6.3,1.35);
+\pic at (6.3,1.35) {terra};
+\node[font=\tiny, anchor=west] at (6.5,1.25) {0 V};
+
+% Bobina K5
+\draw[fio] (6.3,4.1) -- (6.3,3.75);
+\draw[fill=white] (6.05,2.95) rectangle (6.55,3.75);
+\foreach \y in {3.05,3.2,...,3.65} \draw[line width=0.4pt, gray] (6.08,\y) -- (6.52,\y);
+\node[rotulo, fill=white, inner sep=0.5pt] at (6.3,3.35) {K5};
+\draw[fio] (6.3,2.95) -- (6.3,2.33);
+\fill (6.3,2.7) circle (1.4pt);
+
+% Diodo de roda livre D1
+\draw[fio] (5.45,4.1) -- (5.45,3.6);
+\draw[fill=black] (5.3,3.2) -- (5.6,3.2) -- (5.45,3.5) -- cycle;
+\draw[line width=1.2pt] (5.3,3.52) -- (5.6,3.52);
+\draw[fio] (5.45,3.6) -- (5.45,3.52);
+\draw[fio] (5.45,3.2) -- (5.45,2.7) -- (6.3,2.7);
+\node[rotulo, anchor=east] at (5.28,3.36) {D1};
+
+% ---------- Contato NA de K5 (fechado: bobina energizada) ----------
+\coordinate (Q5) at (9.2,3.775);   % centro do borne 5
+\coordinate (CM) at (9.2,1.225);   % centro do borne COM
+\draw[fio] (Q5) -- (8.3,3.775) -- (8.3,3.3) -- (8.5,3.3);     % contato fixo
+\fill (8.3,2.5) circle (1.5pt);                               % pivô
+\draw[gray!55, dashed, line width=0.6pt] (8.3,2.5) -- (8.72,3.1); % posição de repouso
+\draw[line width=1.4pt] (8.3,2.5) -- (8.5,3.26);               % lâmina fechada
+\draw[fio] (8.3,2.5) -- (8.3,1.225) -- (CM);
+\node[rotulo] at (8.02,2.85) {K5};
+\node[font=\tiny, anchor=west] at (7.4,1.9) {NA};
+% acoplamento mecânico bobina -> contato
+\draw[dashed, line width=0.6pt] (6.55,3.35) -- (7.95,3.35) -- (8.4,2.88);
+
+% ---------- Régua de bornes X1 (COM + 0..7) ----------
+\node[rotulo] at (9.6,5.05) {X1};
+\draw[borne] (9.2,0.95) rectangle (10.0,1.5);
+\node[rotulo] at (9.4,1.225) {C};
+\pic at (9.75,1.225) {parafuso};
+\foreach \i in {0,...,7} {
+  \pgfmathsetmacro{\yb}{1.5+0.425*\i}
+  \ifnum\i=5
+    \draw[borne, fill=yellow!55] (9.2,\yb) rectangle (10.0,\yb+0.425);
+  \else
+    \draw[borne] (9.2,\yb) rectangle (10.0,\yb+0.425);
+  \fi
+  \node[rotulo] at (9.4,\yb+0.2125) {\i};
+  \pic at (9.75,\yb+0.2125) {parafuso};
+}
+% ajusta os pontos de ligação ao centro real dos bornes
+\coordinate (Q5) at (9.2,3.8375);
+
+% =====================================================================
+% Circuito de campo (externo ao CLP)
+% =====================================================================
+\draw[dashed, gray!70, rounded corners=3pt] (10.7,0.3) rectangle (15.6,5.0);
+\node[font=\scriptsize, gray!40!black] at (13.15,4.8) {Campo (fiação externa)};
+
+% Q5 -> carga (fio azul, sai do borne 5)
+\draw[fiopos] (9.75,3.8375) -- (13.0,3.8375) -- (13.0,3.55);
+\fill (9.75,3.8375) circle (1.3pt);
+\draw[corrente] (10.9,4.05) -- (12.0,4.05);
+\node[font=\scriptsize\bfseries, red!75!black] at (11.45,4.28) {I};
+
+% Carga: bobina da válvula solenoide Y1 + diodo D2
+\draw[fill=white] (12.75,2.65) rectangle (13.25,3.55);
+\draw (12.75,2.65) -- (13.25,3.55);
+\node[font=\scriptsize\bfseries, anchor=east] at (12.7,3.1) {Y1};
+\draw[fioneg] (13.0,2.65) -- (13.0,2.3);
+% D2 em antiparalelo com a carga (roda livre externa)
+\draw[fio] (13.0,3.45) -- (12.3,3.45) -- (12.3,3.2);
+\draw[fill=black] (12.15,2.85) -- (12.45,2.85) -- (12.3,3.15) -- cycle;
+\draw[line width=1.2pt] (12.15,3.17) -- (12.45,3.17);
+\draw[fio] (12.3,3.2) -- (12.3,3.17);
+\draw[fio] (12.3,2.85) -- (12.3,2.75) -- (13.0,2.75);
+\fill (13.0,3.45) circle (1.3pt);
+\fill (13.0,2.75) circle (1.3pt);
+\node[rotulo, anchor=east] at (12.12,3.0) {D2};
+% acoplamento solenoide -> válvula 3/2 vias
+\draw[dashed, line width=0.6pt] (13.25,3.1) -- (13.55,3.1);
+\draw[fill=white] (13.55,2.8) rectangle (14.15,3.4);
+\draw[fill=white] (14.15,2.8) rectangle (14.75,3.4);
+\draw[-{Stealth[length=1.3mm]}, line width=0.6pt] (13.7,2.85) -- (14.0,3.35);
+\draw[line width=0.6pt] (14.3,3.35) -- (14.3,3.1);
+\draw[line width=0.6pt] (14.22,3.1) -- (14.38,3.1);
+\draw[-{Stealth[length=1.3mm]}, line width=0.6pt] (14.6,2.85) -- (14.6,3.35);
+\draw[decorate, decoration={zigzag, segment length=1.3mm, amplitude=0.7mm}]
+  (14.75,3.1) -- (15.35,3.1);
+\node[font=\tiny, align=center] at (14.15,2.5) {válvula 3/2 vias};
+
+% Fonte 24 V c.c.
+\draw[fill=gray!12, rounded corners=2pt] (12.35,1.05) rectangle (13.65,2.3);
+\node[font=\tiny\bfseries, align=center] at (13.0,1.75) {Fonte\\24 V c.c.};
+\node[font=\scriptsize\bfseries, blue!70!black] at (13.0,2.15) {$-$};
+\node[font=\scriptsize\bfseries, red!80!black]  at (13.0,1.17) {$+$};
+% entrada c.a. da fonte
+\draw[fio] (13.65,1.9) -- (14.3,1.9);
+\draw[fio] (13.65,1.45) -- (14.3,1.45);
+\node[font=\tiny, anchor=west] at (14.3,1.9) {L};
+\node[font=\tiny, anchor=west] at (14.3,1.45) {N};
+\node[font=\tiny, anchor=west] at (14.05,1.15) {127/220 V c.a.};
+
+% +24 V -> F1 -> COM (fio vermelho)
+\draw[fiopos] (13.0,1.05) -- (13.0,0.95) -- (11.8,0.95);
+\draw[fill=white] (11.1,0.83) rectangle (11.8,1.07);
+\draw (11.1,0.95) -- (11.8,0.95);
+\node[rotulo] at (11.45,1.24) {F1};
+\draw[fiopos] (11.1,0.95) -- (10.4,0.95) -- (10.4,1.225) -- (9.75,1.225);
+\fill (9.75,1.225) circle (1.3pt);
+\draw[corrente] (12.6,0.55) -- (11.2,0.55);
+\node[font=\scriptsize\bfseries, red!75!black] at (11.0,0.55) {I};
+
+\end{tikzpicture}
+\end{document}
