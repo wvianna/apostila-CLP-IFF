@@ -7,7 +7,7 @@ argument-hint: '[etapa: inventario | plano | redacao | diagramas | build | revis
 # Reformatação e atualização da apostila de CLP
 
 Converte as fontes em PDF da apostila de CLP em uma obra LaTeX única, atualizada, ilustrada, compilada
-em PDF (índice navegável) e exportável para DOCX.
+em PDF (índice navegável).
 
 **Obra de destino**: *Controladores Lógicos Programáveis* — Instituto Federal Fluminense (IFF),
 Campus Campos dos Goytacazes. Autores: **M.Sc. Leonardo de Oliveira Tavares**,
