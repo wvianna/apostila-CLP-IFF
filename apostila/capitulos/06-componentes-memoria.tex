@@ -8,6 +8,7 @@ Ao final deste capítulo você deve ser capaz de:
   \item classificar memórias quanto ao acesso, à volatilidade e à forma de armazenamento;
   \item calcular a quantidade de bits de endereçamento de uma memória;
   \item reconhecer os tipos de dados elementares da norma e suas faixas de valor;
+  \item aplicar o princípio da forte tipação e utilizar funções de conversão explícita de tipos;
   \item representar números negativos em complemento de dois;
   \item interpretar os campos dos formatos simples e duplo da IEEE-754;
   \item localizar as seis áreas do mapa de memória de um CLP.
@@ -133,7 +134,8 @@ $128\text{M}\times32$ tem $128$ milhões de palavras e $4$ bilhões de bits. A f
 \section{Tipos de dados da norma}
 
 Os tipos de dados especificam o valor que cada variável pode assumir e como esse valor é organizado
-na memória. Os tipos elementares definidos pela IEC 61131-3 são:
+na memória. Os tipos elementares definidos pela IEC 61131-3 são apresentados na
+Tabela~\ref{tab:tipos-dados}.
 
 \begin{table}[H]
   \centering
@@ -160,6 +162,207 @@ na memória. Os tipos elementares definidos pela IEC 61131-3 são:
 Note a diferença entre \emph{com sinal} e \emph{sem sinal}: o tipo com sinal usa o bit mais
 significativo para representar o sinal, e por isso tem metade da faixa positiva, ganhando a mesma
 faixa em valores negativos.
+
+\index{tipos de dados}\index{forte tipação}
+
+\subsection{Declaração de variáveis e o princípio da forte tipação}
+
+Na norma IEC 61131-3, todo dado manipulado pelo programa deve pertencer a uma variável expressamente
+declarada com seu respectivo tipo de dado. O modelo adota o princípio da \textbf{forte tipação}
+(\emph{strong typing}). Diferentemente de linguagens de script ou de uso geral que permitem coerção
+implícita (\emph{implicit type casting}), os compiladores de CLP exigem correspondência estrita de
+tipos em qualquer operação ou atribuição.
+
+Em sistemas industriais, a forte tipação não é uma restrição burocrática, mas uma exigência crítica
+de \textbf{segurança operacional}:
+\begin{itemize}
+  \item impede que truncamentos automáticos descartem frações decimais em malhas de controle;
+  \item evita estouros de capacidade (\emph{overflow}) silenciosos que poderiam inverter o sinal de
+        um comando ou zerar contadores de segurança;
+  \item impede que grandezas físicas incompatíveis (como somar uma contagem de peças em \texttt{INT}
+        com um intervalo de tempo em \texttt{TIME}) sejam combinadas por engano do programador.
+\end{itemize}
+
+A declaração formal de variáveis na IEC 61131-3 ocorre em blocos delimitados por \texttt{VAR} e
+\texttt{END\_VAR}, conforme ilustrado na Listagem~\ref{lst:declaracao-tipos}.
+
+\begin{lstlisting}[language=, caption={Declaração de variáveis com tipos distintos na IEC 61131-3.}, label={lst:declaracao-tipos}]
+VAR
+    bBombaLigada      : BOOL;   // Estado logico do atuador (TRUE ou FALSE)
+    iLeituraBruta     : INT;    // Contagem de 16 bits do cartao analogico (-32768 a 32767)
+    diTotalizador     : DINT;   // Contador acumulado de ciclos de producao (32 bits)
+    rPressaoBar       : REAL;   // Pressao calculada do processo em bar (IEEE-754, 32 bits)
+    tTempoMistura     : TIME;   // Duracao da etapa de dosagem (ex.: T#30s)
+END_VAR
+\end{lstlisting}
+
+\subsection{Incompatibilidade direta entre tipos: o que não compila}
+
+O conceito fundamental que todo estudante e projetista de automação deve dominar é: \textbf{não é
+possível operar, comparar ou atribuir variáveis de tipos diferentes diretamente}. Se o código tentar
+misturar variáveis de tipos distintos sem conversão explícita, o ambiente de desenvolvimento
+acusará \textbf{erro fatal de compilação} e se recusará a gerar o código executável para a CPU do
+controlador.
+
+A Listagem~\ref{lst:erros-tipos} exemplifica quatro erros clássicos cometidos por iniciantes que
+são prontamente barrados pelo compilador.
+
+\begin{lstlisting}[language=, caption={Operações inválidas rejeitadas pelo compilador por incompatibilidade de tipo.}, label={lst:erros-tipos}]
+// ERRO 1: Atribuicao direta de REAL para INT
+iLeituraBruta := rPressaoBar;
+// Rejeitado: tipos incompativeis. Nao e possivel atribuir REAL a INT.
+
+// ERRO 2: Operacao aritmetica direta misturando REAL e INT
+rPressaoBar := rPressaoBar + iLeituraBruta;
+// Rejeitado: operador '+' exige que ambos os operandos sejam do mesmo tipo.
+
+// ERRO 3: Atribuicao direta entre inteiros de tamanhos distintos (DINT para INT)
+iLeituraBruta := diTotalizador;
+// Rejeitado: atribuicao invalida (risco de perda de dados: 32 bits para 16 bits).
+
+// ERRO 4: Comparacao relacional direta entre grandezas de tipos distintos
+IF tTempoMistura > iLeituraBruta THEN
+    bBombaLigada := FALSE;
+END_IF;
+// Rejeitado: operador '>' nao permite comparar TIME com INT diretamente.
+\end{lstlisting}
+
+Se essas operações fossem permitidas silenciosamente, os efeitos práticos seriam desastrosos:
+no Erro~1, uma pressão de $12,7\text{ bar}$ perderia a parte fracionária sem controle do
+engenheiro; no Erro~3, se o acumulador ultrapassasse $32.767$, o valor sofreria estouro de
+complemento de dois e viraria um número negativo no cartão de saída, provocando comportamentos
+imprevisíveis na planta.
+
+\subsection{Funções padronizadas de conversão explícita de tipos}
+
+Para que variáveis de tipos diferentes possam interagir de forma legítima e segura, a norma IEC
+61131-3 estabelece um conjunto de \textbf{funções de conversão explícita de tipos} (\emph{type
+conversion functions}). Toda conversão deve ser declarada expressamente pelo programador.
+
+A sintaxe padronizada pela norma segue o formato:
+\begin{equation}
+  \text{\texttt{TIPO\_ORIGEM\_TO\_TIPO\_DESTINO(expressão)}}
+  \label{eq:sintaxe-conversao}
+\end{equation}
+
+A Tabela~\ref{tab:conversoes-tipos} lista as principais funções de conversão utilizadas em
+projetos industriais e seus comportamentos.
+
+\begin{table}[H]
+  \centering
+  \caption{Principais funções de conversão explícita de tipos da IEC 61131-3.}
+  \label{tab:conversoes-tipos}
+  \begin{tabular}{p{3.2cm} p{2.0cm} p{2.0cm} p{6.6cm}}
+    \toprule
+    Função & Origem & Destino & Comportamento e aplicação típica \\
+    \midrule
+    \texttt{INT\_TO\_REAL}
+      & \texttt{INT} & \texttt{REAL}
+      & Converte inteiro para ponto flutuante exato ($200 \to 200.0$). Usada em cálculos de engenharia \\
+    \texttt{REAL\_TO\_INT}
+      & \texttt{REAL} & \texttt{INT}
+      & Converte real para inteiro com arredondamento matemático ($10.7 \to 11$; $10.2 \to 10$) \\
+    \texttt{TRUNC}
+      & \texttt{REAL} & \texttt{DINT/INT}
+      & Trunca a parte decimal sem arredondamento ($10.9 \to 10$; $-4.8 \to -4$) \\
+    \texttt{DINT\_TO\_REAL}
+      & \texttt{DINT} & \texttt{REAL}
+      & Converte inteiro de 32 bits para real, mantendo faixa para contagens elevadas \\
+    \texttt{INT\_TO\_DINT}
+      & \texttt{INT} & \texttt{DINT}
+      & Expansão segura de palavra de 16 para 32 bits, sem alteração de valor numérico \\
+    \texttt{DINT\_TO\_INT}
+      & \texttt{DINT} & \texttt{INT}
+      & Redução de 32 para 16 bits; exige cautela contra estouro acima de $32.767$ \\
+    \texttt{BOOL\_TO\_INT}
+      & \texttt{BOOL} & \texttt{INT}
+      & Mapeia \texttt{FALSE} para $0$ e \texttt{TRUE} para $1$; útil para somas lógicas \\
+    \texttt{TIME\_TO\_DINT}
+      & \texttt{TIME} & \texttt{DINT}
+      & Extrai a duração em milissegundos como valor numérico inteiro \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\index{conversão de tipos}\index{funções de conversão!IEC 61131-3}
+
+Com o uso das funções adequadas, as operações antes rejeitadas tornam-se perfeitamente válidas,
+compiláveis e transparentes quanto à intenção do projeto, como detalhado na
+Listagem~\ref{lst:conversoes-corretas}.
+
+\begin{lstlisting}[language=, caption={Uso correto de variáveis com tipos distintos via conversão explícita.}, label={lst:conversoes-corretas}]
+// Correcao 1: Conversao explicita de REAL para INT (com arredondamento)
+iLeituraBruta := REAL_TO_INT(rPressaoBar);
+
+// Correcao 2: Conversao explicita de INT para REAL antes da soma aritmetica
+rPressaoBar := rPressaoBar + INT_TO_REAL(iLeituraBruta);
+
+// Correcao 3: Conversao explicita de DINT para INT (assegurando faixa valida)
+iLeituraBruta := DINT_TO_INT(diTotalizador);
+
+// Correcao 4: Conversao explicita para compatibilizar tipos na comparacao
+IF TIME_TO_DINT(tTempoMistura) > INT_TO_DINT(iLeituraBruta) THEN
+    bBombaLigada := FALSE;
+END_IF;
+\end{lstlisting}
+
+\subsection{Exemplo prático: escalonamento de canal analógico}
+
+A aplicação mais recorrente de conversão de tipos em automação é o \textbf{escalonamento de canais
+analógicos}. Um módulo de entrada analógica converte a corrente de um transmissor (por exemplo,
+$4\text{ a }20\text{ mA}$) em uma contagem digital bruta armazenada como variável \texttt{INT}
+(faixa de $0$ a $27.648$ contagens no padrão industrial Siemens, ou $0$ a $32.767$ em cartões
+unipolares de 15 bits).
+
+No programa, o algoritmo de controle precisa atuar sobre a variável física real (por exemplo,
+pressão de $0,0\text{ a }10,0\text{ bar}$, representada em \texttt{REAL}).
+
+A relação matemática de interpolação linear é:
+\begin{equation}
+  P_{\text{bar}} = \frac{N_{\text{raw}} - N_{\text{min}}}{N_{\text{max}} - N_{\text{min}}}
+  \times (P_{\text{max}} - P_{\text{min}}) + P_{\text{min}}
+  \label{eq:escalonamento-linear}
+\end{equation}
+
+Se um programador desavisado tentar calcular a pressão diretamente com variáveis inteiras em Texto
+Estruturado:
+\begin{center}
+  \texttt{rPressaoBar := ((iEntradaRaw - 0) / 27648) * 10.0;} \quad \textbf{(ERRADO!)}
+\end{center}
+ocorrem dois graves problemas:
+\begin{enumerate}
+  \item a subexpressão inteira \texttt{(iEntradaRaw - 0) / 27648} executa uma divisão inteira;
+        como o numerador é sempre menor que $27.648$, o resultado é truncado para \textbf{zero} em
+        toda a faixa útil do transmissor;
+  \item a mistura de termos inteiros com o literal real \texttt{10.0} é imediatamente recusada pelo
+        compilador conforme a regra da forte tipação.
+\end{enumerate}
+
+A solução normativa correta converte o valor bruto para \texttt{REAL} antes de efetuar qualquer
+cálculo aritmético, como apresentado na Listagem~\ref{lst:escalonamento-analogico}.
+
+\begin{lstlisting}[language=, caption={Escalonamento analógico em Texto Estruturado com conversão explícita.}, label={lst:escalonamento-analogico}]
+VAR
+    iEntradaRaw     : INT;    // Leitura bruta do canal analogico (0 a 27648)
+    rPressaoMedida  : REAL;   // Pressao calculada do processo em bar (0.0 a 10.0 bar)
+    rComandoValvula : REAL;   // Abertura desejada da valvula de controle (0.0 a 100.0 %)
+    iSaidaAnalogica : INT;    // Valor de comando enviado ao cartao de saida (0 a 27648)
+END_VAR
+
+// 1. Escalonamento da entrada: conversao explicita de INT para REAL
+rPressaoMedida := (INT_TO_REAL(iEntradaRaw) / 27648.0) * 10.0;
+
+// 2. Escalonamento inverso da saida: calculo em REAL e conversao para INT
+iSaidaAnalogica := REAL_TO_INT((rComandoValvula / 100.0) * 27648.0);
+\end{lstlisting}
+
+\begin{atencao}
+\textbf{Atenção às conversões estreitantes (\emph{narrowing conversions})}: converter um tipo de
+maior capacidade ou precisão para um menor (como \texttt{DINT\_TO\_INT} ou \texttt{REAL\_TO\_INT})
+exige cuidado rigoroso do desenvolvedor. Se o valor em ponto flutuante for maior do que $32.767$, a
+função \texttt{REAL\_TO\_INT} satura no valor máximo ou causa estouro de representação. Sempre
+valide os limites da grandeza antes de invocar conversões redutoras.
+\end{atencao}
 
 \section{Números negativos: complemento de um e de dois}
 
@@ -352,6 +555,10 @@ O resultado da letra (a) é uma das causas mais frequentes de defeito intermiten
         \texttt{REAL}? E no duplo? Relacione com a largura da mantissa
         (Figura~\ref{fig:ieee754}).
   \item Por que uma comparação de igualdade entre duas variáveis \texttt{REAL} é uma má prática?
+  \item Explique o princípio da forte tipação adotado pela norma IEC 61131-3. Por que a linha
+        \texttt{rVazao := rVazao + iAjuste;} (sendo \texttt{rVazao} do tipo \texttt{REAL} e
+        \texttt{iAjuste} do tipo \texttt{INT}) causa erro de compilação, e como ela deve ser
+        escrita para ser executada pelo CLP?
   \item Um programa usa \texttt{Timer\_01.ACC} para calcular a taxa de produção. Em qual área do
         mapa de memória (Tabela~\ref{tab:areas-memoria}) esse valor está armazenado?
   \item Um técnico relata que a contagem de peças do turno anterior se perdeu depois de uma falta de

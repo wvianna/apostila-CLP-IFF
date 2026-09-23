@@ -1,6 +1,13 @@
 flowchart LR
-  BC["B.C. bornes de conexão"] --> CC["C.C. conversor e condicionador"]
-  CC --> IE["I.E. indicador de estado"]
-  IE --> IEL["I.El. isolação elétrica<br/>(optoacoplador)"]
-  IEL --> IM["I.M. interface e multiplexação"]
-  IM --> CPU["CPU / barramento de dados"]
+  subgraph campo["No campo e no cartão"]
+    direction LR
+    BC["Bornes de conexão<br/>(B.C.)"] --> CC["Conversor e<br/>condicionador (C.C.)"]
+    CC --> IE["Indicador de<br/>estado (I.E.)"]
+    IE --> IEL["Isolação elétrica<br/>(optoacoplador) (I.El.)"]
+    IEL --> IM["Interface e<br/>multiplexação (I.M.)"]
+  end
+  subgraph cpu["Ao processador"]
+    direction LR
+    CPU["CPU / barramento<br/>de dados"]
+  end
+  IM --> CPU

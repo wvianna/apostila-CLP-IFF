@@ -1,7 +1,14 @@
 flowchart LR
-  CPU["CPU / barramento de dados"] --> IM["I.M. interface e multiplexação"]
-  IM --> MS["M.S. memorizador de sinal"]
-  MS --> IEL["I.El. isolação elétrica"]
-  IEL --> ES["E.S. estágio de saída<br/>transistor, triac ou relé"]
-  ES --> BL["B.L. bornes de ligação"]
-  BL --> CARGA["Atuador em campo"]
+  subgraph cpu["Do processador"]
+    direction LR
+    CPU["CPU / barramento<br/>de dados"]
+  end
+  subgraph cartao["No cartão e no campo"]
+    direction LR
+    IM["Interface e<br/>multiplexação (I.M.)"] --> MS["Memorizador de<br/>sinal (M.S.)"]
+    MS --> IEL["Isolação elétrica (I.El.)"]
+    IEL --> ES["Estágio de saída (E.S.)<br/>transistor, triac ou relé"]
+    ES --> BL["Bornes de<br/>ligação (B.L.)"]
+    BL --> CARGA["Atuador em campo"]
+  end
+  CPU --> IM

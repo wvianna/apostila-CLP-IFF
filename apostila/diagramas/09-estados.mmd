@@ -1,8 +1,8 @@
-flowchart LR
-  INI["Energizado"] --> AUTOTESTE["Rotina de inicialização<br/>limpa imagem, testa RAM<br/>e verifica o programa"]
-  AUTOTESTE --> STOP["STOP / programação<br/>off-line: recebe e altera programa"]
-  STOP -->|"comando de partida"| RUN["RUN / execução<br/>ciclo de varredura ativo"]
+flowchart TB
+  INI["Energizado"] --> AUTOTESTE["Rotina de inicialização:<br/>limpa imagem, testa RAM<br/>e verifica o programa"]
+  AUTOTESTE --> STOP["STOP / programação off-line:<br/>recebe e altera programa"]
+  STOP -->|"comando de partida"| RUN["RUN / execução:<br/>ciclo de varredura ativo"]
   RUN -->|"comando de parada"| STOP
-  RUN -->|"falha: watchdog, memória,<br/>microprocessador"| ERRO["ERRO<br/>processamento interrompido<br/>e sinalização"]
+  RUN -->|"falha: watchdog,<br/>memória, microprocessador"| ERRO["ERRO: processamento<br/>interrompido e sinalização"]
   ERRO -->|"correção e reset"| STOP
   RUN -.->|"programação on-line<br/>em alguns controladores"| RUN
