@@ -9,7 +9,7 @@ Reformulação e atualização em LaTeX de duas apostilas anteriores, com difere
 
 **Autores:** M.Sc. Leonardo de Oliveira Tavares · D.Sc. William da Silva Vianna · M.Sc. Natália Nogueira Monteiro
 
-**Revisão técnica:** M.Sc. Karina Terra de Souza Campelo
+**Revisão técnica:** M.Sc. Karina Terra de Souza
 
 [Licença CC BY-SA 4.0](LICENSE.md) · 5 partes · 25 capítulos · 4 apêndices
 

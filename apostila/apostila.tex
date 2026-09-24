@@ -79,7 +79,7 @@
 \newcommand{\obraAutores}{M.Sc. Leonardo de Oliveira Tavares\\%
   D.Sc. William da Silva Vianna\\%
   M.Sc. Natália Nogueira Monteiro}
-\newcommand{\obraRevisor}{M.Sc. Karina Terra de Souza Campelo}
+\newcommand{\obraRevisor}{M.Sc. Karina Terra de Souza}
 \newcommand{\obraEdicao}{3ª edição}
 \newcommand{\obraRevisao}{Rev. 06}
 \newcommand{\obraData}{Setembro de 2026}
@@ -144,6 +144,14 @@
 \newtcolorbox{exercicios}[1][]{
   breakable, colback=gray!5, colframe=gray!60, title=Exercícios,
   fonttitle=\bfseries, #1}
+
+% ============================================================================
+%  Crédito de fonte de figura de terceiro
+%  Usar logo após \end{figure}; fica FORA da legenda para não entrar na lista
+%  de figuras. Ex.: \fontefig{Imagem obtida na internet...}
+% ============================================================================
+\newcommand{\fontefig}[1]{%
+  \par\smallskip{\centering\footnotesize\itshape Fonte: #1\par}}
 
 % ============================================================================
 %  Capítulos: arquivo ausente gera aviso, não erro

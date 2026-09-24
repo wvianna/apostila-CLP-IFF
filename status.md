@@ -24,7 +24,7 @@ PDF e DOCX.
 **Autores (fixos, em capa, folha de rosto e metadados):** M.Sc. Leonardo de Oliveira Tavares,
 D.Sc. William da Silva Vianna, M.Sc. Natália Nogueira Monteiro.
 
-**Revisão técnica (capa e folha de rosto, desde 2026-09-24):** M.Sc. Karina Terra de Souza Campelo.
+**Revisão técnica (capa e folha de rosto, desde 2026-09-24):** M.Sc. Karina Terra de Souza.
 
 **Requisitos do cliente:** 28 itens em `docs/skillbase.txt` — mapa de cobertura requisito → capítulo
 em `.agents/skills/reformatar-apostila-clp/references/estrutura.md`.
@@ -245,9 +245,10 @@ Nenhuma pendência de implementação. As que restam dependem do autor:
    de terceiro (o checklist do Cap. 14 recomenda; aqui não foi aplicado).
 2. **Figuras do legado não recuperadas** — as 97 figuras originais (29 + 68) não foram extraídas; as
    figuras atuais são **redesenhadas**. Se o autor quiser preservar alguma foto de produto, ela precisa
-   ser extraída do PDF com crédito. As três figuras acrescentadas em 2026-09-24 vieram da pasta
-   `figuras/` do próprio repositório e estão sem linha de "Fonte:": se alguma não for de autoria do
-   autor, o crédito precisa ser acrescentado.
+   ser extraída do PDF com crédito. As **quatro** figuras acrescentadas em 2026-09-24 vieram de
+   imagens obtidas na internet e reeditadas com apoio de IA generativa (Nano Banana) — **não** são de
+   autoria do grupo. Todas passaram a trazer linha de "Fonte:" sob a figura, e a ressalva
+   correspondente foi acrescentada ao `LICENSE.md`.
 3. **Confirmação de coautoria** da `CLP_2023` como obra-fonte citada (já registrada no Apêndice D).
 4. **Conferência das edições das normas marcadas como "conferir no catálogo"** no Apêndice D — partes
    da IEC 61131-1, -2, -4, -5, -6, -7, -8, -10; IEC 61511; ISO/IEC 17065 e ISO/IEC 17025. O texto não
@@ -274,7 +275,7 @@ páginas**. (A linha de base registrada em 2026-09-22 tinha 190 páginas; os com
 | 6 | Cap. 10 — exemplos das linguagens | nova subseção **10.3.1 Exemplos comparados**, com a figura **10.2** (`10-exemplos-linguagens.jpeg`) |
 
 Ainda nesta revisão, o crédito de **revisão técnica** foi acrescentado à obra: **M.Sc. Karina Terra
-de Souza Campelo**, na capa e na folha de rosto, pelo comando `\obraRevisor` (definido ao lado de
+de Souza**, na capa e na folha de rosto, pelo comando `\obraRevisor` (definido ao lado de
 `\obraAutores` em `apostila/apostila.tex`). O comando foi replicado no template da skill
 (`.agents/skills/reformatar-apostila-clp/assets/apostila.tex`), e o nome também consta do `README.md`
 (como "Revisão técnica") e do `LICENSE.md`. O campo `/Author` dos metadados do PDF continua com os
@@ -292,6 +293,20 @@ autor queira voltar ao diagrama anterior.
 `Overfull \hbox` acima de 5 pt, 0 `Underfull \vbox`, 0 palavra desenhada acima da mancha. Conferência
 visual das páginas das figuras novas (22, 48, 51 e 70) e da figura 14.1.
 
-**Decisão pendente:** as três figuras novas vieram da pasta `figuras/` do repositório e estão sem
-linha de "Fonte:". Se alguma não for de autoria do autor, o crédito precisa ser acrescentado — o
-`LICENSE.md` ressalva que a licença CC BY-SA 4.0 não cobre material de terceiros.
+**Procedência das figuras novas (esclarecida pelo autor em 2026-09-24):** as quatro figuras
+acrescentadas — **3.1, 7.4, 7.7 e 10.2** — foram feitas a partir de imagens obtidas na internet e
+reeditadas com apoio de ferramenta de IA generativa (Nano Banana). Não são, portanto, de autoria do
+grupo, o que ativa a regra do item 3 do Apêndice D ("figura ou tabela de terceiro entra com
+crédito"). Cada uma passou a trazer, logo abaixo da legenda:
+
+> Fonte: Imagem obtida na internet e reeditada com apoio de ferramenta de IA generativa (Nano Banana).
+
+impressa pelo comando `\fontefig{}`, criado no preâmbulo da obra e replicado no template da skill.
+A linha fica **fora** do `\caption`, para não entrar na lista de figuras. O `LICENSE.md` ganhou o
+item 2 da seção "Ressalvas sobre material de terceiros", declarando que a imagem de origem não
+pertence aos autores e **não** é coberta pela CC BY-SA 4.0.
+
+**Risco registrado:** a origem exata das imagens de base não foi informada, de modo que o crédito é
+necessariamente genérico e a licença original não pôde ser conferida. Se alguma das imagens de base
+for protegida, ela precisa ser substituída por uma de licença livre — ou redesenhada do zero — antes
+de qualquer publicação externa da obra.
