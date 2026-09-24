@@ -1,10 +1,10 @@
 # Status da nova apostila de CLP
 
-**Data do snapshot:** 2026-09-22
-**Produto:** `apostila/apostila.pdf` — **190 páginas**, 0 erro de TeX, 0 referência indefinida,
+**Data do snapshot:** 2026-09-24 (revisão do autor, lote 1)
+**Produto:** `apostila/apostila.pdf` — **200 páginas**, 0 erro de TeX, 0 referência indefinida,
 0 `Overfull \vbox`, nenhum `Overfull \hbox` acima de 5 pt
 **Build atual:** `cd apostila && ./scripts/build.sh` (exit 0)
-**Métricas:** 32 figuras, 67 tabelas, índice remissivo com 4.228 bytes
+**Métricas:** 35 figuras, 68 tabelas, índice remissivo com 4.516 bytes
 
 > **Decisão do autor (2026-09-22):** o `apostila.docx` não deve ser gerado nem editado. O produto é o
 > PDF; a exportação DOCX fica fora do escopo deste ciclo.
@@ -179,8 +179,15 @@ Registrados aqui porque voltaram a acontecer e podem voltar:
    de 6 pt, uma tabela de 14,6 cm em três colunas mede 15,87 cm e passa dos 15,5 cm da mancha.
    Correção: `\setlength{\tabcolsep}{3pt}` no preâmbulo — resolveu 30 dos 31 casos — mais o ajuste da
    tabela do Cap. 2. Resultado: nenhum transbordo acima de 5 pt em 190 páginas.
+9. **`Overfull \vbox` pré-existente na figura 14.1** (achado em 2026-09-24). O fluxograma do Cap. 14,
+   incluído em `width=\linewidth`, mede 680 pt de altura contra 685,55 pt de mancha: somada a legenda,
+   o float `[H]` transbordava 15,2 pt. Vinha do commit `633fef6` e **não** era efeito de nenhuma
+   edição de texto — foi confirmado recompilando o commit `HEAD` em diretório limpo, que reproduz o
+   mesmo transbordo. Correção: `width=0.95\linewidth`. Regra para diagrama vertical: altura natural ×
+   `width` + legenda ≤ `\textheight`; meça com `pdfinfo figuras/x.pdf | grep 'Page size'`.
 
-Os itens 6 a 8 entraram no *Definition of Done* da skill e na memória do repositório.
+Os itens 6 a 8 entraram no *Definition of Done* da skill e na memória do repositório; o item 9 foi
+registrado aqui em 2026-09-24.
 
 ---
 
@@ -222,7 +229,7 @@ de fabricante nem texto normativo. O Apêndice D retoma a regra no que se refere
 
 ```bash
 cd apostila
-./scripts/build.sh              # PDF: 190 páginas (não usar --docx)
+./scripts/build.sh              # PDF: 200 páginas (não usar --docx)
 ./scripts/render-mermaid.sh     # diagramas/*.mmd -> figuras/*.pdf
 ```
 
@@ -236,7 +243,9 @@ Nenhuma pendência de implementação. As que restam dependem do autor:
    de terceiro (o checklist do Cap. 14 recomenda; aqui não foi aplicado).
 2. **Figuras do legado não recuperadas** — as 97 figuras originais (29 + 68) não foram extraídas; as
    figuras atuais são **redesenhadas**. Se o autor quiser preservar alguma foto de produto, ela precisa
-   ser extraída do PDF com crédito.
+   ser extraída do PDF com crédito. As três figuras acrescentadas em 2026-09-24 vieram da pasta
+   `figuras/` do próprio repositório e estão sem linha de "Fonte:": se alguma não for de autoria do
+   autor, o crédito precisa ser acrescentado.
 3. **Confirmação de coautoria** da `CLP_2023` como obra-fonte citada (já registrada no Apêndice D).
 4. **Conferência das edições das normas marcadas como "conferir no catálogo"** no Apêndice D — partes
    da IEC 61131-1, -2, -4, -5, -6, -7, -8, -10; IEC 61511; ISO/IEC 17065 e ISO/IEC 17025. O texto não
@@ -244,3 +253,36 @@ Nenhuma pendência de implementação. As que restam dependem do autor:
 5. **Exportação DOCX** — fora de escopo por decisão do autor; se for retomada, o caminho já verificado
    é `pandoc` (que segue o `\input` dentro de `\chapterfile`), com as limitações conhecidas: TikZ e
    `circuitikz` não convertem.
+
+---
+
+## 12. Revisão do autor — lote 1 (2026-09-24)
+
+Seis ajustes pedidos pelo autor, aplicados sobre a obra fechada. O PDF passou de 197 para **200
+páginas**. (A linha de base registrada em 2026-09-22 tinha 190 páginas; os commits `03beecf` e
+`48d44fa`, de figuras, acrescentaram material depois daquele snapshot.)
+
+| # | Pedido | O que foi feito |
+| --- | --- | --- |
+| 1 | Cap. 3, abertura: "não é apenas um controlador ligado a sensores" | frase completada com "e atuadores/elementos finais de controle" (`03-estrutura-automacao.tex`) |
+| 2 | Trocar a figura 3.1 pela imagem fornecida | `03-piramide-niveis.jpeg` (a partir de `figuras/figura3-1.jpeg`) substituiu o diagrama mermaid `03-piramide-automacao.pdf`; legenda mantida |
+| 3 | Cap. 7.3 — texto sobre *sourcing* e *sinking* e figura das ligações de entrada e saída | nova subseção **7.3.1 Lógica positiva e negativa: *sinking* e *sourcing***, com a figura **7.4** (`07-sourcing-sinking.jpeg`) e nota sobre o duplo sentido dos termos |
+| 4 | Página 49 — texto sobre as ligações de E/S e figura | nova subseção **7.5.1 Resumo das ligações de entrada e de saída**, com a figura **7.7** (`07-di-do.jpeg`) e o texto do autor sobre os seis arranjos (entrada CC *sinking*/*sourcing*, entrada CA, saída CC *sinking*/*sourcing* e saída a relé), fechada por caixa de atenção sobre a falta de uniformidade da nomenclatura entre fabricantes |
+| 5 | Cap. 9 — rotina de inicialização antes do ciclo de varredura | a antiga 9.3 passou a ser **9.1**; "O ciclo de varredura" virou 9.2 e as demais seções deslizaram para 9.3 a 9.6; a lista de objetivos foi reordenada para acompanhar |
+| 6 | Cap. 10 — exemplos das linguagens | nova subseção **10.3.1 Exemplos comparados**, com a figura **10.2** (`10-exemplos-linguagens.jpeg`) |
+
+Numeração de figuras depois das mudanças: **7.1 a 7.7** (antes 7.1 a 7.5) e **10.1 a 10.3** (antes
+10.1 a 10.2); as demais séries não mudaram. Nenhuma figura é citada por número fixo no texto — todas
+usam `\ref{}` —, de modo que a renumeração é automática.
+
+O diagrama mermaid `03-piramide-automacao.mmd` e o PDF gerado `figuras/03-piramide-automacao.pdf`
+continuam no repositório, mas não são mais incluídos na obra: ficam como alternativa vetorial, caso o
+autor queira voltar ao diagrama anterior.
+
+Verificação final: 200 páginas, 0 erro de TeX, 0 referência indefinida, 0 `Overfull \vbox`, 0
+`Overfull \hbox` acima de 5 pt, 0 `Underfull \vbox`, 0 palavra desenhada acima da mancha. Conferência
+visual das páginas das figuras novas (22, 48, 51 e 70) e da figura 14.1.
+
+**Decisão pendente:** as três figuras novas vieram da pasta `figuras/` do repositório e estão sem
+linha de "Fonte:". Se alguma não for de autoria do autor, o crédito precisa ser acrescentado — o
+`LICENSE.md` ressalva que a licença CC BY-SA 4.0 não cobre material de terceiros.

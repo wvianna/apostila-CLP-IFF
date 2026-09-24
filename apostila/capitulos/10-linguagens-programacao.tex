@@ -92,6 +92,26 @@ direita, alimentados por duas barras verticais. Cada linha horizontal é uma sen
 os contatos são as entradas e a bobina é a saída. É a mais simples de assimilar para quem já conhece
 circuito de comando elétrico --- e é essa familiaridade que explica seu sucesso.
 
+\subsection{Exemplos comparados}
+
+A Figura~\ref{fig:exemplos-linguagens} coloca as linguagens lado a lado, resolvendo a mesma lógica
+elementar --- $C = A \cdot \overline{B}$ --- em cada uma delas. Comparar os quadros é a forma mais
+rápida de perceber a diferença de vocação: o texto estruturado e a lista de instruções descrevem a
+operação passo a passo, enquanto o Ladder, o diagrama de blocos e os passos e transições mostram a
+\emph{estrutura} da solução.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{10-exemplos-linguagens.jpeg}
+  \caption{Exemplos comparados das linguagens da IEC 61131-3: Lista de Instruções, Texto Estruturado,
+  Diagrama de Blocos de Função, Ladder e Passos e Transições, todos para a mesma lógica.}
+  \label{fig:exemplos-linguagens}
+\end{figure}
+
+Repare que apenas três quadros descrevem a lógica de forma gráfica, e que o exemplo em Lista de
+Instruções aparece aqui como registro do que a norma já removeu --- a Seção~\ref{sec:il-depreciada}
+volta ao ponto.
+
 \section{Lendo e escrevendo Ladder}
 
 Cada operando --- contato ou bobina --- é identificado por um endereço de memória. O endereço aparece

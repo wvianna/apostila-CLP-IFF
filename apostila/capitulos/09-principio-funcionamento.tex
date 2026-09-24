@@ -4,6 +4,7 @@
 \begin{objetivos}
 Ao final deste capítulo você deve ser capaz de:
 \begin{itemize}
+  \item descrever a rotina de inicialização executada antes do primeiro ciclo;
   \item descrever as três etapas do ciclo de varredura;
   \item explicar o que é tempo de varredura e quais fatores o afetam;
   \item justificar o \emph{watchdog} e reconhecer a falha que ele sinaliza;
@@ -12,6 +13,20 @@ Ao final deste capítulo você deve ser capaz de:
   \item distinguir os estados de operação do controlador.
 \end{itemize}
 \end{objetivos}
+
+\section{Rotina de inicialização}
+
+Antes de executar o programa do usuário, o controlador cumpre uma rotina gravada em seu sistema
+operacional. Ao ser energizado no estado de execução, ele:
+
+\begin{enumerate}
+  \item limpa a memória imagem;
+  \item testa a memória RAM;
+  \item verifica a possibilidade de executar o programa gravado.
+\end{enumerate}
+
+Só depois disso a CPU passa a varrer as instruções em laço, indefinidamente --- é o ciclo de
+varredura descrito na seção seguinte, repetido enquanto o controlador estiver em execução.
 
 \section{O ciclo de varredura}
 
@@ -70,19 +85,6 @@ disparado. As causas mais comuns são laço de programa mal construído, tempori
 programa grande demais para o tempo configurado. A primeira providência é ler o diagnóstico do
 controlador, não reiniciar o equipamento até o problema voltar.
 \end{atencao}
-
-\section{Rotina de inicialização}
-
-Ao ser energizado no estado de execução, o controlador cumpre uma rotina gravada em seu sistema
-operacional antes de entrar no ciclo:
-
-\begin{enumerate}
-  \item limpeza da memória imagem;
-  \item teste da memória RAM;
-  \item verificação da possibilidade de executar o programa gravado.
-\end{enumerate}
-
-Só depois disso a CPU passa a varrer as instruções em laço, indefinidamente.
 
 \section{Modos de processamento}
 

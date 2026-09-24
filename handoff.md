@@ -5,7 +5,7 @@
 `.agents/skills/reformatar-apostila-clp/SKILL.md` — **leia a skill antes de editar qualquer coisa**;
 ela contém o procedimento, as regras e as armadilhas verificadas.
 
-**Estado: implementação concluída.** Os 6 lotes estão fechados: 25 capítulos + 4 apêndices, 190
+**Estado: implementação concluída.** Os 6 lotes estão fechados: 25 capítulos + 4 apêndices, 200
 páginas, `apostila.pdf` compilando sem erro. O que resta é **revisão do autor** (Seção 6).
 
 ---
@@ -23,10 +23,10 @@ cat .agents/skills/reformatar-apostila-clp/references/convencoes.md   # DoD no f
 cat apostila/INVENTARIO.md                                           # auditoria das fontes
 
 # 2. Confirmar que o ponto de partida está saudável
-cd apostila && ./scripts/build.sh      # esperado: exit 0, 0 erro, 190 páginas
+cd apostila && ./scripts/build.sh      # esperado: exit 0, 0 erro, 200 páginas
 ```
 
-Se o build não passar de **190 páginas com 0 erro, 0 referência indefinida, 0 `Overfull \vbox` e
+Se o build não passar de **200 páginas com 0 erro, 0 referência indefinida, 0 `Overfull \vbox` e
 nenhum `Overfull \hbox` acima de 5 pt**, **pare e investigue** antes de editar conteúdo.
 
 > **Decisão do autor (2026-09-22):** **não** gere nem edite `apostila.docx`. O produto é o PDF. Use

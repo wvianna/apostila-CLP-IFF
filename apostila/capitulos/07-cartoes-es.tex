@@ -123,6 +123,46 @@ seja de 24\,V CC e o comum seja escolhido conforme o tipo de sensor:
   \end{tabular}
 \end{table}
 
+\subsection{Lógica positiva e negativa: \emph{sinking} e \emph{sourcing}}
+
+Nem toda entrada digital aceita qualquer sensor. O que decide a compatibilidade é o potencial em que
+está o \textbf{terminal comum (COM)} do cartão, e desse detalhe resultam dois arranjos:
+
+\begin{itemize}
+  \item \textbf{entrada \emph{sinking} (lógica positiva)} --- o comum é ligado ao polo negativo
+        ($0\,$V) e o módulo ``drena'' a corrente para o negativo. A chave de campo leva o polo
+        positivo ($24\,$V) ao borne de entrada. É o arranjo que aceita sensores \textbf{PNP}, que
+        entregam tensão positiva na saída quando acionados;
+  \item \textbf{entrada \emph{sourcing} (lógica negativa)} --- o comum é ligado ao polo positivo
+        ($24\,$V) e o módulo fornece a corrente. A chave de campo leva o polo negativo ao borne de
+        entrada. É o arranjo que aceita sensores \textbf{NPN}, que chaveiam o negativo.
+\end{itemize}
+
+A mesma nomenclatura vale para a saída, e é aí que a confusão costuma aparecer: inverter o comum do
+módulo inverte também o ponto em que a carga é ligada.
+
+\begin{itemize}
+  \item \textbf{saída \emph{sinking} (lógica negativa)} --- a saída chaveia o polo negativo. O
+        terminal \emph{+V} recebe o positivo; um lado da carga vai ao positivo e o outro ao borne de
+        saída;
+  \item \textbf{saída \emph{sourcing} (lógica positiva)} --- a saída chaveia o polo positivo. O comum
+        recebe o positivo; um lado da carga vai direto ao borne de saída e o outro ao negativo.
+\end{itemize}
+
+Vale registrar o duplo sentido do termo: o sensor NPN também é chamado de \emph{sinking}, porque
+drena a corrente, e o PNP de \emph{sourcing}. Aqui a palavra qualifica o \textbf{módulo}, e por isso
+a associação com a Tabela~\ref{tab:npn-pnp} é cruzada --- o sensor \emph{sinking} (NPN) pede a
+entrada \emph{sourcing}. A Figura~\ref{fig:sourcing-sinking} reúne as quatro combinações de entrada e
+de saída em tensão contínua.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{07-sourcing-sinking.jpeg}
+  \caption{Ligações de entrada e de saída digitais em tensão contínua nas configurações \emph{sinking}
+  e \emph{sourcing}, com a lógica positiva ou negativa correspondente.}
+  \label{fig:sourcing-sinking}
+\end{figure}
+
 \paragraph{Sensor a dois fios em CA.} As entradas de CLP têm alta impedância e por isso não são
 acionadas diretamente por um triac, como ocorre com sensores a dois fios em corrente alternada. Se o
 sensor é desse tipo, é necessário acrescentar uma derivação resistivo-capacitiva em paralelo com a
@@ -244,6 +284,66 @@ incompatíveis entre si em um cartão com ponto comum, usa-se relé intermediár
 bobina desse relé é acionada pela saída do CLP e o contato dele comanda a carga.
 
 \index{saída a relé}\index{saída a transistor}\index{saída a triac}
+
+\subsection{Resumo das ligações de entrada e de saída}
+
+A Figura~\ref{fig:di-do} reúne, em um mesmo quadro, os esquemas de ligação elétrica para módulos de
+entrada e de saída digitais de um CLP, divididos em corrente contínua (CC), corrente alternada (CA) e
+saída a relé. São três arranjos de entrada --- CC \emph{sinking}, CC \emph{sourcing} e CA sem
+polaridade --- e três de saída --- CC \emph{sinking}, CC \emph{sourcing} e contato de relé. A figura
+serve de consulta rápida: cada arranjo tem um potencial de referência diferente no terminal comum, e
+é esse potencial que decide o que pode ser ligado ao ponto.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{07-di-do.jpeg}
+  \caption{Esquemas de ligação de módulos de entrada (CC e CA) e de saída (CC e a relé) de um CLP.}
+  \label{fig:di-do}
+\end{figure}
+
+\paragraph{Entrada digital \emph{sinking}.} \textbf{Conceito:} o terminal comum (COM) do módulo é
+ligado ao polo negativo (CC $-$); o módulo atua drenando a corrente para o negativo.
+\textbf{Ligações:} as chaves NA e NF chaveiam o polo positivo (CC $+$) para os terminais de entrada,
+e sensores do tipo PNP são os usados nessa configuração, porque fornecem sinal positivo (CC $+$) na
+saída quando acionados.
+
+\paragraph{Entrada digital \emph{sourcing}.} \textbf{Conceito:} o terminal comum (COM) é ligado ao
+polo positivo (CC $+$); o módulo fornece a corrente aos dispositivos externos.
+\textbf{Ligações:} as chaves NA e NF chaveiam o polo negativo (CC $-$) para os terminais de entrada,
+e sensores do tipo NPN são os usados nessa configuração, porque chaveiam o sinal negativo (CC $-$)
+na saída quando acionados.
+
+\paragraph{Entrada CA --- sem polaridade.} \textbf{Conceito:} usada para sinais em corrente alternada
+(CA), em que não há polaridade positiva ou negativa fixa. \textbf{Ligações:} o terminal comum (COM) é
+ligado a um dos lados da fonte CA, em geral o neutro ou uma fase; chaves e sensores CA chaveiam o
+outro lado da fonte (a fase) para os terminais de entrada.
+
+\paragraph{Saída digital \emph{sinking}.} \textbf{Conceito:} as saídas do CLP chaveiam o polo
+negativo (CC $-$); o terminal interno de saída conecta a carga ao negativo quando ativado.
+\textbf{Ligações:} o terminal $+V$, no topo do conector, é ligado ao polo positivo (CC $+$) para
+alimentar o barramento interno, e o terminal COM, na base, é conectado ao polo negativo (CC $-$). Um
+dos lados das cargas --- bobina de relé ou de contator, solenoide, torre de sinalização --- é ligado
+ao positivo (CC $+$) e o outro lado vai diretamente ao terminal de saída do CLP.
+
+\paragraph{Saída digital \emph{sourcing}.} \textbf{Conceito:} as saídas do CLP chaveiam o polo
+positivo (CC $+$); quando a saída ativa, ela fornece tensão positiva à carga. \textbf{Ligações:} o
+terminal COM, no topo, é conectado ao positivo (CC $+$), e o terminal $+V$, na base, é conectado ao
+negativo (CC $-$). Um dos lados das cargas é ligado diretamente ao terminal de saída do CLP, onde
+recebe o positivo, e o outro lado é conectado ao negativo (CC $-$).
+
+\paragraph{Saída a relé --- sem polaridade.} \textbf{Conceito:} as saídas usam contatos secos de
+relés eletromecânicos, o que permite acionar cargas em CC ou em CA com isolação elétrica entre o
+campo e a eletrônica do módulo. \textbf{Ligações:} o terminal COM é ligado a uma das linhas da
+alimentação (CC ou CA) e cada carga --- bobina de relé, solenoide, sinalizador --- é conectada entre
+o terminal de saída correspondente e o outro lado da fonte de alimentação.
+
+\begin{atencao}
+O mesmo ponto físico do cartão muda de comportamento conforme o potencial do comum. Por isso a
+consulta à Figura~\ref{fig:di-do} não substitui o manual do módulo: a designação
+\emph{sinking}/\emph{sourcing} não é uniforme entre fabricantes, e alguns adotam o nome pelo lado do
+dispositivo de campo, não pelo lado do módulo. Antes de energizar, confirme no manual o potencial do
+COM e o tipo de sensor que o fabricante declara compatível.
+\end{atencao}
 
 \section{Cálculo de resolução}
 
