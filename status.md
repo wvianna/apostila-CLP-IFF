@@ -24,6 +24,8 @@ PDF e DOCX.
 **Autores (fixos, em capa, folha de rosto e metadados):** M.Sc. Leonardo de Oliveira Tavares,
 D.Sc. William da Silva Vianna, M.Sc. Natália Nogueira Monteiro.
 
+**Revisão técnica (capa e folha de rosto, desde 2026-09-24):** M.Sc. Karina Terra de Souza Campelo.
+
 **Requisitos do cliente:** 28 itens em `docs/skillbase.txt` — mapa de cobertura requisito → capítulo
 em `.agents/skills/reformatar-apostila-clp/references/estrutura.md`.
 
@@ -271,6 +273,13 @@ páginas**. (A linha de base registrada em 2026-09-22 tinha 190 páginas; os com
 | 5 | Cap. 9 — rotina de inicialização antes do ciclo de varredura | a antiga 9.3 passou a ser **9.1**; "O ciclo de varredura" virou 9.2 e as demais seções deslizaram para 9.3 a 9.6; a lista de objetivos foi reordenada para acompanhar |
 | 6 | Cap. 10 — exemplos das linguagens | nova subseção **10.3.1 Exemplos comparados**, com a figura **10.2** (`10-exemplos-linguagens.jpeg`) |
 
+Ainda nesta revisão, o crédito de **revisão técnica** foi acrescentado à obra: **M.Sc. Karina Terra
+de Souza Campelo**, na capa e na folha de rosto, pelo comando `\obraRevisor` (definido ao lado de
+`\obraAutores` em `apostila/apostila.tex`). O comando foi replicado no template da skill
+(`.agents/skills/reformatar-apostila-clp/assets/apostila.tex`), e o nome também consta do `README.md`
+(como "Revisão técnica") e do `LICENSE.md`. O campo `/Author` dos metadados do PDF continua com os
+três autores — a revisão técnica não é autoria.
+
 Numeração de figuras depois das mudanças: **7.1 a 7.7** (antes 7.1 a 7.5) e **10.1 a 10.3** (antes
 10.1 a 10.2); as demais séries não mudaram. Nenhuma figura é citada por número fixo no texto — todas
 usam `\ref{}` —, de modo que a renumeração é automática.
@@ -279,7 +288,7 @@ O diagrama mermaid `03-piramide-automacao.mmd` e o PDF gerado `figuras/03-pirami
 continuam no repositório, mas não são mais incluídos na obra: ficam como alternativa vetorial, caso o
 autor queira voltar ao diagrama anterior.
 
-Verificação final: 200 páginas, 0 erro de TeX, 0 referência indefinida, 0 `Overfull \vbox`, 0
+**Verificação final:** 200 páginas, 0 erro de TeX, 0 referência indefinida, 0 `Overfull \vbox`, 0
 `Overfull \hbox` acima de 5 pt, 0 `Underfull \vbox`, 0 palavra desenhada acima da mancha. Conferência
 visual das páginas das figuras novas (22, 48, 51 e 70) e da figura 14.1.
 
