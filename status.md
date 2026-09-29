@@ -24,7 +24,8 @@ PDF e DOCX.
 **Autores (fixos, em capa, folha de rosto e metadados):** M.Sc. Leonardo de Oliveira Tavares,
 D.Sc. William da Silva Vianna, M.Sc. Natália Nogueira Monteiro.
 
-**Revisão técnica (capa e folha de rosto, desde 2026-09-24):** M.Sc. Karina Terra de Souza.
+**Revisão técnica (capa e folha de rosto, desde 2026-09-24):** M.Sc. Karina Terra de Souza e
+M.Sc. Yves Rocha de Salles Lima.
 
 **Requisitos do cliente:** 28 itens em `docs/skillbase.txt` — mapa de cobertura requisito → capítulo
 em `.agents/skills/reformatar-apostila-clp/references/estrutura.md`.
@@ -281,6 +282,8 @@ de Souza**, na capa e na folha de rosto, pelo comando `\obraRevisor` (definido a
 (como "Revisão técnica") e do `LICENSE.md`. O campo `/Author` dos metadados do PDF continua com os
 três autores — a revisão técnica não é autoria.
 
+*(Atualizado em 2026-09-29: `\obraRevisor` passou a ter duas linhas — ver §15.)*
+
 Numeração de figuras depois das mudanças: **7.1 a 7.7** (antes 7.1 a 7.5) e **10.1 a 10.3** (antes
 10.1 a 10.2); as demais séries não mudaram. Nenhuma figura é citada por número fixo no texto — todas
 usam `\ref{}` —, de modo que a renumeração é automática.
@@ -426,4 +429,46 @@ Pedido do autor: abrir a apostila com o **QR code da playlist de vídeos dos cap
 abre **modo matemático de exibição** e o TeX acusa `Missing $ inserted` / `Display math should end
 with $$` a várias linhas de distância, com a mensagem apontando para o `\end{center}`. A causa real
 fica na linha da quebra.
+
+---
+
+## 15. Revisão do autor — lote 3 (2026-09-29)
+
+Quatro pedidos do autor, registrados originalmente em `docs/correcoes.txt`. O PDF passou de 227 para
+**228 páginas**, com 0 erro de TeX e 0 referência indefinida.
+
+| # | Pedido | O que foi feito |
+| --- | --- | --- |
+| 1 | "Incluir um pré-texto movendo o item 1.5 para dentro desse item antes do capítulo 1" | o antigo item **1.5 "Como ler esta apostila"** saiu do capítulo 1 e virou **pré-texto próprio**, não numerado, entre a Lista de Tabelas e a Parte I (`apostila/apostila.tex`), com `\pdfbookmark` e `\addcontentsline{toc}{chapter}` para entrar no sumário e nos favoritos do PDF; os `\index{}` que o acompanhavam ficaram no capítulo 1, junto da seção 1.4 |
+| 2 | "Lógica fiada incluir no texto sinônimo de lógica a relé" | o sinônimo passou a constar **no texto** (não só no índice): na seção 1.1 do cap. 1 e na abertura da seção 2.1, que agora diz que *lógica fiada* tem como sinônimos *lógica a relé*, *lógica eletromecânica* e *lógica de contato*; acrescentadas as entradas de índice correspondentes |
+| 3 | "No item 4.3 incluir o diagrama P&ID existente na pasta imagens" | não havia P&ID em `images/`; a figura foi **extraída do PDF de origem** (Figura 3, p. 14 da Rev 05D) para `apostila/figuras/leg-rev05d-f03-pid.png` e incluída na seção 4.3 como **Figura 4.2**, com legenda e linha `Fonte:` |
+| 4 | "Incluir na revisão técnica: M.Sc. Yves Rocha de Salles Lima" | `\obraRevisor` passou a ter duas linhas (Karina Terra de Souza + Yves Rocha de Salles Lima), refletido na capa, na folha de rosto, no template da skill, no `README.md` e no `LICENSE.md` |
+
+**Sobre a extração do P&ID (receita reutilizável):** a figura da Rev 05D é **vetorial** — `mutool
+trace` não devolve nenhum `fill_image`, e `pdfimages` não a encontra. O caminho que funciona é
+renderizar a página (`pdftoppm -r 300 -png -f 14 -l 14`) e recortar pela **faixa de tinta**:
+detectar as bandas de linhas com pixel < 245 e isolar a banda larga (a figura tem 290 pt de altura,
+entre a última linha do corpo e a linha de legenda), depois aparar as margens com `getbbox()`.
+Resultado: 1 937 × 1 256 px.
+
+**Armadilha de diagramação registrada:** com `width=\linewidth` a figura de 4.2 empurrou o bloco
+inteiro para a página seguinte, deixando **10 cm de vão** no fim da seção 4.3. O encadeamento certo
+foi: uma **linha de chamada** ("O P&ID é o documento que dá origem a todo o resto (Figura 4.2).") →
+figura → texto explicativo. Mesmo assim, a última linha do crédito de `Fonte:` ficava **órfã** na
+página seguinte; a largura caiu para **0,94 `\linewidth`**, o que fechou o bloco na mesma página.
+Regra: figura `[H]` que não caiba no que resta da página não avisa — ela migra e deixa o vão.
+
+**Efeito colateral no capítulo 1 (e a correção):** ao sair o item 1.5, o conteúdo do capítulo subiu
+cerca de dez linhas e a caixa `Exercícios` ficou **1 linha além da página** ("CLP, e diga quem ou o
+que deveria assumi-la." sozinha na página seguinte). Encurtar a frase acrescentada em 1.1 não
+resolveu: a página 18 anterior está cheia (figura 1.1 + tabela 1.1, ambas `[H]`), sem folga para a
+cascata. A solução foi `\enlargethispage{2\baselineskip}` imediatamente antes da caixa, com
+comentário no `.tex` — afeta só aquela página, não gerou `Overfull \vbox` e o capítulo 1 passou a
+fechar limpo na página 19.
+
+**Verificação:** 228 páginas, 0 erro de TeX, 0 referência indefinida, 18 `Overfull \hbox` (o maior
+com 4,16 pt, no cap. 10 — pré-existente), 0 `Overfull \vbox`, 0 palavra acima do cabeçalho. Sumário
+conferido: "Como ler esta apostila" (sem número, p. 15) antes do capítulo 1, e o capítulo 1 agora vai
+de 1.1 a 1.4. Índice remissivo com as novas entradas *lógica a relé* e *lógica eletromecânica*
+(p. 21), sem nenhum `&` solto no `.ind`.
 

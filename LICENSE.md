@@ -2,7 +2,7 @@
 
 **Obra:** Controladores Lógicos Programáveis — apostila do Instituto Federal Fluminense
 **Autores:** M.Sc. Leonardo de Oliveira Tavares, D.Sc. William da Silva Vianna, M.Sc. Natália Nogueira Monteiro
-**Revisão técnica:** M.Sc. Karina Terra de Souza
+**Revisão técnica:** M.Sc. Karina Terra de Souza e M.Sc. Yves Rocha de Salles Lima
 **Instituição:** Instituto Federal Fluminense — Campus Campos dos Goytacazes
 
 Salvo indicação em contrário, esta obra está licenciada sob a Creative Commons

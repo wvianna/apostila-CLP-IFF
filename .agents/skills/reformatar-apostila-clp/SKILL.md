@@ -122,6 +122,13 @@ apostila/
    para o painel de favoritos. Confira as anotações depois do build:
    `mutool show apostila.pdf pages | sed -n '3p'` dá o objeto da página, e
    `<obj>/Annots` deve listar dois `/Link` com `/URI` da playlist.
+7. **Pré-texto "Como ler esta apostila"** (decidido pelo autor em 2026-09-29). Fecha os
+   pré-textuais, entre a Lista de Tabelas e a Parte I, em `\chapter*{}` **não numerado** com
+   `\pdfbookmark` e `\addcontentsline{toc}{chapter}{...}` — sem o `\addcontentsline` ele não aparece
+   no sumário. O conteúdo (organização da obra em cinco partes + a convenção de marcar o que é norma
+   e o que é proprietário) veio do antigo item 1.5 do capítulo 1: **orientação de leitura vai nos
+   pré-textuais, não dentro de um capítulo**. Não usar títulos `##`/`\section` ali, e manter os
+   `\index{}` no capítulo, para o índice remissivo não apontar para uma página pré-textual.
 
 ### Etapa 4 — Diagramas, código e figuras
 

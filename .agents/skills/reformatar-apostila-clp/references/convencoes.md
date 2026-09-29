@@ -55,6 +55,15 @@ Aplicar capítulo a capítulo e registrar o veredito em `apostila/INVENTARIO.md`
   `\node[left|right|below] at (x,y)` para não colidirem com o desenho.
 - Capa/folha de rosto: use `\obraAutores` (separado por `\\`). Não introduza `\and` — ele só existe
   dentro de `\author`/`\maketitle` e quebra a capa do template.
+- `\obraRevisor` também admite várias linhas (`\\` entre os nomes). Na capa o rótulo vem antes
+  (`Revisão técnica:\\[0.15cm] \obraRevisor`), senão o segundo nome sai na mesma linha do rótulo.
+- Pré-textuais: capa → folha de rosto → playlist de vídeos → sumário/listas → **pré-texto "Como ler
+  esta apostila"** (item 7 da Etapa 3 do `SKILL.md`) → Parte I. No pré-texto **não** há `\section`
+  nem `\index`; orientação de leitura não é conteúdo de capítulo.
+- Figura extraída de PDF de origem: `\fontefig{...}` logo depois do `\end{figure}`, com a obra, a
+  edição, o ano e **o número da figura na origem**. Se a figura for larga, usar `width` um pouco
+  menor que `\linewidth` — com a largura cheia o bloco cola no fim da página e a última linha do
+  crédito fica órfã na página seguinte.
 
 ## Definition of Done
 
@@ -68,6 +77,8 @@ Aplicar capítulo a capítulo e registrar o veredito em `apostila/INVENTARIO.md`
 - [ ] Nenhum `Overfull \hbox` acima de 5 pt (tabela ou listagem mais larga que a mancha).
 - [ ] PDF tem `\tableofcontents` clicável + *bookmarks* por capítulo (índice interativo).
 - [ ] Capa e folha de rosto trazem os três autores e o **Instituto Federal Fluminense**.
+- [ ] Capa e folha de rosto trazem a **revisão técnica** (`\obraRevisor`), uma linha por revisor.
+- [ ] O pré-texto **"Como ler esta apostila"** aparece no sumário sem número, antes do capítulo 1.
 - [ ] Todos os capítulos da estrutura-alvo existem, um arquivo `.tex` cada, com `\include`.
 - [ ] Todos os 28 requisitos cobertos conforme `references/estrutura.md`.
 - [ ] Capítulo 13 (IEC 61131-3 vs. legado) existe, com tabela comparativa e Apêndice B preenchidos.

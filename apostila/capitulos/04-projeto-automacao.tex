@@ -68,10 +68,28 @@ Cinco documentos formam o núcleo do projeto. Os dois primeiros sustentam os dem
 
 \section{P\&ID: o ponto de partida}
 
+O P\&ID é o documento que dá origem a todo o resto
+(Figura~\ref{fig:pid-exemplo}).
+
+\begin{figure}[H]
+  \centering
+  % 0.94\linewidth (e não \linewidth): com a largura cheia, a última linha do
+  % crédito de fonte não cabia na página e ficava órfã na página seguinte.
+  \includegraphics[width=0.94\linewidth]{leg-rev05d-f03-pid.png}
+  \caption{P\&ID de uma unidade de processo: equipamentos, tubulação e instrumentação no mesmo
+  desenho. Cada malha de controle --- vazão (FC), temperatura (TC), pressão (PC) e nível (LC) ---
+  aparece com seu transmissor, seu controlador e seu elemento final de controle.}
+  \label{fig:pid-exemplo}
+\end{figure}
+\fontefig{TAVARES, L. O.; MONTEIRO, N. N. \emph{Controladores Lógicos Programáveis --- apostila
+final (teórica e prática)}, Rev.~05D, 2021, figura~3.}
+
 O P\&ID é um diagrama de engenharia de processo que mostra o fluxo físico --- equipamentos,
-tubulação e instrumentação --- e é nele que se enxerga o sistema de controle necessário. Uma vez o
-P\&ID definido, com a instrumentação exigida pelo funcionamento do processo e suas respectivas
-malhas de controle, segurança e intertravamento, inicia-se o \textbf{levantamento de pontos}.
+tubulação e instrumentação --- e é nele que se enxerga o sistema de controle necessário. No exemplo
+da Figura~\ref{fig:pid-exemplo} aparecem o vaso de alimentação, o forno, a coluna de destilação, os
+reatores e os tanques, com as malhas que os controlam. Uma vez o P\&ID definido, com a instrumentação
+exigida pelo funcionamento do processo e suas respectivas malhas de controle, segurança e
+intertravamento, inicia-se o \textbf{levantamento de pontos}.
 
 \`A medida que a instrumentação é identificada, cada tag do P\&ID precisa ser analisada quanto ao
 sinal que ocupa no controlador. É aqui que nasce a lista de I/O.

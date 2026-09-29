@@ -79,7 +79,8 @@
 \newcommand{\obraAutores}{M.Sc. Leonardo de Oliveira Tavares\\%
   D.Sc. William da Silva Vianna\\%
   M.Sc. Natália Nogueira Monteiro}
-\newcommand{\obraRevisor}{M.Sc. Karina Terra de Souza}
+\newcommand{\obraRevisor}{M.Sc. Karina Terra de Souza\\%
+  M.Sc. Yves Rocha de Salles Lima}
 \newcommand{\obraEdicao}{3ª edição}
 \newcommand{\obraRevisao}{Rev. 06}
 \newcommand{\obraData}{Setembro de 2026}
@@ -217,7 +218,7 @@ Programáveis --- apostila final (teórica e prática)}, Rev.~05D, 2021, item 8.
   \vfill
   {\large \obraAutores\par}
   \vspace{0.4cm}
-  {\small Revisão técnica: \obraRevisor\par}
+  {\small Revisão técnica:\\[0.15cm] \obraRevisor\par}
   \vspace{1.2cm}
   {\obraCursoEng\par}
   {\obraCurso\par}
@@ -288,6 +289,29 @@ Programáveis --- apostila final (teórica e prática)}, Rev.~05D, 2021, item 8.
 \listoffigures
 \pdfbookmark[0]{Lista de tabelas}{lot}
 \listoftables
+\clearpage
+
+% ============================================================================
+%  PRÉ-TEXTO --- Como ler esta apostila
+%
+%  Veio do antigo item 1.5 do capítulo 1. É orientação de leitura da obra, não
+%  conteúdo de capítulo: por isso abre o material, imediatamente antes do
+%  Capítulo 1. Não é numerado, mas entra no sumário (\addcontentsline).
+% ============================================================================
+\chapter*{Como ler esta apostila}
+\pdfbookmark[0]{Como ler esta apostila}{como-ler}
+\addcontentsline{toc}{chapter}{Como ler esta apostila}
+\markboth{Como ler esta apostila}{Como ler esta apostila}
+
+Esta obra foi organizada em cinco partes: fundamentos e projeto, hardware e funcionamento,
+programação e normas, integração e sistemas, operação e carreira. Cada capítulo fecha com
+exercícios e, quando aplicável, uma caixa \emph{Na prática}.
+
+Uma convenção vale para todo o texto: \textbf{sempre que uma linguagem, instrução ou endereçamento
+for apresentado, ficará claro se aquilo é definido por norma ou se é proprietário de um
+fabricante}. Essa distinção é o assunto do Capítulo~\ref{cap:iec-versus-legado} e aparece marcada
+em cada tópico de programação.
+
 \clearpage
 
 % ============================================================================

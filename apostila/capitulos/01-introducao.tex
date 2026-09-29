@@ -19,9 +19,10 @@ sobretudo a \emph{decisão repetitiva} --- ligar, desligar, medir, comparar com 
 corrigir.
 
 Essa decisão repetitiva foi, por décadas, responsabilidade de painéis de relés, temporizadores de
-came e sequenciadores. A lógica estava \emph{fiada}, literalmente: mudar a sequência de uma máquina
-significava refazer o painel elétrico, parar a produção e refazer a documentação. Foi essa rigidez
-que criou a necessidade que dá origem ao CLP (Capítulo~\ref{cap:evolucao}).
+came e sequenciadores. A lógica estava \emph{fiada} --- é o que se chama de \emph{lógica a relé} ---,
+literalmente: mudar a sequência de uma máquina significava refazer o painel elétrico, parar a
+produção e refazer a documentação. Foi essa rigidez que criou a necessidade que dá origem ao CLP
+(Capítulo~\ref{cap:evolucao}).
 
 \index{automação industrial}\index{automação industrial!objetivos}
 
@@ -92,24 +93,13 @@ Ao redor dele ficam os instrumentos de campo, os módulos de entrada e saída, o
 programação e as redes de comunicação que o ligam à supervisão e à gestão
 (Capítulo~\ref{cap:estrutura}).
 
+\index{CLP}\index{programação de CLP}\index{norma!IEC 61131-3}
+
 \begin{atencao}
 Nada nesta apostila autoriza intervir em painel energizado. Antes de qualquer medição, troca de
 módulo ou edição de programa em máquina em produção, aplique o procedimento de bloqueio e
 sinalização da sua instituição. CLP não é equipamento de aprendizagem em máquina viva.
 \end{atencao}
-
-\section{Como ler esta apostila}
-
-Esta obra foi organizada em cinco partes: fundamentos e projeto, hardware e funcionamento,
-programação e normas, integração e sistemas, operação e carreira. Cada capítulo fecha com
-exercícios e, quando aplicável, uma caixa \emph{Na prática}.
-
-Uma convenção vale para todo o texto: \textbf{sempre que uma linguagem, instrução ou endereçamento
-for apresentado, ficará claro se aquilo é definido por norma ou se é proprietário de um
-fabricante}. Essa distinção é o assunto do Capítulo~\ref{cap:iec-versus-legado} e aparece marcada
-em cada tópico de programação.
-
-\index{CLP}\index{programação de CLP}\index{norma!IEC 61131-3}
 
 \begin{pratica}
 Escolha uma máquina da sua escola ou do seu trabalho e responda por escrito:
@@ -118,6 +108,11 @@ Escolha uma máquina da sua escola ou do seu trabalho e responda por escrito:
 (c) qual indicador da Tabela~\ref{tab:frentes-automacao} melhoraria e como você mediria isso hoje,
 sem instalar nada novo.
 \end{pratica}
+
+% O pré-texto "Como ler esta apostila" saiu deste capítulo (ver apostila.tex) e o
+% capítulo encurtou; sem esta folga, a última linha da caixa de exercícios ficava
+% órfã sozinha na página seguinte. Afeta só esta página (a do fim do capítulo).
+\enlargethispage{2\baselineskip}
 
 \begin{exercicios}
 \begin{enumerate}[label=\alph*)]

@@ -1,0 +1,9 @@
+Incluir um pré-texto movendo o item 1.5 para dentro desse item antes do capítulo 1
+
+Lógia fiada incluir no texto sinônimo de lógica a relé.
+
+No item 4.3 incluir o digrama P&ID existente na pasta imagens
+
+Incluir na revisão técnica : M.Sc. Yves Rocha de Salles Lima 
+
+
