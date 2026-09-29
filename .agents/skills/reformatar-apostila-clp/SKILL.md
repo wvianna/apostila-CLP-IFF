@@ -55,6 +55,7 @@ apostila/
 ├── apostila.tex          # raiz LaTeX (base: assets/apostila.tex)
 ├── capitulos/*.tex       # 1 arquivo por capítulo
 ├── figuras/              # .pdf/.png gerados (mermaid, circuitikz, tikz)
+│                         # + playlist-CLP.png (QR code da playlist de vídeos)
 ├── diagramas/*.mmd       # fontes mermaid
 ├── codigo/               # listagens (ladder/ST/IL) referenciadas por \lstinputlisting
 ├── fontes/               # markdown extraído dos PDFs originais (insumo, não entrega)
@@ -112,6 +113,15 @@ apostila/
    os pontos obrigatórios, as normas aplicáveis e as armadilhas.
 5. Preserve o rigor técnico: fórmulas (resolução de E/S, cálculo de memória, IEEE-754) migram
    intactas; só a forma muda.
+6. **Material didático auxiliar (playlist de vídeos).** Logo depois da folha de rosto e **antes do
+   sumário** entra, em página própria sem numeração, o QR code da playlist dos vídeos dos capítulos:
+   o código é ele mesmo a âncora (`\href{\obraPlaylistURL}{\includegraphics...}`) e o endereço
+   aparece em `\url`, também clicável. A URL fica em `\obraPlaylistURL` (metadados da obra, ao lado
+   de `\obraRevisao`), a string canônica vem de `qrcode/videos.txt` e a imagem é
+   `apostila/figuras/playlist-CLP.png` (copiada de `qrcode/`). A página leva `\pdfbookmark` próprio
+   para o painel de favoritos. Confira as anotações depois do build:
+   `mutool show apostila.pdf pages | sed -n '3p'` dá o objeto da página, e
+   `<obj>/Annots` deve listar dois `/Link` com `/URI` da playlist.
 
 ### Etapa 4 — Diagramas, código e figuras
 
@@ -127,6 +137,16 @@ apostila/
    o requisito de referência correta.
 5. Ao mover ou atualizar uma figura herdada, confira o original em PDF: figuras vetorizadas extraídas
    para Markdown viram grade de tabela e perdem posicionamento.
+6. **Recuperar figura do PDF original** (receita verificada — ver *Armadilhas* abaixo):
+   1. localize a página pela legenda (`pdftotext -layout` + `grep`);
+   2. pegue a posição exata de cada imagem:
+      `mutool trace "arq.pdf" PAGINA | grep fill_image` → `transform="a 0 -0 d e f" width=… height=…`;
+      a figura ocupa `x = e .. e+a` e `y = f .. f+d`, com `y` medido do **topo**;
+   3. recorte a página renderizada (`pdftoppm -r 300 -png`) pela faixa de tinta (linhas com pixel
+      escuro) + `getbbox()` para aparar margens — vale para figura vetorial e raster;
+   4. se a legenda do original estiver **sobreposta** ao desenho, apague-a com `pdftotext -bbox` +
+      `paste` branco, **restringindo a busca à faixa vertical da figura**;
+   5. inclua com `\includegraphics` + `\caption` + `\label` + `\fontefig{obra, página, figura}`.
 
 ### Etapa 5 — Compilação e exportação
 
@@ -167,8 +187,10 @@ figuras, pendências e o que ficou fora de escopo.
 
 ## Armadilhas conhecidas
 
-- `latexmk` não existe aqui: chamar `latexmk` falha silenciosamente em pipelines de CI.
-- **`-file-line-error` muda o formato do erro**: o TeX escreve `arquivo.tex:linha: mensagem`, e não
+- `latexmk` não existe aqui: chamar `latexmk` falha silenciosamente em pipelines de CI.- **`\[` em vez de `\\[`**: depois de uma caixa de imagem, `\[0.7cm]` abre **modo matemático de
+  exibição** e o TeX acusa `Missing $ inserted` / `Display math should end with $$` a várias linhas de
+  distância, apontando para um `\end{center}` posterior. A causa real está na linha da quebra de linha
+  (aconteceu na página do QR code da playlist).- **`-file-line-error` muda o formato do erro**: o TeX escreve `arquivo.tex:linha: mensagem`, e não
   `! mensagem`. Procurar apenas `^! ` no log dá **zero erros falso** — foi assim que 23 erros de
   `circuitikz` passaram por "compilação limpa" e uma figura desapareceu do PDF. O `build.sh` já
   cobre os dois padrões; se rodar `pdflatex` à mão, use `grep -E '^! |\.tex:[0-9]+: '`.
@@ -193,8 +215,21 @@ figuras, pendências e o que ficou fora de escopo.
   `executablePath` para o `google-chrome` do sistema via `--puppeteerConfigFile`. Sem navegador algum,
   ele avisa e você desenha em TikZ — figura quebrada nunca vai para o PDF.
 - Figura referenciada e ausente não é erro fatal: o `build.sh` avisa antes de compilar e o PDF sai com
-  a área vazia (localize pelo aviso, não pelo PDF).
-- `\index{}` esquecido deixa o índice remissivo vazio: confira o tamanho de `build/*.ind`, que fica
+  a área vazia (localize pelo aviso, não pelo PDF).- **`pdfimages` não basta para recuperar figura do PDF de origem** (verificado em 2026-09-24):
+  - perde as figuras **vetoriais**, que não têm imagem embutida (a fig. 1 da `CLP_2023` e as fig. 8 e 9
+    da Rev. 05D são desenho vetorial);
+  - devolve **espelhada** a imagem desenhada com matriz de inversão (`d` negativo no `transform`) —
+    foi o caso da fig. 28 da Rev. 05D, p. 50.
+  Use `mutool trace` para a posição e recorte a página renderizada.
+- **Recorte de figura: pare antes da linha de legenda.** Se o `y1` encostar na legenda do original, o
+  topo dos glifos entra no quadro e aparece como uma fileira de tracinhos sob o desenho. Levante as
+  faixas de tinta da página (linhas com pixel escuro) antes de fixar `y0`/`y1`.
+- **Apagar legenda sobreposta por palavra-chave exige restringir a faixa `y`.** Sem isso, a mesma
+  palavra em minúscula no corpo do texto casa primeiro e o apagamento sai no lugar errado — sintoma:
+  o script relata sucesso e a legenda continua na figura.
+- **Agrupar palavras do `pdftotext -bbox` em linhas: ordene por `(yMin, xMin)`.** Ordenar só por `y`
+  embaralha títulos com numeração ("8.2.1.1. XIC (Examine If Closed)" sai fora de ordem) e quebra a
+  detecção de seção.- `\index{}` esquecido deixa o índice remissivo vazio: confira o tamanho de `build/*.ind`, que fica
   com 0 byte quando nenhum capítulo tem entradas de índice.
 - **Verificado**: sem `--pdfFit` o `mmdc` produz uma página Carta com o diagrama minúsculo no centro
   (o `width=\linewidth` amplia a folha em branco, não o desenho). O script já passa a opção;

@@ -94,14 +94,19 @@ Em qualquer processo de automação industrial deseja-se máxima disponibilidade
 sistema de controle pode interromper o processo ou gerar dano. As falhas vêm de software e de
 hardware: erro de programação, falha de rede, erro de fluxo de dados, cabeamento e degradação
 física. Redundância é o uso de um segundo recurso, físico ou lógico, apto a assumir o controle
-quando o primário falha --- é o meio mais simples de obter alta disponibilidade.
+quando o primário falha --- é o meio mais simples de obter alta disponibilidade. A
+Figura~\ref{fig:redundancia} mostra o arranjo mais comum: dois controladores completos ligados por
+rede, cada um com sua própria fonte.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.78\linewidth]{08-redundancia.pdf}
-  \caption{Arquitetura de redundância com CPU principal e CPU em espera.}
+  \includegraphics[width=0.88\linewidth]{leg-rev05d-f25-redundancia-hardware.png}
+  \caption{Exemplo de redundância de hardware: dois CLPs em redundância ligados por um
+  \emph{switch} Ethernet, com a remota de I/Os compartilhada pelos dois.}
   \label{fig:redundancia}
 \end{figure}
+\fontefig{TAVARES, L. O.; MONTEIRO, N. N. \emph{Controladores Lógicos Programáveis --- apostila
+final (teórica e prática)}, Rev.~05D, 2021, figura~25.}
 
 \begin{table}[H]
   \centering
@@ -131,7 +136,20 @@ memória
 Na arquitetura redundante, em condições normais a CPU principal lê as entradas, executa o programa e
 escreve as saídas. A cada ciclo, ela transfere continuamente o estado atual do processo para a CPU em
 espera, de modo que esta acompanhe tudo sem atuar nas saídas. Se a principal falha, a reserva assume
-com o estado já atualizado, e o processo não reinicia do zero.
+com o estado já atualizado, e o processo não reinicia do zero. É o que a
+Figura~\ref{fig:redundancia-software} detalha: as duas CPUs executam o mesmo programa de usuário,
+mas só a principal escreve saída.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{leg-rev05d-f26-redundancia-software.png}
+  \caption{Diagrama de fluxo do processo de redundância por software: as duas CPUs trocam
+  informação de \emph{status} e copiam os dados redundantes, de modo que a CPU em espera assuma o
+  controle com o processo atualizado.}
+  \label{fig:redundancia-software}
+\end{figure}
+\fontefig{TAVARES, L. O.; MONTEIRO, N. N. \emph{Controladores Lógicos Programáveis --- apostila
+final (teórica e prática)}, Rev.~05D, 2021, figura~26.}
 
 \begin{atencao}
 Redundância não substitui o projeto de segurança nem corrige programa mal escrito: uma lógica

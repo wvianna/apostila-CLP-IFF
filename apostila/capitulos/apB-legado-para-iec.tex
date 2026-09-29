@@ -368,6 +368,405 @@ por variáveis compartilhadas, o que torna impossível saber, olhando a chamada,
 normatizada declara as suas entradas e saídas --- e é isso que permite reutilizá-la em outro programa
 (Seção~\ref{sec:tarefas} e Capítulo~\ref{cap:iec-versus-legado}).
 
+\section{As instruções do item 8.2 da fonte, com figuras e exemplos}
+\label{sec:catalogo-82}
+
+O item 8.2 do material de origem (Rev.~05D) é a parte prática da apostila antiga: apresenta, uma a uma,
+as instruções e os blocos de função do ambiente \textbf{Allen-Bradley/RSLogix}. Isso é dialeto de
+fabricante --- não é a IEC 61131-3. As figuras desta seção foram extraídas daquele item e são
+reproduzidas com o crédito da fonte, para consulta de quem precisa ler um programa que já existe.
+
+Cada ficha traz o que a instrução faz, o elemento que a norma usa em seu lugar e a figura original com
+o exemplo da fonte. As conversões com código lado a lado estão nas seções anteriores deste apêndice;
+aqui o foco é o reconhecimento.
+
+\begin{atencao}
+Este material serve para \textbf{ler} código existente, não para escrever código novo. Escrever
+programa em dialeto de fabricante amarra a planta ao fornecedor
+(Capítulo~\ref{cap:iec-versus-legado}).
+\end{atencao}
+
+\subsection{Booleanas}
+
+\subsubsection{XIC --- \emph{Examine If Closed}}
+
+Examina o dado binário e conduz quando ele está energizado: é o contato normalmente aberto. Se o dado
+estiver energizado, o restante da linha é habilitado. Equivale ao contato \texttt{] [} da norma e, em
+texto estruturado, à condição de um \texttt{IF} (Figura~\ref{fig:leg-xic}).
+A Figura~\ref{fig:leg-xic-fluxo} reproduz o exemplo da fonte.
+
+\figlegado{xic}{leg-xic-a.png}{0.58\linewidth}{Legado: \texttt{XIC} sobre \texttt{chave1}; o contato conduz quando o dado está energizado.}
+
+\figlegado{xic-fluxo}{leg-xic-fluxo.png}{0.70\linewidth}{Fluxo do exame da condição: dado binário igual a 0 deixa a saída da linha falsa; igual a 1, verdadeira.}
+
+\subsubsection{XIO --- \emph{Examine If Opened}}
+
+Examina o dado e conduz quando ele está \emph{desenergizado}: é o contato normalmente fechado. Na
+norma, é o contato \texttt{]/[} e, em texto estruturado, a negação da condição.
+Os desenhos da fonte estão nas Figuras~\ref{fig:leg-xio} e~\ref{fig:leg-xio-fluxo}.
+
+\figlegado{xio}{leg-xio-a.png}{0.42\linewidth}{Legado: \texttt{XIO} sobre \texttt{chave1}; o contato conduz quando o dado está desenergizado.}
+
+\figlegado{xio-fluxo}{leg-xio-fluxo.png}{0.70\linewidth}{Fluxo do exame com contato invertido: dado binário igual a 0 torna a saída verdadeira.}
+
+\subsubsection{OTE --- \emph{Output Energize}}
+
+Bobina simples: energiza ou desenergiza o dado binário conforme o resultado da linha. A saída só
+permanece energizada enquanto a condição da linha for verdadeira --- é a bobina \texttt{( )} da norma.
+O caso da fonte aparece na Figura~\ref{fig:leg-ote}.
+
+\figlegado{ote}{leg-ote-a.png}{0.68\linewidth}{Legado: \texttt{OTE} aciona \texttt{lampada1} enquanto o contato \texttt{chave} permanece fechado.}
+
+\subsubsection{OTL --- \emph{Output Latch}}
+
+Bobina de retenção: energiza o dado e o mantém em 1 mesmo depois de a linha ficar falsa, até que outra
+instrução o desenergize. Corresponde à bobina \texttt{(S)} da norma; a conversão discutida em
+\emph{Retenção de saída} mostra por que ela exige cuidado com a ordem das instruções.
+A fonte ilustra esse caso na Figura~\ref{fig:leg-otl}.
+
+\figlegado{otl}{leg-otl-a.png}{0.40\linewidth}{Legado: \texttt{OTL} energiza \texttt{lampada} com retenção.}
+
+\subsubsection{OTU --- \emph{Output Unlatch}}
+
+Bobina de desretenção: devolve o dado a 0 quando habilitada e não altera nada quando desabilitada. É a
+bobina \texttt{(R)} da norma.
+A Figura~\ref{fig:leg-otu} reproduz o exemplo da fonte.
+
+\figlegado{otu}{leg-otu-a.png}{0.44\linewidth}{Legado: \texttt{OTU} desenergiza \texttt{lampada2} com retenção.}
+
+\subsubsection{ONS --- \emph{One Shot}}
+
+Deixa passar um único pulso: quando o bit de armazenamento está desenergizado, habilita o resto da
+linha e marca o bit; enquanto a entrada permanecer energizada, o restante da linha não é habilitado
+de novo. Na norma, quem faz isso é um bloco de detecção de borda (\texttt{R\_TRIG}) com instância
+própria --- e é aí que a conversão melhora o programa, porque o estado deixa de depender de um endereço
+escolhido a mão.
+O exemplo da fonte está na Figura~\ref{fig:leg-ons}.
+
+\figlegado{ons}{leg-ons-a.png}{0.70\linewidth}{Legado: \texttt{ONS} habilita \texttt{ADD} uma única vez por subida de \texttt{limit\_switch\_1}, usando \texttt{storage\_1} como bit de armazenamento.}
+
+\subsubsection{OSR --- \emph{One Shot Rising}}
+
+Versão do pulso único que já devolve um bit de saída: energiza o bit de saída na transição de
+desenergizado para energizado e o desenergiza nas demais situações. O bit de saída pode ser usado em
+várias linhas depois.
+A fonte traz esse caso nas Figuras~\ref{fig:leg-osr} e~\ref{fig:leg-osr-fluxo}.
+
+\figlegado{osr}{leg-osr-a.png}{0.72\linewidth}{Legado: \texttt{OSR} sobre \texttt{limit\_switch\_1} energiza \texttt{output\_bit\_1} uma vez por subida e soma 5 ao acumulado.}
+
+\figlegado{osr-fluxo}{leg-osr-fluxo.png}{0.70\linewidth}{Fluxo do \texttt{OSR}: o bit de saída depende do estado do bit de armazenamento e da condição da linha.}
+
+\subsubsection{OSF --- \emph{One Shot Falling}}
+
+O mesmo raciocínio do \texttt{OSR}, na transição inversa: energiza o bit de saída quando a entrada vai
+de energizada para desenergizada. Na norma, é o bloco \texttt{F\_TRIG}.
+As Figuras~\ref{fig:leg-osf} e~\ref{fig:leg-osf-fluxo} registram o caso como a fonte o apresenta.
+
+\figlegado{osf}{leg-osf-a.png}{0.72\linewidth}{Legado: \texttt{OSF} sobre \texttt{limit\_switch\_1} energiza \texttt{output\_bit\_2} uma vez por descida e soma 5 ao acumulado.}
+
+\figlegado{osf-fluxo}{leg-osf-fluxo.png}{0.62\linewidth}{Diagrama de tempo do \texttt{OSF}, que é o \texttt{OSR} visto pela transição de descida: a instrução é executada uma vez e só volta a operar na varredura seguinte.}
+
+\subsection{Temporizadores e contadores}
+
+\subsubsection{TON --- \emph{Timer On Delay}}
+
+Temporizador não retentivo: acumula tempo enquanto a linha está verdadeira. \emph{Preset} é o tempo de
+referência e \emph{Accum} é o tempo já acumulado, em milissegundos. Enquanto conta, a saída \texttt{EN}
+fica ativa; quando o acumulado alcança o \emph{Preset}, \texttt{EN} cai e \texttt{DN} sobe. Se a linha
+ficar falsa, o acumulado é zerado. Na norma, são as entradas \texttt{IN} e \texttt{PT} e as saídas
+\texttt{Q} e \texttt{ET}, com o tempo escrito por extenso (\texttt{T\#180ms}) --- sem base de tempo
+implícita.
+As Figuras~\ref{fig:leg-ton} e~\ref{fig:leg-ton-tempo} acompanham o exemplo da fonte.
+
+\figlegado{ton}{leg-ton-a.png}{0.70\linewidth}{Legado: \texttt{TON} com \texttt{Timer time\_1}, \emph{Preset} e \emph{Accum}, acionado por \texttt{limit\_switch\_1}.}
+
+\figlegado{ton-tempo}{leg-ton-tempo.png}{0.80\linewidth}{Diagrama de tempo do \texttt{TON}: \texttt{EN} acompanha a entrada, \texttt{TT} indica a contagem e \texttt{DN} sobe ao atingir a referência.}
+
+\subsubsection{TOF --- \emph{Timer Off Delay}}
+
+Temporizador não retentivo com comportamento invertido: a saída \texttt{DN} é acionada assim que a
+instrução é energizada e permanece acionada até o acumulado atingir a referência, quando então cai. O
+tempo só começa a contar quando a entrada desliga --- por isso é o temporizador usado em atrasos de
+desligamento.
+Os desenhos da fonte estão nas Figuras~\ref{fig:leg-tof} e~\ref{fig:leg-tof-tempo}.
+
+\figlegado{tof}{leg-tof-a.png}{0.72\linewidth}{Legado: \texttt{TOF} com \texttt{Timer time\_2}; o atraso de 180 ms vale na desenergização.}
+
+\figlegado{tof-tempo}{leg-tof-tempo.png}{0.78\linewidth}{Diagrama de tempo do \texttt{TOF}: a saída cai somente depois de transcorrido o tempo de referência após a entrada desligar.}
+
+\subsubsection{RTO --- \emph{Retentive Timer On}}
+
+Temporizador retentivo: acumula tempo enquanto habilitado, mas \textbf{retém} o valor acumulado quando
+a instrução é desabilitada. Para recomeçar do zero é preciso reiniciá-lo com \texttt{RES}. Na norma, o
+reinício é a entrada \texttt{RESET} do bloco.
+A fonte traz esse caso nas Figuras~\ref{fig:leg-rto} e~\ref{fig:leg-rto-tempo}.
+
+\figlegado{rto}{leg-rto-a.png}{0.72\linewidth}{Legado: \texttt{RTO} com \texttt{Timer time\_3}; o acumulado é retido e só zera com \texttt{RES}.}
+
+\figlegado{rto-tempo}{leg-rto-tempo.png}{0.86\linewidth}{Diagrama de tempo do \texttt{RTO}: o acumulado não é perdido quando a entrada desliga, ao contrário do \texttt{TON}.}
+
+\subsubsection{CTU --- \emph{Count Up}}
+
+Contador crescente: incrementa o acumulado em 1 a cada transição de desenergizado para energizado e
+mantém o valor quando desenergizado. O acumulado continua subindo mesmo depois de o bit de conclusão
+\texttt{DN} ser ativado, até que o contador seja reiniciado.
+As Figuras~\ref{fig:leg-ctu} e~\ref{fig:leg-ctu-tempo} registram o caso como a fonte o apresenta.
+
+\figlegado{ctu}{leg-ctu-a.png}{0.72\linewidth}{Legado: \texttt{CTU} com referência 10; o bit \texttt{DN} energiza \texttt{light\_1} e \texttt{RES} zera o acumulado.}
+
+\figlegado{ctu-tempo}{leg-ctu-tempo.png}{0.86\linewidth}{Diagrama de tempo do \texttt{CTU}: a saída \texttt{DN} sobe ao alcançar o valor de referência e permanece até o reinício.}
+
+\subsubsection{CTD --- \emph{Count Down}}
+
+Contador decrescente: a estrutura é a mesma do \texttt{CTU}, mas cada transição \emph{decrementa} o
+acumulado. Também precisa ser reiniciado para voltar ao valor inicial.
+A Figura~\ref{fig:leg-ctd-tempo} reproduz o exemplo da fonte.
+
+\figlegado{ctd-tempo}{leg-ctd-tempo.png}{0.86\linewidth}{Diagrama de tempo do \texttt{CTD}: o acumulado decresce a cada pulso de entrada.}
+
+\subsubsection{RES}
+
+Reinicia temporizadores, contadores e palavras: devolve o acumulado a zero. Na norma, é a entrada de
+reinício do próprio bloco ou uma atribuição de valor inicial.
+O exemplo da fonte está na Figura~\ref{fig:leg-res}.
+
+\figlegado{res}{leg-res-a.png}{0.30\linewidth}{Legado: \texttt{RES} zera \texttt{counter\_1} quando \texttt{limit\_switch\_2} fecha.}
+
+\subsection{Comparadores}
+
+As sete instruções de comparação do legado trabalham do mesmo modo: avaliam a relação entre
+\emph{Source A} e \emph{Source B} e habilitam a linha quando a relação é verdadeira. A norma as
+substitui por operadores relacionais em expressão --- \texttt{=}, \texttt{<>}, \texttt{<}, \texttt{>},
+\texttt{<=} e \texttt{>=} ---, que funcionam tanto em texto estruturado quanto na comparação dentro de
+blocos.
+
+\subsubsection{EQU --- \emph{Equal}}
+
+Verdadeira quando \emph{Source A} é igual a \emph{Source B}. Serve para números e também para comparar
+duas palavras, que serão iguais se seus caracteres coincidirem.
+A Figura~\ref{fig:leg-equ} mostra o exemplo nas duas representações, em Ladder e em diagrama de blocos.
+
+\figlegadopar{equ}{leg-equ-a.png}{leg-equ-b.png}{0.46\linewidth}{Exemplo de \texttt{EQU} na fonte: se \texttt{valor\_1} for igual a \texttt{valor\_2}, \texttt{luz\_a} é energizada.}
+
+\subsubsection{NEQ --- \emph{Not Equal To}}
+
+Verdadeira quando os dois valores são diferentes.
+A Figura~\ref{fig:leg-neq} mostra o exemplo nas duas representações, em Ladder e em diagrama de blocos.
+
+\figlegadopar{neq}{leg-neq-a.png}{leg-neq-b.png}{0.44\linewidth}{Exemplo de \texttt{NEQ} na fonte: com valores diferentes, \texttt{luz\_4} é energizada.}
+
+\subsubsection{LES --- \emph{Less Than}}
+
+Verdadeira quando \texttt{Source A} é menor que \texttt{Source B}.
+A Figura~\ref{fig:leg-les} mostra o exemplo nas duas representações, em Ladder e em diagrama de blocos.
+
+\figlegadopar{les}{leg-les-a.png}{leg-les-b.png}{0.44\linewidth}{Exemplo de \texttt{LES} na fonte: \texttt{luz\_3} é energizada quando \texttt{valor\_1} é menor que \texttt{valor\_2}.}
+
+\subsubsection{GRT --- \emph{Greater Than}}
+
+Verdadeira quando \texttt{Source A} é maior que \texttt{Source B}.
+A Figura~\ref{fig:leg-grt} mostra o exemplo nas duas representações, em Ladder e em diagrama de blocos.
+
+\figlegadopar{grt}{leg-grt-a.png}{leg-grt-b.png}{0.44\linewidth}{Exemplo de \texttt{GRT} na fonte: \texttt{luz\_1} é energizada quando \texttt{valor\_1} é maior que \texttt{valor\_2}.}
+
+\subsubsection{LEQ --- \emph{Less Than or Equal To}}
+
+Verdadeira quando \texttt{Source A} é menor ou igual a \texttt{Source B}.
+A Figura~\ref{fig:leg-leq} mostra o exemplo nas duas representações, em Ladder e em diagrama de blocos.
+
+\figlegadopar{leq}{leg-leq-a.png}{leg-leq-b.png}{0.44\linewidth}{Exemplo de \texttt{LEQ} na fonte: \texttt{luz\_2} é energizada quando \texttt{valor\_1} é menor ou igual a \texttt{valor\_2}.}
+
+\subsubsection{GEQ --- \emph{Greater Than or Equal To}}
+
+Verdadeira quando \texttt{Source A} é maior ou igual a \texttt{Source B}.
+A Figura~\ref{fig:leg-geq} mostra o exemplo nas duas representações, em Ladder e em diagrama de blocos.
+
+\figlegadopar{geq}{leg-geq-a.png}{leg-geq-b.png}{0.44\linewidth}{Exemplo de \texttt{GEQ} na fonte: \texttt{luz\_b} é energizada quando \texttt{valor\_1} é maior ou igual a \texttt{valor\_2}.}
+
+\subsubsection{CMP --- \emph{Compare}}
+
+Compara expressões aritméticas escritas pelo programador em \emph{Expression}, usando operadores,
+nomes de variáveis e valores imediatos. Exige parênteses nas expressões mais complexas; executa mais
+devagar e ocupa mais memória que as demais comparações, mas resolve uma expressão inteira em uma única
+instrução. Na norma não existe instrução equivalente: escreve-se a expressão direto, com os operadores
+relacionais.
+As Figuras~\ref{fig:leg-cmp} e~\ref{fig:leg-cmp-operadores} acompanham o exemplo da fonte.
+
+\figlegado{cmp}{leg-cmp-a.png}{0.60\linewidth}{Legado: \texttt{CMP} avalia a expressão \texttt{(valor\_1*valor\_2)-valor\_3 < valor\_4}.}
+
+\figlegado{cmp-operadores}{leg-cmp-operadores.png}{0.84\linewidth}{Tabela de operadores aceitos na expressão de \texttt{CMP} e de \texttt{CPT}, com o tipo de dado exigido por cada um.}
+
+\subsection{Instruções matemáticas}
+
+As instruções desta família usam \emph{Source A} e \emph{Source B} como operandos e \emph{Dest} como
+destino --- a exceção é o \texttt{CPT}, que avalia uma expressão. Na norma, o destino é simplesmente o
+lado esquerdo de uma atribuição, e o tipo da variável de destino define o resultado.
+
+\subsubsection{ADD --- \emph{Add}}
+
+Soma \texttt{Source A} a \texttt{Source B} e guarda o resultado em \texttt{Dest}.
+A Figura~\ref{fig:leg-add} mostra o exemplo nas duas representações, em Ladder e em diagrama de blocos.
+
+\figlegadopar{add}{leg-add-a.png}{leg-add-b.png}{0.44\linewidth}{Exemplo de \texttt{ADD} na fonte: a soma de \texttt{valor\_1} e \texttt{valor\_2} é armazenada em \texttt{resultado}.}
+
+\subsubsection{SUB --- \emph{Subtract}}
+
+Subtrai \texttt{Source B} de \texttt{Source A} e guarda o resultado em \texttt{Dest}.
+A Figura~\ref{fig:leg-sub} mostra o exemplo nas duas representações, em Ladder e em diagrama de blocos.
+
+\figlegadopar{sub}{leg-sub-a.png}{leg-sub-b.png}{0.44\linewidth}{Exemplo de \texttt{SUB} na fonte: \texttt{valor\_1} menos \texttt{valor\_2} é armazenado em \texttt{resultado}.}
+
+\subsubsection{MUL --- \emph{Multiply}}
+
+Multiplica \texttt{Source A} por \texttt{Source B} e guarda o resultado em \texttt{Dest}.
+A Figura~\ref{fig:leg-mul} mostra o exemplo nas duas representações, em Ladder e em diagrama de blocos.
+
+\figlegadopar{mul}{leg-mul-a.png}{leg-mul-b.png}{0.44\linewidth}{Exemplo de \texttt{MUL} na fonte: o produto de \texttt{valor\_1} e \texttt{valor\_2} é armazenado em \texttt{resultado}.}
+
+\subsubsection{DIV --- \emph{Divide}}
+
+Divide \texttt{Source A} (dividendo) por \texttt{Source B} (divisor) e guarda o resultado em
+\texttt{Dest}. Atenção à tipagem: em texto estruturado, a divisão entre inteiros trunca o resultado.
+A Figura~\ref{fig:leg-div} mostra o exemplo nas duas representações, em Ladder e em diagrama de blocos.
+
+\figlegadopar{div}{leg-div-a.png}{leg-div-b.png}{0.44\linewidth}{Exemplo de \texttt{DIV} na fonte: \texttt{valor\_1} dividido por \texttt{valor\_2}, com o resultado em \texttt{resultado}.}
+
+\subsubsection{MOD --- \emph{Modulo}}
+
+Divide \texttt{Source A} por \texttt{Source B} e guarda em \texttt{Dest} apenas o \textbf{resto} da
+divisão. Na norma, é o operador \texttt{MOD}.
+A Figura~\ref{fig:leg-mod} mostra o exemplo nas duas representações, em Ladder e em diagrama de blocos.
+
+\figlegadopar{mod}{leg-mod-a.png}{leg-mod-b.png}{0.44\linewidth}{Exemplo de \texttt{MOD} na fonte: o resto da divisão do dividendo 10 pelo divisor 3 é armazenado em \texttt{resto}.}
+
+\subsubsection{SQR --- \emph{Square Root}}
+
+Calcula a raiz quadrada do valor de \texttt{Source} e guarda o resultado em \texttt{Dest}. Se o valor
+for negativo, a instrução usa o valor absoluto. Na norma, é a função \texttt{SQRT}.
+A Figura~\ref{fig:leg-sqr} mostra o exemplo nas duas representações, em Ladder e em diagrama de blocos.
+
+\figlegadopar{sqr}{leg-sqr-a.png}{leg-sqr-b.png}{0.44\linewidth}{Exemplo de \texttt{SQR} na fonte: a raiz quadrada de \texttt{valor\_1} é armazenada em \texttt{resultado}.}
+
+\subsubsection{NEG --- \emph{Negate}}
+
+Inverte o sinal do valor de \texttt{Source}: a negação de um valor negativo resulta positiva, e
+vice-versa.
+A Figura~\ref{fig:leg-neg} mostra o exemplo nas duas representações, em Ladder e em diagrama de blocos.
+
+\figlegadopar{neg}{leg-neg-a.png}{leg-neg-b.png}{0.44\linewidth}{Exemplo de \texttt{NEG} na fonte: a negação de \texttt{valor\_1} é armazenada em \texttt{resultado}.}
+
+\subsubsection{ABS --- \emph{Absolute Value}}
+
+Obtém o módulo do valor de \texttt{Source} --- o valor sem o sinal --- e o guarda em \texttt{Dest}.
+A Figura~\ref{fig:leg-abs} mostra o exemplo nas duas representações, em Ladder e em diagrama de blocos.
+
+\figlegadopar{abs}{leg-abs-a.png}{leg-abs-b.png}{0.44\linewidth}{Exemplo de \texttt{ABS} na fonte: o módulo de \texttt{valor\_1} é guardado no destino.}
+
+\subsubsection{CPT --- \emph{Compute}}
+
+Avalia a expressão aritmética definida em \emph{Expression} e guarda o resultado em \texttt{Dest}. Como
+o \texttt{CMP}, resolve expressões complexas em uma única instrução e admite a mesma tabela de
+operadores.
+O exemplo da fonte está na Figura~\ref{fig:leg-cpt}.
+
+\figlegado{cpt}{leg-cpt-a.png}{0.56\linewidth}{Legado: \texttt{CPT} avalia \texttt{(valor\_1*5)/(valor\_2/7)} e guarda o resultado.}
+
+\subsection{Operadores lógicos e de movimentação}
+
+Estas instruções trabalham sobre \emph{bits} da palavra, não sobre o valor numérico dela. É a mesma
+advertência que fecha a seção de conversão deste apêndice: o símbolo \texttt{AND} sobre variáveis
+booleanas é operação lógica; sobre palavras, é operação bit a bit.
+
+\subsubsection{MOV --- \emph{Move}}
+
+Copia a informação de \texttt{Source} para \texttt{Dest}; a informação continua armazenada em
+\texttt{Source}. Na norma, é uma atribuição.
+O caso da fonte aparece na Figura~\ref{fig:leg-mov}.
+
+\figlegado{mov}{leg-mov-a.png}{0.52\linewidth}{Legado: \texttt{MOV} copia \texttt{valor\_1} para \texttt{valor\_2}.}
+
+\subsubsection{AND --- \emph{Bitwise AND}}
+
+Faz a operação lógica E bit a bit entre \texttt{Source A} e \texttt{Source B} e guarda o resultado em
+\texttt{Dest}.
+A Figura~\ref{fig:leg-and} mostra o exemplo nas duas representações, em Ladder e em diagrama de blocos.
+
+\figlegadopar{and}{leg-and-a.png}{leg-and-b.png}{0.44\linewidth}{Exemplo de \texttt{AND} na fonte: a operação bit a bit entre \texttt{valor\_1} e \texttt{valor\_2} resulta em \texttt{resultado}.}
+
+\figlegado{and-bits}{leg-and-bits.png}{0.86\linewidth}{Representação da operação \texttt{AND} sobre os bits: o resultado tem 1 apenas onde os dois operandos têm 1.}
+
+\subsubsection{OR --- \emph{Bitwise Inclusive OR}}
+
+Faz a operação lógica OU bit a bit entre os dois operandos e guarda o resultado em \texttt{Dest}.
+A Figura~\ref{fig:leg-or} mostra o exemplo nas duas representações, em Ladder e em diagrama de blocos.
+
+\figlegadopar{or}{leg-or-a.png}{leg-or-b.png}{0.44\linewidth}{Exemplo de \texttt{OR} na fonte: a operação bit a bit entre \texttt{valor\_1} e \texttt{valor\_2} resulta em \texttt{resultado}.}
+
+\figlegado{or-bits}{leg-or-bits.png}{0.50\linewidth}{Tabela-verdade do \texttt{OR} bit a bit, como a fonte a apresenta.}
+
+\subsubsection{XOR --- \emph{Bitwise Exclusive OR}}
+
+Faz a operação OU exclusivo bit a bit: o resultado tem 1 onde os operandos \emph{diferem}.
+A Figura~\ref{fig:leg-xor} mostra o exemplo nas duas representações, em Ladder e em diagrama de blocos.
+
+\figlegadopar{xor}{leg-xor-a.png}{leg-xor-b.png}{0.44\linewidth}{Exemplo de \texttt{XOR} na fonte: a operação bit a bit entre \texttt{valor\_1} e \texttt{valor\_2} resulta em \texttt{resultado}.}
+
+\figlegado{xor-bits}{leg-xor-bits.png}{0.86\linewidth}{Representação da operação \texttt{XOR} sobre os bits, com o resultado bit a bit.}
+
+\subsubsection{NOT --- \emph{Bitwise NOT}}
+
+Inverte todos os bits de \texttt{Source} e guarda o resultado em \texttt{Dest}: onde havia 1, passa a
+haver 0, e vice-versa.
+A Figura~\ref{fig:leg-not} mostra o exemplo nas duas representações, em Ladder e em diagrama de blocos.
+
+\figlegadopar{not}{leg-not-a.png}{leg-not-b.png}{0.44\linewidth}{Exemplo de \texttt{NOT} na fonte: a inversão bit a bit de \texttt{valor\_1} resulta em \texttt{resultado}.}
+
+\figlegado{not-bits}{leg-not-bits.png}{0.86\linewidth}{Representação da operação \texttt{NOT} sobre os bits: todos os bits são invertidos.}
+
+\subsubsection{CLR}
+
+Reseta todos os bits armazenados em \texttt{Dest}, igualando-os a zero. Na norma, é uma atribuição de
+valor zero --- e, em Ladder, a bobina de desretenção faz o mesmo para uma saída retida.
+A fonte ilustra esse caso na Figura~\ref{fig:leg-clr}.
+
+\figlegado{clr}{leg-clr-a.png}{0.36\linewidth}{Legado: \texttt{CLR} zera todos os bits da variável de destino.}
+
+\subsection{Movimentação de bits e desvio}
+
+\subsubsection{BSL --- \emph{Bit Shift Left}}
+
+Desloca os bits de \emph{Array} uma posição para a esquerda. O bit que sai do comprimento definido em
+\emph{Length} vai para o bit \texttt{.UL}; os demais andam uma posição, e o bit indicado em
+\emph{Source Bit} entra na posição 0. \texttt{.EN} indica que a instrução está habilitada e
+\texttt{.DN} que o deslocamento foi concluído. A norma não tem instrução equivalente: o
+deslocamento é montado com as funções de deslocamento sobre \emph{bit strings} --- e o bit que sai
+precisa ser lido \emph{antes} do deslocamento.
+A Figura~\ref{fig:leg-bsl} mostra o exemplo nas duas representações, em Ladder e em diagrama de blocos.
+
+\figlegadopar{bsl}{leg-bsl-a.png}{leg-bsl-b.png}{0.42\linewidth}{Legado: \texttt{BSL} sobre \texttt{array\_dint[0]}, com \emph{Control}, \emph{Source Bit}, \emph{Length} e os bits \texttt{EN} e \texttt{DN}.}
+
+\figlegado{bsl-bits}{leg-bsl-bits.png}{0.86\linewidth}{Efeito do \texttt{BSL} sobre os bits: o bit 9 é descarregado em \texttt{.UL}, os demais andam para a esquerda e \texttt{input\_1} entra no bit 0.}
+
+\subsubsection{BSR --- \emph{Bit Shift Right}}
+
+O mesmo que o \texttt{BSL}, no sentido oposto: desloca os bits uma posição para a direita, descarrega o
+último bit do comprimento em \texttt{.UL} e insere o bit de \emph{Source Bit} na nova posição livre.
+A Figura~\ref{fig:leg-bsr} mostra o exemplo nas duas representações, em Ladder e em diagrama de blocos.
+
+\figlegadopar{bsr}{leg-bsr-a.png}{leg-bsr-b.png}{0.42\linewidth}{Legado: \texttt{BSR} sobre \texttt{array\_dint[0]}, com \emph{Control}, \emph{Source Bit} e \emph{Length}.}
+
+\figlegado{bsr-bits}{leg-bsr-bits.png}{0.80\linewidth}{Efeito do \texttt{BSR} sobre os bits: o bit 9 é descarregado em \texttt{.UL} e os demais andam para a direita.}
+
+\subsubsection{JSR --- \emph{Jump to Subroutine}}
+
+Salta da rotina principal para uma sub-rotina, executa-a e volta. O problema do legado não é o salto:
+é que a sub-rotina \textbf{não declara interface} --- recebe e devolve dados por variáveis
+compartilhadas, o que torna impossível saber, olhando a chamada, de que ela depende. Na norma, chama-se
+uma POU com entradas e saídas declaradas (Seção~\ref{sec:tarefas}).
+O caso da fonte aparece na Figura~\ref{fig:leg-jsr}.
+
+\figlegado{jsr}{leg-jsr-a.png}{0.38\linewidth}{Legado: \texttt{JSR} chama a rotina indicada em \emph{Routine name}, com parâmetros de entrada e de retorno.}
+
 \section{O que não se converte mecanicamente}
 
 A Tabela~\ref{tab:nao-converte} reúne os pontos em que a conversão exige decisão de projeto. Ela é o

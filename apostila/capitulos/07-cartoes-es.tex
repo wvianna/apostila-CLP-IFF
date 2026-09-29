@@ -26,7 +26,7 @@ de E/S isola e filtra o sinal para entregar à CPU uma informação confiável.
 
 \section{Caminho do sinal em um cartão de entrada}
 
-Os elementos de um cartão de entrada digital, na ordem em que o sinal os atravessa:
+Os elementos de um cartão de entrada digital, na ordem em que o sinal os atravessa: A Figura~\ref{fig:cartao-entrada} mostra essa sequência de tratamento.
 
 \begin{figure}[H]
   \centering
@@ -45,7 +45,7 @@ Os elementos de um cartão de entrada digital, na ordem em que o sinal os atrave
   \item[I.M. --- interface e multiplexação:] informa ao processador o estado de cada variável.
 \end{description}
 
-O cartão de saída percorre o caminho inverso:
+O cartão de saída percorre o caminho inverso: A Figura~\ref{fig:cartao-saida} percorre o caminho inverso, da CPU ao atuador.
 
 \begin{figure}[H]
   \centering
@@ -69,10 +69,36 @@ As entradas digitais aparecem nas formas abaixo, conforme a especificação:
   \item 110\,V CA e 220\,V CA.
 \end{itemize}
 
+O que separa os dois casos de alimentação é o que o circuito precisa fazer com o sinal antes de
+isolar: em corrente contínua ele já chega na forma que o optoacoplador usa; em corrente alternada,
+precisa primeiro ser retificado. As figuras~\ref{fig:entrada-cc} e~\ref{fig:entrada-ca} mostram os
+dois circuitos lado a lado.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{leg-rev05d-f08-entrada-cc.png}
+  \caption{Cartão de entrada digital com alimentação em corrente contínua: os dois bornes de campo
+  recebem 24\,V CC, e o diodo em série com o resistor define o sentido da corrente pelo LED do
+  optoacoplador.}
+  \label{fig:entrada-cc}
+\end{figure}
+\fontefig{TAVARES, L. O.; MONTEIRO, N. N. \emph{Controladores Lógicos Programáveis --- apostila
+final (teórica e prática)}, Rev.~05D, 2021, figura~8.}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{leg-rev05d-f09-entrada-ca.png}
+  \caption{Cartão de entrada digital com alimentação em corrente alternada: a ponte retificadora
+  converte os 110\,V CA ou 220\,V CA em corrente contínua antes do optoacoplador.}
+  \label{fig:entrada-ca}
+\end{figure}
+\fontefig{TAVARES, L. O.; MONTEIRO, N. N. \emph{Controladores Lógicos Programáveis --- apostila
+final (teórica e prática)}, Rev.~05D, 2021, figura~9.}
+
 A entrada digital com \textbf{fonte externa} é a mais utilizada: as chaves que acionam a entrada ficam
 no campo e a fonte de alimentação é externa ao CLP. O circuito interno é isolado por
 \emph{optoacoplador} --- um LED do lado de campo e um fototransistor do lado interno, sem ligação
-elétrica entre os dois.
+elétrica entre os dois. A Figura~\ref{fig:entrada-opto} detalha esse circuito.
 
 \begin{figure}[H]
   \centering
@@ -250,7 +276,7 @@ Quanto ao elemento de comutação, a saída digital pode ser de quatro tipos:
       & Cargas de sinal, em placa & Rápida & Baixa corrente; uso restrito \\
     \bottomrule
   \end{tabular}
-\end{table}
+\end{table} A Figura~\ref{fig:saida-rele} mostra essa ligação.
 
 \begin{figure}[H]
   \centering

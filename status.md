@@ -1,10 +1,10 @@
 # Status da nova apostila de CLP
 
-**Data do snapshot:** 2026-09-24 (revisão do autor, lote 1)
-**Produto:** `apostila/apostila.pdf` — **200 páginas**, 0 erro de TeX, 0 referência indefinida,
+**Data do snapshot:** 2026-09-24 (revisão do autor, lote 2)
+**Produto:** `apostila/apostila.pdf` — **227 páginas**, 0 erro de TeX, 0 referência indefinida,
 0 `Overfull \vbox`, nenhum `Overfull \hbox` acima de 5 pt
 **Build atual:** `cd apostila && ./scripts/build.sh` (exit 0)
-**Métricas:** 35 figuras, 68 tabelas, índice remissivo com 4.516 bytes
+**Métricas:** 93 figuras, 68 tabelas, índice remissivo com 4.518 bytes
 
 > **Decisão do autor (2026-09-22):** o `apostila.docx` não deve ser gerado nem editado. O produto é o
 > PDF; a exportação DOCX fica fora do escopo deste ciclo.
@@ -310,3 +310,120 @@ pertence aos autores e **não** é coberta pela CC BY-SA 4.0.
 necessariamente genérico e a licença original não pôde ser conferida. Se alguma das imagens de base
 for protegida, ela precisa ser substituída por uma de licença livre — ou redesenhada do zero — antes
 de qualquer publicação externa da obra.
+
+---
+
+## 13. Revisão do autor — lote 2: figuras e tabela recuperadas das fontes (2026-09-24)
+
+Segundo lote de ajustes: o autor pediu que fossem incluídas na apostila figuras e tabelas
+específicas das duas apostilas de origem. O PDF passou de 200 para **226 páginas**.
+
+**Decisão do autor (registrada antes da execução), quando a figura da fonte já tinha equivalente
+redesenhado na obra:**
+
+1. **substituir** — entra a figura da fonte no lugar da redesenhada;
+2. as figuras do item 8.2 do legado vão para o **Apêndice B**, com os respectivos exemplos;
+3. extração por **recorte de página renderizada a 300 dpi** (não apenas `pdfimages`).
+
+### 13.1 O que entrou, item por item
+
+| Pedido | Origem | Destino | Ação |
+| --- | --- | --- | --- |
+| Figura 1 — diagrama em blocos do CLP | `CLP_2023` p. 9 | Cap. 5, § Arquitetura de blocos | **substituiu** `05-arquitetura-clp.pdf` (figura 5.1) |
+| Figura 35 — modelo de software IEC 61131-3 | `CLP_2023` p. 46 | Cap. 11, figura 11.1 | **substituiu** `11-modelo-software.pdf` |
+| Figura 65 — esquema básico de SCADA | `CLP_2023` p. 68 | Cap. 17, figura 17.3 | **substituiu** `17-arquitetura-scada.pdf` |
+| Figura 68 — arquitetura de rede de CLPs | `CLP_2023` p. 70 | Cap. 17, figura 17.2 | **acrescentada** (a figura 17.1, das três arquiteturas, cobre as outras duas e alimenta a Tabela 17.1; não era duplicata) |
+| Tabela de tipos de dados do item 4.5.1 | Rev. 05D p. 20 | Cap. 6, Tabela 6.3 | **substituiu** a tabela redesenhada, agora com a coluna «Descrição» e as faixas em potências de dois, como na fonte |
+| Figura 8 — cartão de entrada digital em CC | Rev. 05D p. 31 | Cap. 7, figura 7.3 | **acrescentada** |
+| Figura 9 — cartão de entrada digital em CA | Rev. 05D p. 31 | Cap. 7, figura 7.4 | **acrescentada** |
+| Figura 25 — redundância de hardware | Rev. 05D p. 46 | Cap. 8, figura 8.1 | **substituiu** `08-redundancia.pdf` |
+| Figura 26 — redundância por software | Rev. 05D p. 47 | Cap. 8, figura 8.2 | **acrescentada** |
+| Figura 28 — ciclo de operação do CLP | Rev. 05D p. 50 | Cap. 9, figura 9.1 | **substituiu** `09-ciclo-varredura.pdf` |
+| Todas as figuras do item 8.2 (instruções e blocos de função) | Rev. 05D p. 63–103 | **Apêndice B**, § B.5 (48 figuras, fichas B.1 a B.49) | **acrescentadas** |
+
+### 13.2 Seção nova do Apêndice B
+
+**B.5 As instruções do item 8.2 da fonte, com figuras e exemplos** — catálogo das 39 instruções do
+item 8.2, agrupadas nas famílias da fonte (Booleanas; temporizadores e contadores; comparadores;
+matemáticas; operadores lógicos e de movimentação; movimentação de bits e desvio). Cada ficha traz o
+que a instrução faz, o elemento que a norma usa em seu lugar, o crédito da fonte e a figura original
+— no caso dos comparadores e das operações matemáticas, o par ladder + diagrama de blocos do mesmo
+exemplo, em uma única figura de dois painéis.
+
+Duas macros novas no preâmbulo (`apostila.tex`, replicadas no template da skill) reduzem a repetição:
+
+- `\figlegado{rótulo}{arquivo}{largura}{legenda}` — uma imagem;
+- `\figlegadopar{rótulo}{arquivo1}{arquivo2}{largura}{legenda}` — duas imagens lado a lado.
+
+Ambas emitem `\caption`, `\label{fig:leg-<rótulo>}` e o crédito da fonte por `\fontefig`.
+
+### 13.3 Correções que a fonte exigia
+
+- **`REAL` descrito como "precisão dupla"** na tabela 4.5.1: é precisão simples (32 bits). Mantido o
+  nome, corrigida a descrição.
+- **Faixa do `DINT`**: a fonte grafa "a 2.147.483.648"; corrigido para $2^{31}-1 = 2.147.483.647$.
+- **Índices de potência em texto corrido**: a fonte escreve `-(27) a (27 – 1)`; na apostila as faixas
+  saem como $-(2^{7})$ a $(2^{7}-1)$.
+
+### 13.4 Ferramental: como as figuras foram extraídas
+
+O procedimento virou rotina reutilizável e ficou registrado na skill:
+
+1. **Posição exata de cada imagem**: `mutool trace` imprime o `transform` de cada `fill_image`
+   (`x`, `y`, largura e altura em pontos) — é o que permite casar a figura com a subseção que a
+   antecede sem adivinhação.
+2. **Recorte**: página renderizada com `pdftoppm -r 300`; o recorte usa os limites da faixa de tinta
+   (linhas com pixel escuro), o que funciona igual para figura vetorial e raster.
+3. **`pdfimages` não basta**: além de perder as figuras vetoriais (a Figura 1 da `CLP_2023` e as
+   Figuras 8 e 9 da Rev. 05D são desenho vetorial, sem imagem embutida), ele devolve **espelhada** a
+   imagem da Figura 28 — o PDF a desenha com matriz de inversão (`d` negativo), e a extração crua
+   ignora o espelhamento.
+4. **Legenda sobreposta**: na `CLP_2023`, a legenda da Figura 68 cai **por cima** do desenho. A
+   legenda foi apagada do recorte com `pdftotext -bbox` + `paste` branco. Armadilha encontrada: buscar
+   a palavra-chave "Arquitetura" sem restringir a faixa vertical apagou a **palavra do corpo do
+   texto** (minúscula, em `y` bem acima) e deixou a legenda intacta — a busca passou a exigir que a
+   palavra esteja dentro da faixa `y` da figura.
+
+**Verificação final:** 226 páginas, 0 erro de TeX, 0 referência indefinida, 0 `Overfull \vbox`,
+0 `Overfull \hbox` acima de 5 pt, 0 palavra desenhada acima da mancha. Conferência visual das páginas
+50, 51, 61, 62, 66, 79, 112, 113, 115 e de dez páginas do catálogo do Apêndice B.
+
+### 13.5 Pendências e observações
+
+- Os diagramas mermaid substituídos (`05-arquitetura-clp`, `08-redundancia`, `09-ciclo-varredura`,
+  `11-modelo-software`, `17-arquitetura-scada`) **continuam** em `diagramas/` e `figuras/`, sem uso na
+  obra, como alternativa vetorial — mesma decisão já adotada para o `03-piramide-automacao`.
+- As figuras da `CLP_2023` trazem, no próprio desenho, o crédito de origem (a Figura 35 tem o carimbo
+  "9290-707-06-001 (Rev.00)" e a Figura 65, o título "ESQUEMA BÁSICO DE UM SISTEMA SCADA COM USO DE
+  CLP"); foram mantidas como estão, com o crédito bibliográfico acrescentado na legenda.
+- **13 figuras que já existiam na obra não eram citadas no texto** (lacuna anterior a este lote,
+  apontada pelo *Definition of Done*). Foram citadas nos capítulos 2, 4, 6, 7, 9, 10, 12, 13, 14 e 16.
+
+---
+
+## 14. Material didático auxiliar — playlist de vídeos (2026-09-29)
+
+Pedido do autor: abrir a apostila com o **QR code da playlist de vídeos dos capítulos** e com o
+**link clicável** da mesma playlist (fonte da URL: `qrcode/videos.txt`).
+
+- Página nova de abertura, entre a folha de rosto e o sumário: **página 3**, sem numeração,
+  com `\pdfbookmark` próprio (**«Material didático auxiliar — vídeos»**) para aparecer no painel de
+  favoritos do PDF.
+- O **QR code é ele mesmo a âncora** (`\href{...}{\includegraphics{...}}`) — clicar na imagem abre a
+  playlist —, e o endereço aparece em `\url{}`, também clicável. Ambos apontam para
+  `https://www.youtube.com/playlist?list=PLUTnDfgcycd8`.
+- URL centralizada em `\obraPlaylistURL` no preâmbulo, junto dos demais metadados da obra: mudar a
+  playlist é editar uma linha.
+- Imagem: `qrcode/playlist-CLP.png` copiada para `apostila/figuras/playlist-CLP.png` (é a pasta do
+  `\graphicspath` e a que o *pre-flight* do `build.sh` verifica).
+- Verificação: 227 páginas, 0 erro de TeX, e as **duas anotações `/Link`** confirmadas na página
+  (`mutool show apostila.pdf 1101/Annots`) — uma sobre o retângulo do QR code, outra sobre o texto do
+  endereço.
+- **Ajuste (mesma data):** o parágrafo explicativo sobre o papel da playlist foi removido a pedido do
+  autor. A página fica só com o título, o QR code e o endereço clicável.
+
+**Armadilha registrada:** escrever `\[0.7cm]` em vez de `\\[0.7cm]` depois de uma caixa de imagem
+abre **modo matemático de exibição** e o TeX acusa `Missing $ inserted` / `Display math should end
+with $$` a várias linhas de distância, com a mensagem apontando para o `\end{center}`. A causa real
+fica na linha da quebra.
+

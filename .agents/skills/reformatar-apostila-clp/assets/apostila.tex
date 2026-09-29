@@ -77,6 +77,8 @@
 \newcommand{\obraRevisao}{Rev. 06}
 \newcommand{\obraData}{Setembro de 2026}
 \newcommand{\obraCidade}{Campos dos Goytacazes -- RJ}
+% Material didático auxiliar: playlist de vídeos dos capítulos (qrcode/videos.txt).
+\newcommand{\obraPlaylistURL}{https://www.youtube.com/playlist?list=PLUTnDfgcycd8}
 
 \hypersetup{pdftitle={\obraTitulo\ -- \obraRevisao}}
 
@@ -147,6 +149,31 @@
   \par\smallskip{\centering\footnotesize\itshape Fonte: #1\par}}
 
 % ============================================================================
+%  Fichas de instrução do legado (Apêndice B)
+%  \figlegado{rótulo}{arquivo}{largura}{legenda}                  -> uma imagem
+%  \figlegadopar{rótulo}{arq1}{arq2}{largura}{legenda}            -> duas imagens
+%  O crédito da fonte entra automaticamente.
+% ============================================================================
+\newcommand{\fontelegado}{TAVARES, L. O.; MONTEIRO, N. N. \emph{Controladores Lógicos
+Programáveis --- apostila final (teórica e prática)}, Rev.~05D, 2021, item 8.2.}
+\newcommand{\figlegado}[4]{%
+  \begin{figure}[H]%
+    \centering
+    \includegraphics[width=#3]{#2}%
+    \caption{#4}%
+    \label{fig:leg-#1}%
+  \end{figure}%
+  \fontefig{\fontelegado}}
+\newcommand{\figlegadopar}[5]{%
+  \begin{figure}[H]%
+    \centering
+    \includegraphics[width=#4]{#2}\hfill\includegraphics[width=#4]{#3}%
+    \caption{#5}%
+    \label{fig:leg-#1}%
+  \end{figure}%
+  \fontefig{\fontelegado}}
+
+% ============================================================================
 %  Capítulos: arquivo ausente gera aviso, não erro
 %  (grepar "SKILL-apostila" no log mostra o que ainda falta escrever)
 % ============================================================================
@@ -209,6 +236,31 @@
     \obraData
   \end{minipage}
 \end{flushright}
+\vfill
+\clearpage
+
+% --- Material didático auxiliar: playlist de vídeos (QR code + link clicáveis) ---
+% Requer figuras/playlist-CLP.png (o QR code da playlist).
+\thispagestyle{empty}
+\pdfbookmark[0]{Material didático auxiliar --- vídeos}{videos}
+\vspace*{1.2cm}
+\begin{center}
+  {\Large\bfseries\color{iffazul} Material didático auxiliar\par}
+  \vspace{0.3cm}
+  {\large Playlist de vídeos --- \obraTitulo\par}
+\end{center}
+\vspace{0.8cm}
+\begin{center}
+  % O QR code é a própria âncora: clicar na imagem abre a playlist.
+  \href{\obraPlaylistURL}{%
+    \includegraphics[width=0.34\textwidth]{playlist-CLP.png}}\\[0.7cm]
+  {\small Aponte a câmera do celular para o código, ou toque no endereço
+   para abrir a playlist no navegador:\par}
+  \vspace{0.35cm}
+  {\large\url{\obraPlaylistURL}\par}
+  \vspace{0.35cm}
+  {\footnotesize\itshape (o código e o endereço acima são clicáveis no PDF)\par}
+\end{center}
 \vfill
 \clearpage
 

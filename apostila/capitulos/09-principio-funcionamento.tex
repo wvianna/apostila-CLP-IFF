@@ -31,14 +31,19 @@ varredura descrito na seção seguinte, repetido enquanto o controlador estiver 
 \section{O ciclo de varredura}
 
 O controlador funciona como um microcomputador dedicado, executando continuamente ciclos de varredura.
-O ciclo se divide em três etapas:
+A Figura~\ref{fig:ciclo-varredura} mostra o ciclo completo sobre a memória imagem: a entrada é lida
+do campo para a imagem das entradas, o programa é resolvido sobre essa imagem e o resultado é escrito
+na imagem das saídas, de onde segue para os cartões de saída. O ciclo se divide em três etapas:
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.86\linewidth]{09-ciclo-varredura.pdf}
-  \caption{As três etapas do ciclo de varredura e a supervisão de tempo.}
+  \includegraphics[width=\linewidth]{leg-rev05d-f28-ciclo-operacao.png}
+  \caption{Ciclo de operação do CLP: leitura das entradas para a memória imagem, execução do
+  programa e escrita das saídas, com o resultado da linha de Ladder gravado na tabela de dados.}
   \label{fig:ciclo-varredura}
 \end{figure}
+\fontefig{TAVARES, L. O.; MONTEIRO, N. N. \emph{Controladores Lógicos Programáveis --- apostila
+final (teórica e prática)}, Rev.~05D, 2021, figura~28.}
 
 \begin{enumerate}
   \item \textbf{Entrada} --- os dados dos sensores e transdutores são lidos e armazenados na
@@ -168,7 +173,7 @@ de forma perigosa.
 
 \section{Estados de operação}
 
-A UCP pode assumir um estado de erro e dois estados de programação:
+A UCP pode assumir um estado de erro e dois estados de programação: A Figura~\ref{fig:estados} reúne os estados e as transições entre eles.
 
 \begin{figure}[H]
   \centering

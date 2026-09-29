@@ -150,6 +150,16 @@ Cada lote termina compilando (`scripts/build.sh`), sem erro de TeX, com figuras 
 
 Trilha paralela, ao longo de todos os lotes: recuperação/redesenho das 97 figuras.
 
+7. **Lote 7 — recuperação de figuras e tabela das fontes (2026-09-24).** A pedido do autor, dez
+   figuras e uma tabela das duas apostilas de origem foram recuperadas dos PDFs e incluídas na obra:
+   figuras 1, 35, 65 e 68 da `CLP_2023` (capítulos 5, 11 e 17) e figuras 8, 9, 25, 26 e 28 mais a
+   tabela do item 4.5.1 da Rev. 05D (capítulos 7, 8, 9 e 6). Onde já havia figura redesenhada com a
+   mesma função, a da fonte **substituiu** a redesenhada (decisão do autor). As figuras do item 8.2 do
+   legado — 48 recortes, com os respectivos exemplos — entraram no **Apêndice B** como catálogo das
+   instruções. `apostila.pdf` com **226 páginas**, 93 figuras, 0 erro de TeX, 0 referência indefinida,
+   0 `Overfull \vbox` e nenhum `Overfull \hbox` acima de 5 pt. Detalhamento e receita de extração em
+   `status.md` (seção 13) e na skill (`SKILL.md`, etapa 4 e *Armadilhas conhecidas*).
+
 ## 7. Pendências que dependem do autor (gate)
 
 1. **Edição da norma. RESOLVIDA (2026-09-22).** Verificado em fonte pública: 1ª ed. 1993, 2ª ed. 2003,

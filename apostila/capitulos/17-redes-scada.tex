@@ -68,7 +68,18 @@ entre o controlador e a estação de programação ou supervisão.
 Na arquitetura de rede de CLPs, a comunicação com a supervisão costuma ser \emph{mestre-escravo} ou
 por consulta periódica (\emph{polling}): a estação de supervisão pergunta, o controlador responde. É
 um modelo simples e previsível, que funciona bem para supervisão e mal para troca de dados rápida
-entre controladores.
+entre controladores. A Figura~\ref{fig:arq-rede-clps} mostra essa arquitetura: o supervisório
+atende a rede por uma interface, e cada controlador mantém seus módulos de E/S locais, ligados aos
+instrumentos do trecho de processo que ele comanda.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.90\linewidth]{leg-clp2023-f68-rede-clps.png}
+  \caption{Arquitetura de rede de CLPs: módulos de E/S montados localmente, comunicação dos
+  controladores com o sistema de supervisão pelo tipo mestre-escravo ou \emph{polling}.}
+  \label{fig:arq-rede-clps}
+\end{figure}
+\fontefig{VIANNA, W. S. \emph{Controlador Lógico Programável}. IFF, 2023, figura~68.}
 
 \begin{atencao}
 Na arquitetura de I/O remoto, a maior parte dos sinais deixou de passar pelo painel --- mas passou a
@@ -159,15 +170,19 @@ Duas conclusões práticas saem da Tabela~\ref{tab:protocolos}:
 
 O sistema SCADA (\emph{Supervisory Control and Data Acquisition}) é a camada que transforma o
 conjunto de controladores da planta em uma operação visível e comandável a partir da sala de
-controle. Ele reúne cinco funções, sempre as mesmas, qualquer que seja o produto, e a
-Figura~\ref{fig:arq-scada} mostra como elas se encaixam:
+controle. Ele reúne cinco funções, sempre as mesmas, qualquer que seja o produto. Antes de
+detalhá-las, a Figura~\ref{fig:arq-scada} fixa o esquema básico: de um lado o processo, do outro a
+estação de supervisão, e entre os dois o equipamento de controle e a via de comunicação que os
+interliga.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.98\linewidth]{17-arquitetura-scada.pdf}
-  \caption{Componentes de um sistema SCADA e o caminho do dado entre campo e nível gerencial.}
+  \includegraphics[width=0.92\linewidth]{leg-clp2023-f65-scada.png}
+  \caption{Esquema básico de um sistema SCADA com uso de CLP: o processo, o equipamento de
+  controle e a estação de supervisão com o \emph{driver} de comunicação.}
   \label{fig:arq-scada}
 \end{figure}
+\fontefig{VIANNA, W. S. \emph{Controlador Lógico Programável}. IFF, 2023, figura~65.}
 
 \begin{enumerate}
   \item \textbf{servidor de dados e \emph{driver} de comunicação} --- é quem fala com os

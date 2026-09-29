@@ -36,6 +36,7 @@ show_errors()  { grep -nE "$ERROR_RE" "$1" 2>/dev/null | head -15 | cut -c1-140 
 missing=0
 while IFS= read -r img; do
   [ -z "$img" ] && continue
+  case "$img" in \#*) continue ;; esac   # argumento de macro (\figlegado etc.), nao e arquivo
   if [ -f "$img" ] || [ -f "figuras/$(basename "$img")" ]; then
     continue
   fi

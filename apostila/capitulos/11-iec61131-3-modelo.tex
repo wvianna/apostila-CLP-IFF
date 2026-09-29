@@ -18,14 +18,18 @@ Ao final deste capítulo você deve ser capaz de:
 
 A norma não padroniza apenas a forma das linguagens: padroniza também como o software se organiza.
 Essa organização é hierárquica e é o que permite que um programa grande seja dividido em partes
-gerenciáveis.
+gerenciáveis. A Figura~\ref{fig:modelo-software} apresenta o modelo completo, do topo da hierarquia
+até os blocos funcionais.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.80\linewidth]{11-modelo-software.pdf}
-  \caption{Modelo de software da norma: configuração, recursos, tarefas e POUs.}
+  \includegraphics[width=\linewidth]{leg-clp2023-f35-modelo-software.png}
+  \caption{Modelo de software proposto pela IEC 61131-3: a configuração reúne recursos; cada
+  recurso executa tarefas, e cada tarefa executa programas, que por sua vez usam blocos funcionais
+  (FB).}
   \label{fig:modelo-software}
 \end{figure}
+\fontefig{VIANNA, W. S. \emph{Controlador Lógico Programável}. IFF, 2023, figura~35.}
 
 \paragraph{Configuração.} Corresponde ao software necessário a um controlador ou a um conjunto de
 controladores para cumprir suas funções. Define os elementos que interagem entre si, com suas

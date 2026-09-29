@@ -134,30 +134,53 @@ $128\text{M}\times32$ tem $128$ milhões de palavras e $4$ bilhões de bits. A f
 \section{Tipos de dados da norma}
 
 Os tipos de dados especificam o valor que cada variável pode assumir e como esse valor é organizado
-na memória. Os tipos elementares definidos pela IEC 61131-3 são apresentados na
-Tabela~\ref{tab:tipos-dados}.
+na memória. A Tabela~\ref{tab:tipos-dados} reproduz a tabela de tipos de dados do item 4.5.1 do
+material de origem, com duas correções: o tipo \texttt{REAL} é de precisão \emph{simples} (32 bits),
+e a faixa do \texttt{DINT} termina em $2.147.483.647$, e não em $2.147.483.648$.
 
 \begin{table}[H]
   \centering
-  \caption{Tipos de dados elementares e faixas de valor.}
+  \caption{Tipos de dados do item 4.5.1 do material de origem, com a faixa expressa em potências de
+dois e o valor decimal correspondente.}
   \label{tab:tipos-dados}
-  \begin{tabular}{l p{4.6cm} r p{4.4cm}}
+  \begin{tabular}{p{2.5cm} p{4.7cm} r p{3.9cm}}
     \toprule
-    Tipo & Significado & Bits & Faixa de valor \\
+    Tipo de dado & Descrição & Bits & Faixa de valor \\
     \midrule
-    BOOL   & Booleano: falso ou verdadeiro, 0 ou 1 & 1  & 0 ou 1 \\
-    SINT   & \emph{Short integer}, inteiro curto com sinal & 8  & $-128$ a $127$ \\
-    INT    & \emph{Integer}, inteiro com sinal & 16 & $-32.768$ a $32.767$ \\
-    DINT   & \emph{Double integer}, inteiro duplo com sinal & 32 & $-2.147.483.648$ a $2.147.483.647$ \\
-    USINT, BYTE & Inteiro curto sem sinal & 8 & $0$ a $255$ \\
-    UINT, WORD  & Inteiro sem sinal & 16 & $0$ a $65.535$ \\
-    UDINT, DWORD & Inteiro duplo sem sinal & 32 & $0$ a $4.294.967.295$ \\
-    REAL   & Real em ponto flutuante, precisão simples & 32 & $\pm1,18\times10^{-38}$ a $\pm3,40\times10^{38}$ (7 dígitos) \\
-    LREAL  & Real em ponto flutuante, precisão dupla & 64 & $\pm2,23\times10^{-308}$ a $\pm1,80\times10^{308}$ (15 dígitos) \\
-    TIME   & Duração, em milissegundos & 32 & $0$ a $4.294.967.295$\,ms \\
+    BOOL
+      & Booleano: falso ou verdadeiro, 0 ou 1 & 1 & $0$ ou $1$ \\
+    SINT
+      & \emph{Short integer}, números inteiros curtos & 8
+      & $-(2^{7})$ a $(2^{7}-1)$: $-128$ a $127$ \\
+    INT
+      & \emph{Integer}, números inteiros & 16
+      & $-(2^{15})$ a $(2^{15}-1)$: $-32.768$ a $32.767$ \\
+    DINT
+      & \emph{Double integer}, números inteiros duplos & 32
+      & $-(2^{31})$ a $(2^{31}-1)$: $-2.147.483.648$ a $2.147.483.647$ \\
+    USINT, BYTE
+      & \emph{Unsigned short integer}, inteiros curtos sem sinal & 8
+      & $0$ a $(2^{8}-1)$: $0$ a $255$ \\
+    UINT, WORD
+      & \emph{Unsigned integer}, inteiros sem sinal & 16
+      & $0$ a $(2^{16}-1)$: $0$ a $65.535$ \\
+    UDINT, DWORD
+      & \emph{Unsigned double integer}, inteiros duplos sem sinal & 32
+      & $0$ a $(2^{32}-1)$: $0$ a $4.294.967.295$ \\
+    REAL, FLOAT
+      & \emph{Real}, números reais de precisão simples & 32
+      & conforme a IEEE~754-2019: 7 dígitos decimais \\
+    LREAL, LFLOAT
+      & \emph{Long real}, números reais de precisão dupla & 64
+      & conforme a IEEE~754-2019: 15 dígitos decimais \\
+    TIME
+      & Duração (em milissegundos) & 32
+      & $0$ a $(2^{32}-1)$: $0$ a $4.294.967.295$\,ms \\
     \bottomrule
   \end{tabular}
 \end{table}
+\fontefig{Tabela do item 4.5.1 de TAVARES, L. O.; MONTEIRO, N. N. \emph{Controladores Lógicos
+Programáveis --- apostila final (teórica e prática)}, Rev.~05D, 2021.}
 
 Note a diferença entre \emph{com sinal} e \emph{sem sinal}: o tipo com sinal usa o bit mais
 significativo para representar o sinal, e por isso tem metade da faixa positiva, ganhando a mesma
@@ -487,7 +510,7 @@ diante.
 
 As memórias de um controlador não têm todas a mesma função. A memória de \emph{programa} guarda um
 conteúdo fixo, e a memória de \emph{dados} guarda o que varia durante a execução. Na prática, o mapa
-de memória se divide em seis áreas:
+de memória se divide em seis áreas: A Figura~\ref{fig:mapa-memoria} organiza essas áreas no conjunto.
 
 \begin{figure}[H]
   \centering

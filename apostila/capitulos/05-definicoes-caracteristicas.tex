@@ -98,14 +98,18 @@ produtos. Os casos mais frequentes são:
 Um CLP é um sistema microprocessado, mais simples que um computador de uso geral, porém projetado
 para operar em condições severas. Seus blocos essenciais são a unidade central de processamento
 (UCP), as interfaces de entrada e saída e as memórias, todos apoiados por uma fonte de alimentação
-tratada e por um barramento interno.
+tratada e por um barramento interno. A Figura~\ref{fig:arquitetura-clp} reúne esses blocos e mostra
+como eles se ligam.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\linewidth]{05-arquitetura-clp.pdf}
-  \caption{Blocos básicos de um CLP e o caminho do sinal, do campo ao atuador.}
+  \includegraphics[width=0.92\linewidth]{leg-clp2023-f01-estrutura-basica.png}
+  \caption{Diagrama em blocos com os componentes básicos de um CLP: terminal de programação,
+  fonte de alimentação, microprocessador, memória, interface de E/S e cartões de entrada e saída,
+  ligados pelos barramentos.}
   \label{fig:arquitetura-clp}
 \end{figure}
+\fontefig{VIANNA, W. S. \emph{Controlador Lógico Programável}. IFF, 2023, figura~1.}
 
 O \textbf{microprocessador} é a inteligência do sistema: obtém os dados dos cartões de entrada, os
 processa conforme o programa do usuário e escreve o resultado nos cartões de saída. Um único
